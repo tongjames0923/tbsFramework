@@ -12,17 +12,8 @@ public class LogUtil {
     @Resource(name = BeanNameConstant.BUILTIN_LOGGER)
     private ILogProvider logProvider;
 
-    private static LogUtil instance = null;
-
-    public LogUtil() {
-        instance = this;
-    }
-
-    public static ILogger getLogger(String name) {
-        if (instance == null) {
-            throw new IllegalStateException("LogUtil has not been initialized");
-        }
-        return instance.logProvider.getLogger(name);
+    public ILogger getLogger(String name) {
+        return logProvider.getLogger(name);
     }
 
 }
