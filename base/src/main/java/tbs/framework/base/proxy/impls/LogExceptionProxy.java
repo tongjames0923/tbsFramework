@@ -1,9 +1,9 @@
 package tbs.framework.base.proxy.impls;
 
-import cn.hutool.core.lang.UUID;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.utils.LogUtil;
+import tbs.framework.base.utils.UuidUtils;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -18,7 +18,7 @@ public class LogExceptionProxy implements IProxy {
 
     @Override
     public <R, P> Optional<R> proxy(Function<P, R> function, P param) {
-        String uuid = UUID.randomUUID().toString();
+        String uuid = UuidUtils.getUuid();
         logger.info("Proxying [" + uuid + "]");
         Optional<R> result = Optional.empty();
         try {

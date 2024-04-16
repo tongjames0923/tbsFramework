@@ -4,9 +4,9 @@ import tbs.framework.base.lock.ILock;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.utils.LogUtil;
+import tbs.framework.base.utils.UuidUtils;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 
 public class LockProxy implements IProxy {
@@ -25,7 +25,7 @@ public class LockProxy implements IProxy {
     @Override
     public <R, P> Optional<R> proxy(Function<P, R> function, P param) {
         Optional<R> result = Optional.empty();
-        String s = UUID.randomUUID().toString();
+        String s = UuidUtils.getUuid();
         logger.info(String.format("Locking proxied %s", s));
         lock.lock();
         try {
