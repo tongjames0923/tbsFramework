@@ -26,13 +26,13 @@ public class JDKLock implements ILock {
 
     @Override
     public void lock() {
-        logger.info(String.format("Lock acquired"));
+        logger.info("Lock acquired");
         l.lock();
     }
 
     @Override
     public void unlock() {
-        logger.info(String.format("Unlock acquired"));
+        logger.info("Unlock acquired");
         l.unlock();
     }
 
