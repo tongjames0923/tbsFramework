@@ -2,13 +2,10 @@ package tbs.framework.xxl.interfaces.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.xxl.job.core.context.XxlJobHelper;
-import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import com.xxl.job.core.handler.annotation.XxlJob;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
+import tbs.framework.base.log.ILogger;
+import tbs.framework.base.utils.LogUtil;
 import tbs.framework.xxl.interfaces.IJsonJobHandler;
 import tbs.framework.xxl.model.ExecuteInfo;
 
@@ -17,17 +14,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-@Component("DefaultXxlJobExecutor")
-@ConditionalOnBean(XxlJobSpringExecutor.class)
-@AutoConfigureAfter(IJsonJobHandler.class)
-@Slf4j
+
 public class DefaultXxlJobExecutor {
+
+    private static ILogger log = null;
+
+
 
     Map<String, IJsonJobHandler> jsonJobHandlerMap = new HashMap<>();
 
-    public DefaultXxlJobExecutor(ApplicationContext applicationContext) {
+    public DefaultXxlJobExecutor(ApplicationContext applicationContext, LogUtil logUtil) {
         jsonJobHandlerMap = applicationContext.getBeansOfType(IJsonJobHandler.class);
-
+        if (log == null) {
+            log = logUtil.getLogger(DefaultXxlJobExecutor.class.getName());
+        }
     }
 
     @XxlJob("jsonJobHandler")
@@ -46,7 +46,7 @@ public class DefaultXxlJobExecutor {
             }
 
         } catch (Exception e) {
-            log.error("xxl-job error", e);
+            log.error(e, "xxl-job error");
             XxlJobHelper.handleFail("error:" + e.getMessage());
         }
     }

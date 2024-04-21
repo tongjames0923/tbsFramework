@@ -9,6 +9,7 @@
         <version>2.7.14</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+    <groupId>tbs.framework</groupId>
     <artifactId>xxlJob</artifactId>
     <version>1.0-SNAPSHOT</version>
 
