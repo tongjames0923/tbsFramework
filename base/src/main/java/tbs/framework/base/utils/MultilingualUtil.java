@@ -74,6 +74,5 @@ public class MultilingualUtil {
             log.error(e, e.getMessage());
         }
         return data;
-
     }
 }
