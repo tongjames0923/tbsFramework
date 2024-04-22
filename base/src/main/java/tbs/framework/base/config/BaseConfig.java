@@ -21,7 +21,6 @@ import tbs.framework.base.utils.LogUtil;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 
-@EnableSpringUtil
 @Order(0)
 public class BaseConfig {
 

@@ -1,5 +1,6 @@
 package tbs.framework.base.annotations;
 
+import cn.hutool.extra.spring.EnableSpringUtil;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 import tbs.framework.base.config.BaseConfig;
@@ -11,6 +12,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+@EnableSpringUtil
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @EnableConfigurationProperties({BaseProperty.class, LockProperty.class, ExecutorProperty.class})

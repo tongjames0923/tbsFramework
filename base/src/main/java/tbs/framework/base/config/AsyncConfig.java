@@ -16,8 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@EnableAsync
-@EnableScheduling
+
 public class AsyncConfig {
     @Resource
     ExecutorProperty executorProperty;
