@@ -1,7 +1,9 @@
 package tbs.framework.base.config;
 
 import cn.hutool.core.thread.ThreadFactoryBuilder;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import tbs.framework.base.constants.BeanNameConstant;
@@ -16,18 +18,20 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-
+/**
+ * @author Abstergo
+ */
+@AutoConfigureAfter(BaseConfig.class)
 public class AsyncConfig {
     @Resource
     ExecutorProperty executorProperty;
 
     private ILogger logger;
 
-    AsyncConfig(LogUtil util) {
+    public AsyncConfig(LogUtil util) {
         logger = util.getLogger(AsyncConfig.class.getName());
         logger.info("Async config initialized");
     }
-
 
     @Bean(name = BeanNameConstant.ASYNC_EXECUTOR)
     public ExecutorService asyncExecutor()

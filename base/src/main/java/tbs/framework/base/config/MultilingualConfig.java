@@ -1,6 +1,7 @@
 package tbs.framework.base.config;
 
 import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -26,6 +27,7 @@ import java.util.Locale;
 /**
  * @author abstergo
  */
+@AutoConfigureAfter(BaseConfig.class)
 public class MultilingualConfig implements WebMvcConfigurer {
     private static ILogger log;
 

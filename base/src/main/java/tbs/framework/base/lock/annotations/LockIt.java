@@ -11,7 +11,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-
 public @interface LockIt {
     /**
      * 锁代理的实例名称 spring管理的beanName
