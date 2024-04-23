@@ -1,8 +1,8 @@
-package tbs.framework.base.multilingaul.impls;
+package tbs.framework.multilingual.impls;
 
 import org.springframework.context.MessageSource;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.base.multilingaul.ILocal;
+import tbs.framework.multilingual.ILocal;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.base.utils.MultilingualUtil;
 

@@ -3,9 +3,9 @@ package tbs.framework.base.utils;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import tbs.framework.base.annotations.multilingual.TranslateField;
+import tbs.framework.multilingual.annotations.TranslateField;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.base.multilingaul.ILocal;
+import tbs.framework.multilingual.ILocal;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;

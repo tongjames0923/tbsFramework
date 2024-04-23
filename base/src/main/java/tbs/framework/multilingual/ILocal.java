@@ -1,4 +1,4 @@
-package tbs.framework.base.multilingaul;
+package tbs.framework.multilingual;
 
 import java.util.Locale;
 

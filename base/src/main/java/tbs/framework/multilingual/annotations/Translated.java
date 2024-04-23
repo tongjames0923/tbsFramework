@@ -1,4 +1,4 @@
-package tbs.framework.base.annotations.multilingual;
+package tbs.framework.multilingual.annotations;
 
 import java.lang.annotation.*;
 

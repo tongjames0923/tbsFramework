@@ -1,4 +1,4 @@
-package tbs.framework.base.multilingaul.aspects;
+package tbs.framework.multilingual.aspects;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 
 @Aspect
 public class MultilingualAspect {
-    @Pointcut("@annotation(tbs.framework.base.annotations.multilingual.Translated)")
+    @Pointcut("@annotation(tbs.framework.multilingual.annotations.Translated)")
     public void multilingualAspect() {
     }
 

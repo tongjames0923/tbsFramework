@@ -1,7 +1,7 @@
-package tbs.framework.base.annotations.multilingual;
+package tbs.framework.multilingual.annotations;
 
-import tbs.framework.base.multilingaul.ILocal;
-import tbs.framework.base.multilingaul.impls.LocalStringTranslateImpl;
+import tbs.framework.multilingual.ILocal;
+import tbs.framework.multilingual.impls.LocalStringTranslateImpl;
 
 import java.lang.annotation.*;
 

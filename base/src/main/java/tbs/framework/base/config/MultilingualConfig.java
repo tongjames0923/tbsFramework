@@ -10,9 +10,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.base.multilingaul.ILocal;
-import tbs.framework.base.multilingaul.aspects.MultilingualAspect;
-import tbs.framework.base.multilingaul.impls.LocalStringTranslateImpl;
+import tbs.framework.multilingual.ILocal;
+import tbs.framework.multilingual.aspects.MultilingualAspect;
+import tbs.framework.multilingual.impls.LocalStringTranslateImpl;
 import tbs.framework.base.properties.LocalProperty;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.base.utils.MultilingualUtil;
@@ -23,6 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * @author abstergo
+ */
 public class MultilingualConfig implements WebMvcConfigurer {
     private static ILogger log;
 
@@ -74,7 +77,6 @@ public class MultilingualConfig implements WebMvcConfigurer {
                     @Override
                     public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
                         LocaleContextHolder.setLocale(locale);
-                        //                        request.getParameterMap().put(localProperty.getValue(), new String[] {locale.getLanguage()});
                     }
                 };
             case Cookie:
