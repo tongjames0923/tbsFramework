@@ -36,7 +36,6 @@ public abstract class AbstractTimer {
         if (!before(session, callback, delay, timeUnit)) {
             return;
         }
-        LocalDateTime now = null;
         try {
             protectedScheduled(session, callback, delay, timeUnit);
         } catch (Exception e) {
