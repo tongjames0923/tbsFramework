@@ -1,5 +1,6 @@
 package tbs.framework.base.proxy.impls;
 
+import tbs.framework.base.intefaces.FunctionWithThrows;
 import tbs.framework.base.lock.ILock;
 import tbs.framework.base.lock.expections.ObtainLockFailException;
 import tbs.framework.base.log.ILogger;
@@ -9,7 +10,6 @@ import tbs.framework.base.utils.UuidUtils;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public class LockProxy implements IProxy {
 
@@ -30,30 +30,30 @@ public class LockProxy implements IProxy {
     }
 
     @Override
-    public <R, P> Optional<R> safeProxy(Function<P, R> function, P param) {
+    public <R, P> Optional<R> safeProxy(FunctionWithThrows<P, R, Throwable> function, P param) {
         try {
             return proxy(function, param);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error(e, e.getMessage());
         }
         return Optional.empty();
     }
 
     @Override
-    public <R, P> Optional<R> proxy(Function<P, R> function, P param) throws ObtainLockFailException {
+    public <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable {
         Optional<R> result = Optional.empty();
         String s = UuidUtils.getUuid();
         logger.info(String.format("Locking proxied %s", s));
+        boolean isLocked = false;
         try {
-            if (lock.tryLock(lockTimeOut, lockTimeUnit)) {
+            isLocked = lock.tryLock(lockTimeOut, lockTimeUnit);
+            if (isLocked) {
                 result = Optional.ofNullable(function.apply(param));
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }
-        } catch (ObtainLockFailException failException) {
-            throw failException;
-        } catch (Exception e) {
-            logger.error(e, String.format("Lock Error proxied %s: %s", s, e.getMessage()));
+        } catch (Throwable throwable) {
+            throw throwable;
         } finally {
             lock.unlock();
         }

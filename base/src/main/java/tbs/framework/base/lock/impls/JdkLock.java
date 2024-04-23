@@ -5,6 +5,7 @@ import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -15,6 +16,8 @@ public class JdkLock implements ILock {
     private final ILogger logger;
     Lock l;
 
+    private AtomicBoolean isLocked = new AtomicBoolean(false);
+
     public JdkLock(Lock lock, LogUtil util) {
         l = lock;
         logger = util.getLogger(JdkLock.class.getName());
@@ -23,20 +26,32 @@ public class JdkLock implements ILock {
 
     @Override
     public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-        logger.info(String.format("Trying to acquire lock %s", time));
-        return l.tryLock(time, unit);
+        logger.info(String.format("Trying to acquire lock %s %s", time, unit.toString()));
+        boolean set = l.tryLock(time, unit);
+        isLocked.set(set);
+        return set;
+    }
+
+    @Override
+    public boolean isLocked() {
+        return isLocked.get();
     }
 
     @Override
     public void lock() {
-        logger.info("Lock acquired");
         l.lock();
+        isLocked.set(true);
+        logger.info("Lock acquired");
     }
 
     @Override
     public void unlock() {
-        logger.info("Unlock acquired");
-        l.unlock();
+        if (isLocked.get()) {
+            l.unlock();
+            logger.info("Unlocked");
+        } else {
+            logger.warn("locker already unlocked");
+        }
     }
 
 }

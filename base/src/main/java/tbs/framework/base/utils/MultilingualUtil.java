@@ -54,8 +54,9 @@ public class MultilingualUtil {
             for (Field field : data.getClass().getDeclaredFields()) {
                 try {
                     TranslateField tranlateField = field.getDeclaredAnnotation(TranslateField.class);
-                    if (tranlateField == null)
+                    if (tranlateField == null) {
                         continue;
+                    }
                     ILocal ilocal = SpringUtil.getBean(tranlateField.value());
                     if (ilocal == null) {
                         throw new ClassNotFoundException("不存在的翻译执行器");

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.lock.ILock;
+import tbs.framework.base.lock.aspects.LockAspect;
 import tbs.framework.base.lock.impls.JdkLock;
 import tbs.framework.base.log.ILogProvider;
 import tbs.framework.base.log.impls.Slf4jLoggerProvider;
@@ -56,9 +57,14 @@ public class BaseConfig {
         return new JdkLock(lockProperty.getLockImpl().getConstructor().newInstance(), util);
     }
 
-    @Bean
+    @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     @ConditionalOnMissingBean(LockProxy.class)
     public LockProxy lockProxy(ILock lock, LogUtil util) {
         return new LockProxy(lock, util, lockProperty.getLockTimeout(), lockProperty.getLockTimeUnit());
+    }
+
+    @Bean
+    LockAspect lockAspect() {
+        return new LockAspect();
     }
 }

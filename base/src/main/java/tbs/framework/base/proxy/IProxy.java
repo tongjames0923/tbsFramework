@@ -1,7 +1,8 @@
 package tbs.framework.base.proxy;
 
+import tbs.framework.base.intefaces.FunctionWithThrows;
+
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * 代理处理接口
@@ -19,7 +20,7 @@ public interface IProxy {
      * @return 代理后的结果
      * @throws Exception 异常
      */
-    <R, P> Optional<R> proxy(Function<P, R> function, P param) throws Exception;
+    <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable;
 
     /**
      * 安全代理，将异常内部处理
@@ -30,10 +31,10 @@ public interface IProxy {
      * @param <P>
      * @return
      */
-    default <R, P> Optional<R> safeProxy(Function<P, R> function, P param) {
+    default <R, P> Optional<R> safeProxy(FunctionWithThrows<P, R, Throwable> function, P param) {
         try {
             return proxy(function, param);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             return Optional.empty();
         }
