@@ -20,9 +20,6 @@ import tbs.framework.base.utils.LogUtil;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 
-/**
- * @author Abstergo
- */
 @Order(0)
 public class BaseConfig {
 

@@ -18,7 +18,7 @@ public interface IProxy {
      * @param <R>      返回值
      * @param <P>      参数
      * @return 代理后的结果
-     * @throws Exception 异常
+     * @throws Throwable 异常
      */
     <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable;
 

@@ -11,14 +11,17 @@ import tbs.framework.base.utils.UuidUtils;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author abstergo
+ */
 public class LockProxy implements IProxy {
 
 
     private static ILogger logger;
-    private ILock lock;
+    private final ILock lock;
 
-    private long lockTimeOut;
-    private TimeUnit lockTimeUnit;
+    private final long lockTimeOut;
+    private final TimeUnit lockTimeUnit;
 
     public LockProxy(ILock lock, LogUtil util, long lockTimeOut, TimeUnit lockTimeUnit) {
         this.lock = lock;
@@ -52,8 +55,6 @@ public class LockProxy implements IProxy {
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }
-        } catch (Throwable throwable) {
-            throw throwable;
         } finally {
             lock.unlock();
         }
