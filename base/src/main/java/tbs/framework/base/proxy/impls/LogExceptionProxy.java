@@ -29,4 +29,9 @@ public class LogExceptionProxy implements IProxy {
         }
         return result;
     }
+
+    @Override
+    public <R, P> Optional<R> safeProxy(Function<P, R> function, P param) {
+        return proxy(function, param);
+    }
 }

@@ -7,14 +7,17 @@ import tbs.framework.base.utils.LogUtil;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
-public class JDKLock implements ILock {
+/**
+ * @author abstergo
+ */
+public class JdkLock implements ILock {
 
     private final ILogger logger;
     Lock l;
 
-    public JDKLock(Lock lock, LogUtil util) {
+    public JdkLock(Lock lock, LogUtil util) {
         l = lock;
-        logger = util.getLogger(JDKLock.class.getName());
+        logger = util.getLogger(JdkLock.class.getName());
     }
 
 

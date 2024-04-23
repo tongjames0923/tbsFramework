@@ -1,14 +1,12 @@
 package tbs.framework.base.config;
 
-
-import cn.hutool.extra.spring.EnableSpringUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.lock.ILock;
-import tbs.framework.base.lock.impls.JDKLock;
+import tbs.framework.base.lock.impls.JdkLock;
 import tbs.framework.base.log.ILogProvider;
 import tbs.framework.base.log.impls.Slf4jLoggerProvider;
 import tbs.framework.base.properties.BaseProperty;
@@ -55,12 +53,12 @@ public class BaseConfig {
     @Bean(BeanNameConstant.BUILTIN_JDK_LOCK)
     @ConditionalOnMissingBean(ILock.class)
     public ILock builtinJdkLock(LogUtil util) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        return new JDKLock(lockProperty.getJdkLock().getConstructor().newInstance(), util);
+        return new JdkLock(lockProperty.getLockImpl().getConstructor().newInstance(), util);
     }
 
     @Bean
     @ConditionalOnMissingBean(LockProxy.class)
     public LockProxy lockProxy(ILock lock, LogUtil util) {
-        return new LockProxy(lock, util);
+        return new LockProxy(lock, util, lockProperty.getLockTimeout(), lockProperty.getLockTimeUnit());
     }
 }
