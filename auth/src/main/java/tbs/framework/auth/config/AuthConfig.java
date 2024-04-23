@@ -11,12 +11,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import tbs.framework.auth.aspects.ControllerAspect;
 import tbs.framework.auth.config.interceptors.TokenInterceptor;
 import tbs.framework.auth.config.interceptors.UserModelInterceptor;
+import tbs.framework.auth.interfaces.IErrorHandler;
 import tbs.framework.auth.interfaces.IRequestTokenPicker;
+import tbs.framework.auth.interfaces.IRuntimeDataExchanger;
 import tbs.framework.auth.interfaces.IUserModelPicker;
+import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
+import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;
+import tbs.framework.base.utils.LogUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -52,6 +58,23 @@ public class AuthConfig implements WebMvcConfigurer {
         registry.addInterceptor(new UserModelInterceptor(SpringUtil.getBean(IUserModelPicker.class)))
             .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(1);
         WebMvcConfigurer.super.addInterceptors(registry);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(IRuntimeDataExchanger.class)
+    IRuntimeDataExchanger runtimeDataExchanger() {
+        return new CopyRuntimeDataExchanger();
+    }
+
+    @Bean
+    public ControllerAspect controllerAspect(LogUtil logUtil) {
+        return new ControllerAspect(logUtil);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(IErrorHandler.class)
+    IErrorHandler errorHandler(LogUtil logUtil) {
+        return new SimpleLogErrorHandler(logUtil);
     }
 
     @Bean
