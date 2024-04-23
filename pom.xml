@@ -11,6 +11,7 @@
     <modules>
         <module>base</module>
         <module>xxlJob</module>
+        <module>sqlAll</module>
     </modules>
 
     <properties>
