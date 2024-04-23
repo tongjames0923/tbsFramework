@@ -1,0 +1,1 @@
+1713865880447|6|statement|connection 0|url jdbc:p6spy:mysql://192.168.50.197:3306/easy_home_money?serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true|SELECT id,create_time,delete_flag,home_name,modify_time  FROM easy_home_money.home|SELECT id,create_time,delete_flag,home_name,modify_time  FROM easy_home_money.home

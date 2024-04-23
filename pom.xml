@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>base</module>
+        <module>xxlJob</module>
     </modules>
 
     <properties>
@@ -23,6 +24,11 @@
             <groupId>tbs.framework</groupId>
             <artifactId>base</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>tbs.framework.sql</groupId>
+            <artifactId>sqlAll</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>tbs.framework</groupId>
