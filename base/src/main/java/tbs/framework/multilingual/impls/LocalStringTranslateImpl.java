@@ -1,20 +1,16 @@
 package tbs.framework.multilingual.impls;
 
-import org.springframework.context.MessageSource;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.multilingual.ILocal;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.base.utils.MultilingualUtil;
+import tbs.framework.multilingual.ILocal;
+import tbs.framework.multilingual.ITranslationParameters;
 
-import javax.annotation.Resource;
 import java.util.Locale;
 
 public class LocalStringTranslateImpl implements ILocal {
 
     private final ILogger log;
-
-    @Resource
-    MessageSource messageSource;
 
     private final MultilingualUtil multilingualUtil;
 
@@ -24,8 +20,9 @@ public class LocalStringTranslateImpl implements ILocal {
     }
 
     @Override
-    public Object translate(Object value, String remark, Locale lang) {
-        return multilingualUtil.translate(value, remark, lang);
+    public Object translate(Object value, ITranslationParameters parameters, Locale lang) {
+        return multilingualUtil.translate(value,
+            parameters == null ? new Object[] {} : parameters.getParameters(value.toString(), lang, value), lang);
     }
 
     @Override

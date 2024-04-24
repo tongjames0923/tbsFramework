@@ -10,7 +10,13 @@ public class LocalProperty {
         Cookie, Header, Parameter
     }
 
+    /**
+     * 读取本地化信息的位置
+     */
     private LocalType type = LocalType.Header;
+    /**
+     * 读取本地化信息的key
+     */
     private String value = "lang";
 
 }

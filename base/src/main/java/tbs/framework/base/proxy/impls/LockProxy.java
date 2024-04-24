@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class LockProxy implements IProxy {
 
-
     private static ILogger logger;
     private final ILock lock;
 

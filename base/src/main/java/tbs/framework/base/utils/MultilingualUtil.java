@@ -3,9 +3,9 @@ package tbs.framework.base.utils;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import tbs.framework.multilingual.annotations.TranslateField;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.multilingual.ILocal;
+import tbs.framework.multilingual.annotations.TranslateField;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
@@ -40,9 +40,9 @@ public class MultilingualUtil {
         }
     }
 
-    public Object translate(Object value, String remark, Locale lang) {
+    public Object translate(Object value, Object[] args, Locale lang) {
         try {
-            return messageSource.getMessage(value.toString(), new Object[] {remark}, lang);
+            return messageSource.getMessage(value.toString(), args, lang);
         } catch (Exception e) {
             log.error(e, String.format("local translate fail for %s,msg:%s", value.toString(), e.getMessage()));
             return value;
@@ -65,8 +65,8 @@ public class MultilingualUtil {
                         throw new UnsupportedOperationException("不支持的翻译类型");
                     }
                     field.setAccessible(true);
-                    field.set(data,
-                        ilocal.translate(field.get(data), tranlateField.remark(), LocaleContextHolder.getLocale()));
+                    field.set(data, ilocal.translate(field.get(data), tranlateField.args().newInstance(),
+                        LocaleContextHolder.getLocale()));
                 } catch (Exception e) {
                     log.error(e, String.format("translate fail msg:%s,filed:%s", e.getMessage(), field.getName()));
                 }
