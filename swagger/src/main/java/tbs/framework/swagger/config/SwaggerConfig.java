@@ -13,6 +13,9 @@ import tbs.framework.swagger.properties.SwaggerProperty;
 
 import javax.annotation.Resource;
 
+/**
+ * @author abstergo
+ */
 public class SwaggerConfig {
 
     @Resource

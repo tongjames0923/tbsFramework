@@ -3,24 +3,32 @@ package tbs.framework.auth.interfaces.impls;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import tbs.framework.auth.annotations.PermissionValidated;
+import tbs.framework.auth.interfaces.IPermissionProvider;
 import tbs.framework.auth.interfaces.IPermissionValidator;
 import tbs.framework.auth.interfaces.impls.permissionCheck.NotCustom;
 import tbs.framework.auth.model.PermissionModel;
+import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.model.UserModel;
 
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 public class AnnotationPermissionValidator implements IPermissionValidator {
 
     @Override
-    public List<PermissionModel> pullPermission(String url, Method method) {
+    public Set<PermissionModel> pullPermission(String url, Method method) {
         List<PermissionValidated> permissionValidateds =
             new ArrayList<>(AnnotatedElementUtils.getAllMergedAnnotations(method, PermissionValidated.class));
-        List<PermissionModel> permissions = new ArrayList<>(permissionValidateds.size());
+        Set<PermissionModel> permissions = new HashSet<>(permissionValidateds.size());
         for (PermissionValidated permissionValidated : permissionValidateds) {
+            if (permissionValidated.userPermissionProvider() != NotCustom.class) {
+                IPermissionProvider permissionProvider =
+                    SpringUtil.getBean(permissionValidated.userPermissionProvider());
+                permissions.addAll(
+                    permissionProvider.retrievePermissions(RuntimeData.getInstance().getUserModel(), url, method));
+                continue;
+            }
             PermissionModel permission = new PermissionModel();
             permission.setUrl(url);
             permission.setRole(permissionValidated.value());

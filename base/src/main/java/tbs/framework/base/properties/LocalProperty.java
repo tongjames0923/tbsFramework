@@ -1,5 +1,6 @@
 package tbs.framework.base.properties;
 
+import cn.hutool.http.Header;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -7,7 +8,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 public class LocalProperty {
     public static enum LocalType {
-        Cookie, Header, Parameter
+        /**
+         * 从Cookie获取
+         */
+        Cookie,
+        /**
+         * 从头部信息获取
+         */
+        Header,
+        /**
+         * 从请求参数获取
+         */
+        Parameter
     }
 
     /**
@@ -19,6 +31,9 @@ public class LocalProperty {
      */
     private String value = "lang";
 
+    /**
+     * 本地化路径匹配
+     */
     private String pathPattern = "/*";
 
 }

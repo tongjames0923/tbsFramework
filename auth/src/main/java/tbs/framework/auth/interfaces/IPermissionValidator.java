@@ -4,7 +4,7 @@ import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.UserModel;
 
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Set;
 
 public interface IPermissionValidator {
 
@@ -14,7 +14,7 @@ public interface IPermissionValidator {
      * @param url
      * @return
      */
-    List<PermissionModel> pullPermission(String url, Method method);
+    Set<PermissionModel> pullPermission(String url, Method method);
 
     /**
      * 验证权限

@@ -26,8 +26,8 @@ import tbs.framework.base.utils.LogUtil;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestControllerAdvice
 @Aspect
@@ -85,9 +85,9 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
         return result;
     }
 
-    private void checkPermissions() throws IllegalAccessException {
+    private void checkPermissions() {
         for (Map.Entry<String, IPermissionValidator> entry : permissionValidators.entrySet()) {
-            List<PermissionModel> list =
+            Set<PermissionModel> list =
                 entry.getValue().pullPermission(runtimeData.getInvokeUrl(), runtimeData.getInvokeMethod());
             if (CollUtil.isEmpty(list)) {
                 continue;
@@ -100,7 +100,7 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
                 } else if (validate.hasError()) {
                     throw validate.getError();
                 } else {
-                    throw new IllegalAccessException(validate.getMessage());
+                    throw new RuntimeException(validate.getMessage());
                 }
             }
         }

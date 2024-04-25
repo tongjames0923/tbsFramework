@@ -57,9 +57,9 @@ public class AuthConfig {
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
                 registry.addInterceptor(new TokenInterceptor(requestTokenPicker, util))
-                    .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(0);
+                    .addPathPatterns(authProperty.getAuthPathPattern()).order(0);
                 registry.addInterceptor(new UserModelInterceptor(userModelPicker, util))
-                    .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(1);
+                    .addPathPatterns(authProperty.getAuthPathPattern()).order(1);
                 WebMvcConfigurer.super.addInterceptors(registry);
             }
         };

@@ -4,6 +4,11 @@ import tbs.framework.auth.interfaces.IErrorHandler;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
 
+/**
+ * 基础异常处理
+ *
+ * @author abstergo
+ */
 public class SimpleLogErrorHandler implements IErrorHandler {
 
     private ILogger logger;

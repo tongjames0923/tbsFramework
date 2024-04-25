@@ -20,7 +20,14 @@ public class RuntimeData implements Serializable {
 
     private static final long serialVersionUID = 3944172100933159385L;
 
-    public static final Integer TOKEN_PASS = 1, USER_PASS = 2;
+    /**
+     * 已获取Token
+     */
+    public static final Integer TOKEN_PASS = 1;
+    /**
+     * 已获取用户数据
+     */
+    public static final Integer USER_PASS = 2;
 
     /**
      * 业务运行启动时间

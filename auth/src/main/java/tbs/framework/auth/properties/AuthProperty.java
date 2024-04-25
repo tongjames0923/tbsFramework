@@ -23,9 +23,9 @@ public class AuthProperty {
      */
     private boolean enableCors = true;
     /**
-     * 密钥提取路径
+     * 权限功能生效路径匹配
      */
-    private List<String> tokenPickUrlPatterns;
+    private List<String> authPathPattern;
 
     private boolean enableAnnotationPermissionValidator = true;
 

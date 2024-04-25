@@ -12,6 +12,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
+ * 启动Swagger
  * @author abstergo
  */
 @Retention(RetentionPolicy.RUNTIME)

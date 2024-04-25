@@ -6,6 +6,7 @@ import tbs.framework.auth.interfaces.IRuntimeDataExchanger;
 import tbs.framework.auth.model.RuntimeData;
 
 /**
+ * 简单复制运行时数据
  * @author abstergo
  */
 public class CopyRuntimeDataExchanger<T> implements IRuntimeDataExchanger<T> {
