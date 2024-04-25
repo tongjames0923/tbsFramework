@@ -13,13 +13,8 @@ public class SimpleLogErrorHandler implements IErrorHandler {
     }
 
     @Override
-    public Object handleError(Throwable ex, Class returnType, Object result) {
+    public Object handleError(Throwable ex) {
         logger.error(ex, ex.getMessage());
-        try {
-            result = returnType.getConstructor().newInstance();
-        } catch (Exception e) {
-            logger.error(e, e.getMessage());
-        }
-        return result;
+        return null;
     }
 }

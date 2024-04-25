@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -13,10 +14,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tbs.framework.auth.aspects.ControllerAspect;
 import tbs.framework.auth.config.interceptors.TokenInterceptor;
 import tbs.framework.auth.config.interceptors.UserModelInterceptor;
-import tbs.framework.auth.interfaces.IErrorHandler;
-import tbs.framework.auth.interfaces.IRequestTokenPicker;
-import tbs.framework.auth.interfaces.IRuntimeDataExchanger;
-import tbs.framework.auth.interfaces.IUserModelPicker;
+import tbs.framework.auth.interfaces.*;
+import tbs.framework.auth.interfaces.impls.AnnotationPermissionValidator;
 import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
 import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
 import tbs.framework.auth.model.RuntimeData;
@@ -25,6 +24,7 @@ import tbs.framework.base.utils.LogUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 public class AuthConfig {
 
@@ -51,13 +51,14 @@ public class AuthConfig {
     }
 
     @Bean
-    WebMvcConfigurer authWebMvcConfigurer(IRequestTokenPicker requestTokenPicker, IUserModelPicker userModelPicker) {
+    WebMvcConfigurer authWebMvcConfigurer(IRequestTokenPicker requestTokenPicker, IUserModelPicker userModelPicker,
+        LogUtil util) {
         return new WebMvcConfigurer() {
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
-                registry.addInterceptor(new TokenInterceptor(requestTokenPicker))
+                registry.addInterceptor(new TokenInterceptor(requestTokenPicker, util))
                     .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(0);
-                registry.addInterceptor(new UserModelInterceptor(userModelPicker))
+                registry.addInterceptor(new UserModelInterceptor(userModelPicker, util))
                     .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(1);
                 WebMvcConfigurer.super.addInterceptors(registry);
             }
@@ -71,8 +72,9 @@ public class AuthConfig {
     }
 
     @Bean
-    public ControllerAspect controllerAspect(LogUtil logUtil) {
-        return new ControllerAspect(logUtil);
+    @Order(10)
+    public ControllerAspect controllerAspect(LogUtil logUtil, Map<String, IPermissionValidator> map) {
+        return new ControllerAspect(logUtil,map);
     }
 
     @Bean
@@ -82,7 +84,14 @@ public class AuthConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "tbs.framework.auth.enableCors", havingValue = "false")
+    @Order(1)
+    @ConditionalOnProperty(name = "tbs.framework.auth.enable-annotation-permission-validator", havingValue = "true")
+    IPermissionValidator permissionValidator() {
+        return new AnnotationPermissionValidator();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "tbs.framework.auth.enable-cors", havingValue = "true")
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
