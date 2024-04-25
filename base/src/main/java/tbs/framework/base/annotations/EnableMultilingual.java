@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({MultilingualConfig.class})
-@EnableConfigurationProperties({LocalProperty.class})
+@Import(MultilingualConfig.class)
+@EnableConfigurationProperties(LocalProperty.class)
 public @interface EnableMultilingual {
 }

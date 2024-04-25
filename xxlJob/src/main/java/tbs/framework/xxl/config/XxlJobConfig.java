@@ -44,7 +44,7 @@ public class XxlJobConfig {
             logger.info(String.format("ip: %s", config.ip()));
             xxlJobSpringExecutor.setIp(config.ip());
         }
-        if (config.port() != null) {
+        if (null != config.port()) {
             logger.info(String.format("port: %s", config.port()));
             xxlJobSpringExecutor.setPort(config.port());
         }
@@ -56,7 +56,7 @@ public class XxlJobConfig {
             logger.info(String.format("log path: %s", config.logPath()));
             xxlJobSpringExecutor.setLogPath(config.logPath());
         }
-        if (config.logRetentionsDays() != null) {
+        if (null != config.logRetentionsDays()) {
             logger.info(String.format("logRetentionsDays: %s", config.logRetentionsDays()));
             xxlJobSpringExecutor.setLogRetentionDays(config.logRetentionsDays());
         }

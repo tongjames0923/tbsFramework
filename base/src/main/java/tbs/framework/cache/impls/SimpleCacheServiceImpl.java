@@ -16,12 +16,12 @@ import java.util.concurrent.TimeUnit;
 
 public class SimpleCacheServiceImpl implements ICacheService {
 
-    private ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<String, CacheEntry> delayedCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, CacheEntry> delayedCache = new ConcurrentHashMap<>();
 
 
-    private ILogger logger;
+    private final ILogger logger;
 
     @Resource
     LockProxy lockProxy;
@@ -54,7 +54,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
         @Override
         public long getDelay(TimeUnit unit) {
-            return unit.convert(Duration.ofSeconds(getExpiration()).getSeconds() -
+            return unit.convert(Duration.ofSeconds(this.expiration).getSeconds() -
                 Duration.ofMillis(System.currentTimeMillis()).getSeconds(), TimeUnit.SECONDS);
         }
 
@@ -65,7 +65,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
         }
     }
 
-    private DelayQueue<CacheEntry> expirationQueue = new DelayQueue<>();
+    private final DelayQueue<CacheEntry> expirationQueue = new DelayQueue<>();
 
     private void inQueue(CacheEntry c) {
         expirationQueue.add(c);
@@ -74,7 +74,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     private CacheEntry outQueue() {
         CacheEntry cacheEntry = expirationQueue.poll();
-        if (cacheEntry != null) {
+        if (null != cacheEntry) {
             delayedCache.remove(cacheEntry.getKey());
         }
         return cacheEntry;
@@ -86,7 +86,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
             return;
         }
         CacheEntry entry = outQueue();
-        if (entry == null) {
+        if (null == entry) {
             return;
         }
 
@@ -95,9 +95,9 @@ public class SimpleCacheServiceImpl implements ICacheService {
                 logger.debug("不在缓存中的Key:" + entry.key);
                 return null;
             }
-            while (p != null) {
+            while (null != p) {
                 long delay = p.getDelay(TimeUnit.SECONDS);
-                if (delay > 0) {
+                if (0 < delay) {
                     inQueue(p);
                     break;
                 } else {
@@ -128,8 +128,8 @@ public class SimpleCacheServiceImpl implements ICacheService {
     public Optional get(String key, boolean isRemove, long delay) {
         if (cache.containsKey(key)) {
             Optional result = Optional.ofNullable(cache.get(key));
-            if (isRemove && delay >= 0) {
-                if (delay == 0) {
+            if (isRemove && 0 <= delay) {
+                if (0 == delay) {
                     cache.remove(key);
                 } else {
                     expire(key, delay);

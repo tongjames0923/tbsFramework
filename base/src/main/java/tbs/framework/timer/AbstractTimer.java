@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * @author abstergo
  */
 public abstract class AbstractTimer {
-    public static interface ITimerCallback {
+    public interface ITimerCallback {
         /**
          * 回调
          */
@@ -72,7 +72,6 @@ public abstract class AbstractTimer {
      * @param timeUnit 时间单位
      */
     protected void after(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
-        return;
     }
 
     /**

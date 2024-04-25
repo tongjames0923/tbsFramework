@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class DefaultXxlJobExecutor {
 
-    private static ILogger log = null;
+    private static ILogger log;
 
 
 
@@ -25,7 +25,7 @@ public class DefaultXxlJobExecutor {
 
     public DefaultXxlJobExecutor(ApplicationContext applicationContext, LogUtil logUtil) {
         jsonJobHandlerMap = applicationContext.getBeansOfType(IJsonJobHandler.class);
-        if (log == null) {
+        if (null == DefaultXxlJobExecutor.log) {
             log = logUtil.getLogger(DefaultXxlJobExecutor.class.getName());
         }
     }
@@ -38,7 +38,7 @@ public class DefaultXxlJobExecutor {
                 XxlJobHelper.handleFail("can not find any method name as " + executeInfo.getMethod());
             } else {
                 IJsonJobHandler jsonJobHandler = jsonJobHandlerMap.get(executeInfo.getMethod());
-                if (jsonJobHandler == null) {
+                if (null == jsonJobHandler) {
                     XxlJobHelper.handleFail("no json Job handler");
                     return;
                 }

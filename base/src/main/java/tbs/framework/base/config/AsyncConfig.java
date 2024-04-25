@@ -24,7 +24,7 @@ public class AsyncConfig {
     @Resource
     ExecutorProperty executorProperty;
 
-    private ILogger logger;
+    private final ILogger logger;
 
     AsyncConfig(LogUtil util) {
         logger = util.getLogger(AsyncConfig.class.getName());

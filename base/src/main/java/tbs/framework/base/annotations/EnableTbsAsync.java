@@ -15,7 +15,7 @@ import java.lang.annotation.RetentionPolicy;
 @EnableScheduling
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@EnableConfigurationProperties({ExecutorProperty.class})
+@EnableConfigurationProperties(ExecutorProperty.class)
 @Import(AsyncConfig.class)
 public @interface EnableTbsAsync {
 }

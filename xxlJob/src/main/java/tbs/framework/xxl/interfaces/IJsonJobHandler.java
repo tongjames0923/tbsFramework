@@ -17,5 +17,5 @@ public interface IJsonJobHandler<T> {
         return JSON.to(classType(), JSON.toJSONString(mp));
     }
 
-    public String handle(T params) throws Exception;
+    String handle(T params) throws Exception;
 }

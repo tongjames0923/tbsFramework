@@ -54,11 +54,11 @@ public class MultilingualUtil {
             for (Field field : data.getClass().getDeclaredFields()) {
                 try {
                     TranslateField tranlateField = field.getDeclaredAnnotation(TranslateField.class);
-                    if (tranlateField == null) {
+                    if (null == tranlateField) {
                         continue;
                     }
                     ILocal ilocal = SpringUtil.getBean(tranlateField.value());
-                    if (ilocal == null) {
+                    if (null == ilocal) {
                         throw new ClassNotFoundException("不存在的翻译执行器");
                     }
                     if (!ilocal.typeSupport(field.getType())) {

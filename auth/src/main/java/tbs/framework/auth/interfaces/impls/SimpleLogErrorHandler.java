@@ -11,7 +11,7 @@ import tbs.framework.base.utils.LogUtil;
  */
 public class SimpleLogErrorHandler implements IErrorHandler {
 
-    private ILogger logger;
+    private final ILogger logger;
 
     public SimpleLogErrorHandler(LogUtil logUtil) {
         logger = logUtil.getLogger(SimpleLogErrorHandler.class.getName());

@@ -8,14 +8,14 @@ import java.util.Locale;
 
 public class CustomParameter implements ITranslationParameters {
 
-    private static ICacheService cacheService = null;
+    private static ICacheService cacheService;
 
     private static String keyGen(String code) {
         return String.format(String.format("LOCALE_PARAMETER:%s", code));
     }
 
     public static void setParameter(String code, Object[] values) {
-        if (cacheService == null) {
+        if (null == CustomParameter.cacheService) {
             cacheService = SpringUtil.getBean(ICacheService.class);
         }
         String key = keyGen(code);
@@ -23,7 +23,7 @@ public class CustomParameter implements ITranslationParameters {
     }
 
     public static Object[] getParameter(String code) {
-        if (cacheService == null) {
+        if (null == CustomParameter.cacheService) {
             cacheService = SpringUtil.getBean(ICacheService.class);
         }
         String key = keyGen(code);

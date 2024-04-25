@@ -34,22 +34,17 @@ public class SwaggerConfig {
         };
     }
 
-    @Bean(value = "defaultApi2")
+    @Bean("defaultApi2")
     Docket defaultApi2() {
         return new Docket(swaggerProperty.getDocumentationType()).apiInfo(
                 new ApiInfoBuilder().title(swaggerProperty.getTitle())
-                    .termsOfServiceUrl(swaggerProperty.getTermsOfService()).version(swaggerProperty.getVersion()).contact(
-                        new Contact(swaggerProperty.getContact(), swaggerProperty.getContactUrl(), swaggerProperty.getEmail()))
-                    .description(swaggerProperty.getDescription()).license(swaggerProperty.getLicense())
-                    .licenseUrl(swaggerProperty.getLicenseUrl()).build()).groupName(swaggerProperty.getGroupName()).select()
+                    .termsOfServiceUrl(swaggerProperty.getTermsOfService()).version(swaggerProperty.getVersion())
+                    .contact(new Contact(swaggerProperty.getContact(), swaggerProperty.getContactUrl(),
+                        swaggerProperty.getEmail())).description(swaggerProperty.getDescription())
+                    .license(swaggerProperty.getLicense()).licenseUrl(swaggerProperty.getLicenseUrl()).build())
+            .groupName(swaggerProperty.getGroupName()).select()
             .apis(RequestHandlerSelectors.basePackage(swaggerProperty.getBasePackage())).paths(
                 StrUtil.isEmpty(swaggerProperty.getPathPattern()) ? PathSelectors.any()
                     : PathSelectors.regex(swaggerProperty.getPathPattern())).build();
     }
-
-    //    @Bean("CustomRequestMappingHandlerMapping")
-    //    RequestMappingHandlerMapping requestMappingHandlerMapping1() {
-    //        return new RequestMappingHandlerMapping();
-    //    }
-
 }

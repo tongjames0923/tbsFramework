@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "tbs.framework.locale")
 @Data
 public class LocalProperty {
-    public static enum LocalType {
+    public enum LocalType {
         /**
          * 从Cookie获取
          */

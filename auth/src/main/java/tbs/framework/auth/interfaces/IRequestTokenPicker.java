@@ -1,7 +1,5 @@
 package tbs.framework.auth.interfaces;
 
-import tbs.framework.auth.model.UserModel;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

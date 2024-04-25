@@ -20,7 +20,7 @@ public class MultilingualAspect {
     @Around("multilingualAspect()")
     public Object translateField(ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = joinPoint.proceed();
-        if (result != null) {
+        if (null != result) {
             result = multilingualUtil.translate(result);
         }
         return result;

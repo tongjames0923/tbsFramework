@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 /**
  * @author abstergo
  */
-@Target({ElementType.FIELD})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface TranslateField {

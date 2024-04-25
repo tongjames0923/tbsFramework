@@ -33,7 +33,7 @@ import java.util.Set;
 @Aspect
 public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
-    private ILogger logger;
+    private final ILogger logger;
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
     public void requestMapping() {
@@ -72,12 +72,12 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
         runtimeData.setInvokeArgs(joinPoint.getArgs());
         runtimeData.setInvokeMethod(methodSignature.getMethod());
-        logger.trace("permission check: " + methodSignature.toString());
+        logger.trace("permission check: " + methodSignature);
         if (RuntimeData.USER_PASS.equals(runtimeData.getStatus())) {
             checkPermissions();
         }
 
-        logger.trace("executing method: " + methodSignature.toString());
+        logger.trace("executing method: " + methodSignature);
         runtimeData.setInvokeBegin(LocalDateTime.now());
             result = joinPoint.proceed();
         runtimeData.setInvokeEnd(LocalDateTime.now());
@@ -109,14 +109,14 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         ApplyRuntimeData applyRuntimeData = returnType.getMethodAnnotation(ApplyRuntimeData.class);
-        return applyRuntimeData != null;
+        return null != applyRuntimeData;
     }
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
         Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
         ServerHttpResponse response) {
-        if (body == null) {
+        if (null == body) {
             return body;
         }
         return exchanger.exchange(runtimeData, body);

@@ -29,7 +29,7 @@ public class MultilingualConfig {
     private static ILogger log;
 
     public MultilingualConfig(LogUtil logUtil) {
-        if (log == null) {
+        if (null == MultilingualConfig.log) {
             log = logUtil.getLogger(MultilingualConfig.class.getName());
         }
     }
@@ -68,7 +68,7 @@ public class MultilingualConfig {
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCALE_RESOLVER)
-    @ConditionalOnMissingBean(name = {BeanNameConstant.BUILTIN_LOCALE_RESOLVER})
+    @ConditionalOnMissingBean(name = BeanNameConstant.BUILTIN_LOCALE_RESOLVER)
     public LocaleResolver localeResolver(LocalProperty localProperty) {
         switch (localProperty.getType()) {
             case Parameter:

@@ -22,7 +22,7 @@ public class AnnotationPermissionValidator implements IPermissionValidator {
             new ArrayList<>(AnnotatedElementUtils.getAllMergedAnnotations(method, PermissionValidated.class));
         Set<PermissionModel> permissions = new HashSet<>(permissionValidateds.size());
         for (PermissionValidated permissionValidated : permissionValidateds) {
-            if (permissionValidated.userPermissionProvider() != NotCustom.class) {
+            if (NotCustom.class != permissionValidated.userPermissionProvider()) {
                 IPermissionProvider permissionProvider =
                     SpringUtil.getBean(permissionValidated.userPermissionProvider());
                 permissions.addAll(
@@ -32,7 +32,7 @@ public class AnnotationPermissionValidator implements IPermissionValidator {
             PermissionModel permission = new PermissionModel();
             permission.setUrl(url);
             permission.setRole(permissionValidated.value());
-            if (permissionValidated.customCheck() != NotCustom.class) {
+            if (NotCustom.class != permissionValidated.customCheck()) {
                 permission.setParameter(permissionValidated.customCheck());
             }
             permissions.add(permission);
@@ -42,7 +42,7 @@ public class AnnotationPermissionValidator implements IPermissionValidator {
 
     @Override
     public PermissionModel.VerificationResult validate(PermissionModel permission, UserModel userModel) {
-        if (permission.getParameter() != null) {
+        if (null != permission.getParameter()) {
             Class<? extends BiFunction<PermissionModel, UserModel, PermissionModel.VerificationResult>> object =
                 (Class<? extends BiFunction<PermissionModel, UserModel, PermissionModel.VerificationResult>>)permission.getParameter();
             return SpringUtil.getBean(object).apply(permission, userModel);

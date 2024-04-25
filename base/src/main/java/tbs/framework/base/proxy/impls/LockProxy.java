@@ -24,7 +24,7 @@ public class LockProxy implements IProxy {
 
     public LockProxy(ILock lock, LogUtil util, long lockTimeOut, TimeUnit lockTimeUnit) {
         this.lock = lock;
-        if (logger == null) {
+        if (null == LockProxy.logger) {
             logger = util.getLogger(LockProxy.class.getName());
         }
         this.lockTimeOut = lockTimeOut;

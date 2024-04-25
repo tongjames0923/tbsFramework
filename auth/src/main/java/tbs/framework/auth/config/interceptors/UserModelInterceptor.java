@@ -30,7 +30,7 @@ public class UserModelInterceptor implements HandlerInterceptor {
         RuntimeData.getInstance()
             .setUserModel(userModelPicker.getUserModel(RuntimeData.getInstance().getRequestToken()));
 
-        if (RuntimeData.getInstance().getUserModel() != null) {
+        if (null != RuntimeData.getInstance().getUserModel()) {
             RuntimeData.getInstance().setStatus(RuntimeData.USER_PASS);
         } else {
             throw new UserModelNotFoundException("用户数据不存在");

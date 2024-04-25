@@ -16,7 +16,7 @@ public class JdkLock implements ILock {
     private final ILogger logger;
     Lock l;
 
-    private AtomicBoolean isLocked = new AtomicBoolean(false);
+    private final AtomicBoolean isLocked = new AtomicBoolean(false);
 
     public JdkLock(Lock lock, LogUtil util) {
         l = lock;

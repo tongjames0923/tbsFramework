@@ -21,7 +21,7 @@ public class LockAspect {
     public Object run(ProceedingJoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         LockIt lockIt = methodSignature.getMethod().getDeclaredAnnotation(LockIt.class);
-        if (lockIt == null) {
+        if (null == lockIt) {
             throw new RuntimeException("LockIt annotation not present");
         }
         String lockName = lockIt.value();

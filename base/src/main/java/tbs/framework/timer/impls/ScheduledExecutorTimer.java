@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class ScheduledExecutorTimer extends AbstractTimer {
 
-    private ScheduledExecutorService scheduledExecutorService;
+    private final ScheduledExecutorService scheduledExecutorService;
 
-    private ILogger logger;
+    private final ILogger logger;
 
     public ScheduledExecutorTimer(ScheduledExecutorService scheduledExecutorService, LogUtil logUtil) {
         this.scheduledExecutorService = scheduledExecutorService;

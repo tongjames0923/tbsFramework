@@ -22,7 +22,7 @@ public class LocalStringTranslateImpl implements ILocal {
     @Override
     public Object translate(Object value, ITranslationParameters parameters, Locale lang) {
         return multilingualUtil.translate(value,
-            parameters == null ? new Object[] {} : parameters.getParameters(value.toString(), lang, value), lang);
+            null == parameters ? new Object[] {} : parameters.getParameters(value.toString(), lang, value), lang);
     }
 
     @Override

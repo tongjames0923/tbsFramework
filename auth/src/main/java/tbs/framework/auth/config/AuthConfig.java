@@ -35,7 +35,7 @@ public class AuthConfig {
     @ConditionalOnMissingBean(IRequestTokenPicker.class)
     public IRequestTokenPicker requestTokenPicker()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        if (authProperty.getTokenPicker() == null) {
+        if (null == this.authProperty.getTokenPicker()) {
             throw new IllegalStateException("No auth property 'token picker' has been configured");
         }
         if (StrUtil.isEmpty(authProperty.getTokenField())) {

@@ -32,7 +32,7 @@ public class BaseConfig {
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
     @Order(0)
     public ILogProvider getLogger() {
-        if (baseProperty.getLoggerProvider() == null) {
+        if (null == this.baseProperty.getLoggerProvider()) {
             return new Slf4jLoggerProvider();
         }
         return SpringUtil.getBean(baseProperty.getLoggerProvider());

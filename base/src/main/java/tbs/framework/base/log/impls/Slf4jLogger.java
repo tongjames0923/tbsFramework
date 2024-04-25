@@ -11,7 +11,7 @@ public class Slf4jLogger implements ILogger {
 
     public Slf4jLogger(String name) {
         this.name = name;
-        log = LoggerFactory.getLogger(getName());
+        log = LoggerFactory.getLogger(this.name);
     }
 
     @Override
