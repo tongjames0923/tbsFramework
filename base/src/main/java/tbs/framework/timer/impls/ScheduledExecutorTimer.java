@@ -28,13 +28,13 @@ public class ScheduledExecutorTimer extends AbstractTimer {
 
     @Override
     protected boolean before(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
-        logger.info(String.format("%s will Scheduled at %d %s", uid, delay, timeUnit.toString()));
+        logger.trace(String.format("%s will Scheduled at %d %s", uid, delay, timeUnit.toString()));
 
         return true;
     }
 
     @Override
     protected void after(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
-        logger.info(String.format("%s Scheduled", uid));
+        logger.trace(String.format("%s Scheduled", uid));
     }
 }

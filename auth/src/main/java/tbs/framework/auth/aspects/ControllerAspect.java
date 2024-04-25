@@ -52,7 +52,7 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
         runtimeData.setInvokeArgs(joinPoint.getArgs());
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         runtimeData.setInvokeMethod(methodSignature.getMethod());
-        logger.info("executing method: " + methodSignature.toString());
+        logger.trace("executing method: " + methodSignature.toString());
         runtimeData.setInvokeBegin(LocalDateTime.now());
         Object result = null;
         try {

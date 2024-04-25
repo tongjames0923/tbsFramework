@@ -26,7 +26,7 @@ public class JdkLock implements ILock {
 
     @Override
     public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-        logger.info(String.format("Trying to acquire lock %s %s", time, unit.toString()));
+        logger.trace(String.format("Trying to acquire lock %s %s", time, unit.toString()));
         boolean set = l.tryLock(time, unit);
         isLocked.set(set);
         return set;
@@ -41,14 +41,14 @@ public class JdkLock implements ILock {
     public void lock() {
         l.lock();
         isLocked.set(true);
-        logger.info("Lock acquired");
+        logger.trace("Lock acquired");
     }
 
     @Override
     public void unlock() {
         if (isLocked.get()) {
             l.unlock();
-            logger.info("Unlocked");
+            logger.trace("Unlocked");
         } else {
             logger.warn("locker already unlocked");
         }

@@ -19,4 +19,6 @@ public class LocalProperty {
      */
     private String value = "lang";
 
+    private String pathPattern = "/*";
+
 }

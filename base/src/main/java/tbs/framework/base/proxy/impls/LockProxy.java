@@ -45,7 +45,7 @@ public class LockProxy implements IProxy {
     public <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable {
         Optional<R> result = Optional.empty();
         String s = UuidUtils.getUuid();
-        logger.info(String.format("Locking proxied %s", s));
+        logger.trace(String.format("Locking proxied %s", s));
         boolean isLocked = false;
         try {
             isLocked = lock.tryLock(lockTimeOut, lockTimeUnit);

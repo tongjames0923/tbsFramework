@@ -28,7 +28,7 @@ public class AsyncConfig {
 
     AsyncConfig(LogUtil util) {
         logger = util.getLogger(AsyncConfig.class.getName());
-        logger.info("Async config initialized");
+        logger.trace("Async config initialized");
     }
 
 

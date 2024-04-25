@@ -16,15 +16,10 @@ import java.util.concurrent.TimeUnit;
 
 public class SimpleCacheServiceImpl implements ICacheService {
 
-    private static ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
 
-    private static ConcurrentHashMap<String, CacheEntry> delayedCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, CacheEntry> delayedCache = new ConcurrentHashMap<>();
 
-    private static long TOTAL_BEANS = 0;
-
-    private long index = 0;
-
-    private long scheduledCnt = 0;
 
     private ILogger logger;
 
@@ -72,38 +67,53 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     private DelayQueue<CacheEntry> expirationQueue = new DelayQueue<>();
 
+    private void inQueue(CacheEntry c) {
+        expirationQueue.add(c);
+        delayedCache.put(c.key, c);
+    }
+
+    private CacheEntry outQueue() {
+        CacheEntry cacheEntry = expirationQueue.poll();
+        if (cacheEntry != null) {
+            delayedCache.remove(cacheEntry.getKey());
+        }
+        return cacheEntry;
+    }
+
     @Scheduled(fixedRate = 500)
     public void scheduleExpiration() {
-        if (TOTAL_BEANS != index) {
-            return;
-        }
         if (expirationQueue.isEmpty()) {
             return;
         }
-        CacheEntry entry = expirationQueue.poll();
+        CacheEntry entry = outQueue();
         if (entry == null) {
             return;
         }
+
         lockProxy.safeProxy((p) -> {
-            long delay = entry.getDelay(TimeUnit.SECONDS);
-            if (delay > 0) {
-                expirationQueue.offer(entry);
-            } else {
-                logger.info(String.format("%s cache expired", entry.getKey()));
-                cache.remove(entry.key);
-                delayedCache.remove(entry.key);
+            if (!cache.containsKey(entry.key)) {
+                logger.debug("不在缓存中的Key:" + entry.key);
+                return null;
             }
+            while (p != null) {
+                long delay = p.getDelay(TimeUnit.SECONDS);
+                if (delay > 0) {
+                    inQueue(p);
+                    break;
+                } else {
+                    logger.debug(String.format("'%s' cache expired", p.getKey()));
+                    cache.remove(p.key);
+                }
+                p = outQueue();
+            }
+
             return null;
-        }, null);
+        }, entry);
+
     }
 
     public SimpleCacheServiceImpl(LogUtil logUtil) {
-        if (TOTAL_BEANS >= 8L) {
-            throw new ArrayIndexOutOfBoundsException("Cache service has been exhausted");
-        }
         this.logger = logUtil.getLogger(SimpleCacheServiceImpl.class.getName());
-        TOTAL_BEANS++;
-        index = TOTAL_BEANS;
     }
 
     @Override
@@ -132,22 +142,30 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public void remove(String key) {
-        if (cache.containsKey(key)) {
-            cache.remove(key);
-        }
+        expire(key, 0);
     }
 
     @Override
     public void clear() {
-        cache.clear();
+        lockProxy.safeProxy((p -> {
+            cache.clear();
+            delayedCache.clear();
+            expirationQueue.clear();
+            return null;
+        }), null);
+
     }
 
     @Override
     public void expire(String key, long seconds) {
         long now = System.currentTimeMillis() / 1000L;
-        CacheEntry entry = new CacheEntry(key, now + seconds);
-        expirationQueue.add(entry);
-        delayedCache.put(key, entry);
+        lockProxy.safeProxy((p) -> {
+            CacheEntry entry = new CacheEntry(key, now + seconds);
+            inQueue(entry);
+            return null;
+        }, null);
+
+
     }
 
     @Override

@@ -1,6 +1,6 @@
 package tbs.framework.base.config;
 
-import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -9,24 +9,23 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
+import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.multilingual.ILocal;
-import tbs.framework.multilingual.aspects.MultilingualAspect;
-import tbs.framework.multilingual.impls.LocalStringTranslateImpl;
 import tbs.framework.base.properties.LocalProperty;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.base.utils.MultilingualUtil;
+import tbs.framework.multilingual.ILocal;
+import tbs.framework.multilingual.aspects.MultilingualAspect;
+import tbs.framework.multilingual.impls.LocalStringTranslateImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
 /**
  * @author abstergo
  */
-public class MultilingualConfig implements WebMvcConfigurer {
+public class MultilingualConfig {
     private static ILogger log;
 
     public MultilingualConfig(LogUtil logUtil) {
@@ -35,14 +34,18 @@ public class MultilingualConfig implements WebMvcConfigurer {
         }
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        List<HandlerInterceptor> list = new LinkedList<>(SpringUtil.getBeansOfType(HandlerInterceptor.class).values());
-        for (HandlerInterceptor interceptor : list) {
-            registry.addInterceptor(interceptor);
-        }
-        WebMvcConfigurer.super.addInterceptors(registry);
+    @Bean
+    WebMvcConfigurer multilingualConfigurer(LocalProperty localProperty,
+        @Qualifier(BeanNameConstant.LOCALE_CHANGE_INTERCEPTOR) HandlerInterceptor handlerInterceptor) {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(handlerInterceptor).addPathPatterns(localProperty.getPathPattern());
+                WebMvcConfigurer.super.addInterceptors(registry);
+            }
+        };
     }
+
 
     @Bean
     @ConditionalOnMissingBean(ILocal.class)
@@ -50,8 +53,9 @@ public class MultilingualConfig implements WebMvcConfigurer {
         return new LocalStringTranslateImpl(logUtil, multilingualUtil);
     }
 
-    @Bean
-    public HandlerInterceptor localeChangeInterceptor(LocalProperty localProperty, LocaleResolver localeResolver) {
+    @Bean(BeanNameConstant.LOCALE_CHANGE_INTERCEPTOR)
+    public HandlerInterceptor localeChangeInterceptor(LocalProperty localProperty,
+        @Qualifier(BeanNameConstant.BUILTIN_LOCALE_RESOLVER) LocaleResolver localeResolver) {
         return new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -63,7 +67,8 @@ public class MultilingualConfig implements WebMvcConfigurer {
         };
     }
 
-    @Bean
+    @Bean(BeanNameConstant.BUILTIN_LOCALE_RESOLVER)
+    @ConditionalOnMissingBean(name = {BeanNameConstant.BUILTIN_LOCALE_RESOLVER})
     public LocaleResolver localeResolver(LocalProperty localProperty) {
         switch (localProperty.getType()) {
             case Parameter:

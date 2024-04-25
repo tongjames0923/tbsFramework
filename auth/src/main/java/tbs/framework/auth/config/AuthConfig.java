@@ -1,7 +1,6 @@
 package tbs.framework.auth.config;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +26,7 @@ import tbs.framework.base.utils.LogUtil;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 
-public class AuthConfig implements WebMvcConfigurer {
+public class AuthConfig {
 
     @Resource
     private AuthProperty authProperty;
@@ -51,13 +50,18 @@ public class AuthConfig implements WebMvcConfigurer {
         return new RuntimeData();
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new TokenInterceptor(SpringUtil.getBean(IRequestTokenPicker.class)))
-            .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(0);
-        registry.addInterceptor(new UserModelInterceptor(SpringUtil.getBean(IUserModelPicker.class)))
-            .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(1);
-        WebMvcConfigurer.super.addInterceptors(registry);
+    @Bean
+    WebMvcConfigurer authWebMvcConfigurer(IRequestTokenPicker requestTokenPicker, IUserModelPicker userModelPicker) {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(new TokenInterceptor(requestTokenPicker))
+                    .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(0);
+                registry.addInterceptor(new UserModelInterceptor(userModelPicker))
+                    .addPathPatterns(authProperty.getTokenPickUrlPatterns()).order(1);
+                WebMvcConfigurer.super.addInterceptors(registry);
+            }
+        };
     }
 
     @Bean

@@ -19,11 +19,11 @@ public class LogExceptionProxy implements IProxy {
     @Override
     public <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable {
         String uuid = UuidUtils.getUuid();
-        logger.info("Proxying [" + uuid + "]");
+        logger.trace("Proxying [" + uuid + "]");
         Optional<R> result = Optional.empty();
         try {
             result = Optional.ofNullable(function.apply(param));
-            logger.info(String.format("Proxying [%s] result returned", uuid));
+            logger.trace(String.format("Proxying [%s] result returned", uuid));
         } catch (Exception ex) {
             logger.error(ex, String.format("Proxying [%s] failed.message:[%s]", uuid, ex.getMessage()));
         }
