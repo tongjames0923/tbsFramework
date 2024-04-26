@@ -1,5 +1,6 @@
 package tbs.framework.base.config;
 
+import cn.hutool.core.util.StrUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -67,6 +68,13 @@ public class MultilingualConfig {
         };
     }
 
+    private String getOrDefault(String value, String defaultValue) {
+        if (StrUtil.isEmpty(value)) {
+            value = defaultValue;
+        }
+        return value;
+    }
+
     @Bean(BeanNameConstant.BUILTIN_LOCALE_RESOLVER)
     @ConditionalOnMissingBean(name = BeanNameConstant.BUILTIN_LOCALE_RESOLVER)
     public LocaleResolver localeResolver(LocalProperty localProperty) {
@@ -75,8 +83,8 @@ public class MultilingualConfig {
                 return new LocaleResolver() {
                     @Override
                     public Locale resolveLocale(HttpServletRequest request) {
-                        String locale = request.getParameter(localProperty.getValue());
-                        return new Locale(locale);
+                        return new Locale(
+                            MultilingualConfig.this.getOrDefault(request.getParameter(localProperty.getValue()), "zh"));
                     }
 
                     @Override
@@ -93,7 +101,7 @@ public class MultilingualConfig {
                 return new LocaleResolver() {
                     @Override
                     public Locale resolveLocale(HttpServletRequest request) {
-                        return new Locale(request.getHeader(localProperty.getValue()));
+                        return new Locale(getOrDefault(request.getHeader(localProperty.getValue()), "zh"));
                     }
 
                     @Override

@@ -3,6 +3,7 @@ package tbs.framework.auth.interfaces.impls;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import tbs.framework.auth.annotations.PermissionValidated;
+import tbs.framework.auth.annotations.PermissionValidateds;
 import tbs.framework.auth.interfaces.IPermissionProvider;
 import tbs.framework.auth.interfaces.IPermissionValidator;
 import tbs.framework.auth.interfaces.impls.permissionCheck.NotCustom;
@@ -13,13 +14,13 @@ import tbs.framework.auth.model.UserModel;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class AnnotationPermissionValidator implements IPermissionValidator {
 
     @Override
     public Set<PermissionModel> pullPermission(String url, Method method) {
-        List<PermissionValidated> permissionValidateds =
-            new ArrayList<>(AnnotatedElementUtils.getAllMergedAnnotations(method, PermissionValidated.class));
+        List<PermissionValidated> permissionValidateds = getPermissionValidateds(method);
         Set<PermissionModel> permissions = new HashSet<>(permissionValidateds.size());
         for (PermissionValidated permissionValidated : permissionValidateds) {
             if (NotCustom.class != permissionValidated.userPermissionProvider()) {
@@ -38,6 +39,23 @@ public class AnnotationPermissionValidator implements IPermissionValidator {
             permissions.add(permission);
         }
         return permissions;
+    }
+
+    private static List<PermissionValidated> getPermissionValidateds(Method method) {
+        Set<PermissionValidateds> permissionValidateds =
+            AnnotatedElementUtils.getAllMergedAnnotations(method, PermissionValidateds.class);
+        List<PermissionValidated> validateds = new LinkedList<>();
+        for (PermissionValidateds permissionValidated : permissionValidateds) {
+            for (PermissionValidated validated : permissionValidated.value()) {
+                if (null != validated) {
+                    validateds.add(validated);
+                }
+            }
+        }
+
+        validateds.addAll(
+            new ArrayList<>(AnnotatedElementUtils.getAllMergedAnnotations(method, PermissionValidated.class)));
+        return validateds;
     }
 
     @Override
