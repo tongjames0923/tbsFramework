@@ -15,6 +15,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(AuthConfig.class)
-@EnableConfigurationProperties(AuthProperty.class)
+@EnableConfigurationProperties({AuthProperty.class})
 public @interface EnableTbsAuth {
 }

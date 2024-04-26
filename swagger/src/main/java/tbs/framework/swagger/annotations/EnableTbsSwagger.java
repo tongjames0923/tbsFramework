@@ -18,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(SwaggerConfig.class)
-@EnableConfigurationProperties(SwaggerProperty.class)
+@EnableConfigurationProperties({SwaggerProperty.class})
 @EnableWebMvc
 @EnableKnife4j //启动swagger
 public @interface EnableTbsSwagger {
