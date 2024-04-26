@@ -11,7 +11,7 @@
     <modules>
         <module>base</module>
         <module>xxlJob</module>
-        <module>sqlAll</module>
+        <module>sql</module>
         <module>auth</module>
         <module>swagger</module>
     </modules>
@@ -39,8 +39,8 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>tbs.framework.sql</groupId>
-            <artifactId>sqlAll</artifactId>
+            <groupId>tbs.framework</groupId>
+            <artifactId>sql</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
