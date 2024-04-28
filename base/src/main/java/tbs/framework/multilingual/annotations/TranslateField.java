@@ -8,7 +8,10 @@ import tbs.framework.multilingual.impls.parameters.NoParameter;
 import java.lang.annotation.*;
 
 /**
+ * <p>TranslateField class.</p>
+ *
  * @author abstergo
+ * @version $Id: $Id
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

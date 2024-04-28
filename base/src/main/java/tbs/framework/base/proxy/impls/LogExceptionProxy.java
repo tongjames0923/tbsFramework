@@ -8,14 +8,26 @@ import tbs.framework.base.utils.UuidUtils;
 
 import java.util.Optional;
 
+/**
+ * <p>LogExceptionProxy class.</p>
+ *
+ * @author abstergo
+ * @version $Id: $Id
+ */
 public class LogExceptionProxy implements IProxy {
 
     private final ILogger logger;
 
+    /**
+     * <p>Constructor for LogExceptionProxy.</p>
+     *
+     * @param util a {@link tbs.framework.base.utils.LogUtil} object
+     */
     public LogExceptionProxy(LogUtil util) {
         logger = util.getLogger(LogExceptionProxy.class.getName());
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable {
         String uuid = UuidUtils.getUuid();
@@ -30,6 +42,7 @@ public class LogExceptionProxy implements IProxy {
         return result;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R, P> Optional<R> safeProxy(FunctionWithThrows<P, R, Throwable> function, P param) {
         try {

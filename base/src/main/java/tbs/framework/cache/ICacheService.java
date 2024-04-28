@@ -2,6 +2,12 @@ package tbs.framework.cache;
 
 import java.util.Optional;
 
+/**
+ * <p>ICacheService interface.</p>
+ *
+ * @author abstergo
+ * @version $Id: $Id
+ */
 public interface ICacheService {
 
     /**
@@ -46,7 +52,8 @@ public interface ICacheService {
     /**
      * 超时剩余 不存在返回Long.MIN_VALUE 单位秒
      *
-     * @param key
+     * @param key a {@link java.lang.String} object
+     * @return a long
      */
     long remain(String key);
 }

@@ -7,7 +7,10 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * <p>Abstract AbstractTimer class.</p>
+ *
  * @author abstergo
+ * @version $Id: $Id
  */
 public abstract class AbstractTimer {
     public interface ITimerCallback {
@@ -44,6 +47,12 @@ public abstract class AbstractTimer {
         after(session, callback, delay, timeUnit);
     }
 
+    /**
+     * <p>scheduledAt.</p>
+     *
+     * @param callback a {@link tbs.framework.timer.AbstractTimer.ITimerCallback} object
+     * @param at a {@link java.time.LocalDateTime} object
+     */
     public void scheduledAt(ITimerCallback callback, LocalDateTime at) {
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(now, at);
@@ -77,11 +86,10 @@ public abstract class AbstractTimer {
     /**
      * 延迟调用的内部实现
      *
-     * @param uid
+     * @param uid a {@link java.lang.String} object
      * @param callback 调用方法
      * @param delay    延迟时间
      * @param timeUnit 延迟单位
      */
-
     protected abstract void protectedScheduled(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit);
 }

@@ -14,6 +14,12 @@ import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>SimpleCacheServiceImpl class.</p>
+ *
+ * @author abstergo
+ * @version $Id: $Id
+ */
 public class SimpleCacheServiceImpl implements ICacheService {
 
     private final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
@@ -80,6 +86,9 @@ public class SimpleCacheServiceImpl implements ICacheService {
         return cacheEntry;
     }
 
+    /**
+     * <p>scheduleExpiration.</p>
+     */
     @Scheduled(fixedRate = 500)
     public void scheduleExpiration() {
         if (expirationQueue.isEmpty()) {
@@ -112,10 +121,16 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     }
 
+    /**
+     * <p>Constructor for SimpleCacheServiceImpl.</p>
+     *
+     * @param logUtil a {@link tbs.framework.base.utils.LogUtil} object
+     */
     public SimpleCacheServiceImpl(LogUtil logUtil) {
         this.logger = logUtil.getLogger(SimpleCacheServiceImpl.class.getName());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void put(String key, Object value, boolean override) {
         if (cache.containsKey(key) && !override) {
@@ -124,6 +139,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
         cache.put(key, value);
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional get(String key, boolean isRemove, long delay) {
         if (cache.containsKey(key)) {
@@ -140,11 +156,13 @@ public class SimpleCacheServiceImpl implements ICacheService {
         return Optional.empty();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void remove(String key) {
         expire(key, 0);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void clear() {
         lockProxy.safeProxy((p -> {
@@ -156,6 +174,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     }
 
+    /** {@inheritDoc} */
     @Override
     public void expire(String key, long seconds) {
         long now = System.currentTimeMillis() / 1000L;
@@ -168,6 +187,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     }
 
+    /** {@inheritDoc} */
     @Override
     public long remain(String key) {
         if (delayedCache.containsKey(key)) {

@@ -2,6 +2,12 @@ package tbs.framework.multilingual;
 
 import java.util.Locale;
 
+/**
+ * <p>ILocal interface.</p>
+ *
+ * @author abstergo
+ * @version $Id: $Id
+ */
 public interface ILocal {
     /**
      * 翻译功能
@@ -15,8 +21,9 @@ public interface ILocal {
 
     /**
      * 类型支持
-     * @param type
-     * @return
+     *
+     * @param type a {@link java.lang.Class} object
+     * @return a boolean
      */
     boolean typeSupport(Class<?> type);
 }

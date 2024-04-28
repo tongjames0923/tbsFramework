@@ -11,7 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * 接口验证 需要
+ * 接口验证
  * @author abstergo
  */
 @Retention(RetentionPolicy.RUNTIME)

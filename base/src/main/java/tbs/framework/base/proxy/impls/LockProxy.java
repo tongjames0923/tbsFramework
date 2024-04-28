@@ -12,7 +12,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * <p>LockProxy class.</p>
+ *
  * @author abstergo
+ * @version $Id: $Id
  */
 public class LockProxy implements IProxy {
 
@@ -22,6 +25,14 @@ public class LockProxy implements IProxy {
     private final long lockTimeOut;
     private final TimeUnit lockTimeUnit;
 
+    /**
+     * <p>Constructor for LockProxy.</p>
+     *
+     * @param lock a {@link tbs.framework.base.lock.ILock} object
+     * @param util a {@link tbs.framework.base.utils.LogUtil} object
+     * @param lockTimeOut a long
+     * @param lockTimeUnit a {@link java.util.concurrent.TimeUnit} object
+     */
     public LockProxy(ILock lock, LogUtil util, long lockTimeOut, TimeUnit lockTimeUnit) {
         this.lock = lock;
         if (null == LockProxy.logger) {
@@ -31,6 +42,7 @@ public class LockProxy implements IProxy {
         this.lockTimeUnit = lockTimeUnit;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R, P> Optional<R> safeProxy(FunctionWithThrows<P, R, Throwable> function, P param) {
         try {
@@ -41,6 +53,7 @@ public class LockProxy implements IProxy {
         return Optional.empty();
     }
 
+    /** {@inheritDoc} */
     @Override
     public <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable {
         Optional<R> result = Optional.empty();
