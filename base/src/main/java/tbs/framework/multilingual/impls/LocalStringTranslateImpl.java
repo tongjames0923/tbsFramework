@@ -26,21 +26,19 @@ public class LocalStringTranslateImpl implements ILocal {
      * @param logUtil a {@link tbs.framework.base.utils.LogUtil} object
      * @param util a {@link tbs.framework.base.utils.MultilingualUtil} object
      */
-    public LocalStringTranslateImpl(LogUtil logUtil, MultilingualUtil util) {
-        log = logUtil.getLogger(LocalStringTranslateImpl.class.getName());
-        multilingualUtil = util;
+    public LocalStringTranslateImpl(final LogUtil logUtil, final MultilingualUtil util) {
+        this.log = logUtil.getLogger(LocalStringTranslateImpl.class.getName());
+        this.multilingualUtil = util;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Object translate(Object value, ITranslationParameters parameters, Locale lang) {
-        return multilingualUtil.translate(value,
+    public Object translate(final Object value, final ITranslationParameters parameters, final Locale lang) {
+        return this.multilingualUtil.translate(value,
             null == parameters ? new Object[] {} : parameters.getParameters(value.toString(), lang, value), lang);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public boolean typeSupport(Class<?> type) {
+    public boolean typeSupport(final Class<?> type) {
         return type.equals(String.class);
     }
 }

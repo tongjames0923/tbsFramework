@@ -11,12 +11,12 @@ public class Slf4jLoggerProvider implements ILogProvider {
 
 
     @Override
-    public ILogger getLogger(String name) {
-        if (loggers.containsKey(name)) {
-            return loggers.get(name);
+    public ILogger getLogger(final String name) {
+        if (Slf4jLoggerProvider.loggers.containsKey(name)) {
+            return Slf4jLoggerProvider.loggers.get(name);
         } else {
-            ILogger logger = new Slf4jLogger(name);
-            loggers.put(name, logger);
+            final ILogger logger = new Slf4jLogger(name);
+            Slf4jLoggerProvider.loggers.put(name, logger);
             return logger;
         }
     }

@@ -35,13 +35,13 @@ public class AuthConfig {
     @ConditionalOnMissingBean(IRequestTokenPicker.class)
     public IRequestTokenPicker requestTokenPicker()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        if (null == this.authProperty.getTokenPicker()) {
+        if (null == authProperty.getTokenPicker()) {
             throw new IllegalStateException("No auth property 'token picker' has been configured");
         }
-        if (StrUtil.isEmpty(authProperty.getTokenField())) {
+        if (StrUtil.isEmpty(this.authProperty.getTokenField())) {
             throw new IllegalStateException("No auth property 'token field' has been configured");
         }
-        return authProperty.getTokenPicker().getConstructor().newInstance();
+        return this.authProperty.getTokenPicker().getConstructor().newInstance();
     }
 
     @Bean
@@ -51,15 +51,15 @@ public class AuthConfig {
     }
 
     @Bean
-    WebMvcConfigurer authWebMvcConfigurer(IRequestTokenPicker requestTokenPicker, IUserModelPicker userModelPicker,
-        LogUtil util) {
+    WebMvcConfigurer authWebMvcConfigurer(final IRequestTokenPicker requestTokenPicker, final IUserModelPicker userModelPicker,
+        final LogUtil util) {
         return new WebMvcConfigurer() {
             @Override
-            public void addInterceptors(InterceptorRegistry registry) {
+            public void addInterceptors(final InterceptorRegistry registry) {
                 registry.addInterceptor(new TokenInterceptor(requestTokenPicker, util))
-                    .addPathPatterns(authProperty.getAuthPathPattern()).order(0);
+                    .addPathPatterns(AuthConfig.this.authProperty.getAuthPathPattern()).order(0);
                 registry.addInterceptor(new UserModelInterceptor(userModelPicker, util))
-                    .addPathPatterns(authProperty.getAuthPathPattern()).order(1);
+                    .addPathPatterns(AuthConfig.this.authProperty.getAuthPathPattern()).order(1);
                 WebMvcConfigurer.super.addInterceptors(registry);
             }
         };
@@ -73,13 +73,13 @@ public class AuthConfig {
 
     @Bean
     @Order(10)
-    public ControllerAspect controllerAspect(LogUtil logUtil, Map<String, IPermissionValidator> map) {
+    public ControllerAspect controllerAspect(final LogUtil logUtil, final Map<String, IPermissionValidator> map) {
         return new ControllerAspect(logUtil,map);
     }
 
     @Bean
     @ConditionalOnMissingBean(IErrorHandler.class)
-    IErrorHandler errorHandler(LogUtil logUtil) {
+    IErrorHandler errorHandler(final LogUtil logUtil) {
         return new SimpleLogErrorHandler(logUtil);
     }
 
@@ -93,8 +93,8 @@ public class AuthConfig {
     @Bean
     @ConditionalOnProperty(name = "tbs.framework.auth.enable-cors", havingValue = "true")
     public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        final CorsConfiguration corsConfiguration = new CorsConfiguration();
         // 1 设置访问源地址
         corsConfiguration.addAllowedOrigin("*");
         // 2 设置访问源请求头

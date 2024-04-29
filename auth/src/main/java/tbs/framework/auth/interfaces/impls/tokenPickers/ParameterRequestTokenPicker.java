@@ -15,7 +15,7 @@ public class ParameterRequestTokenPicker implements IRequestTokenPicker {
     AuthProperty authProperty;
 
     @Override
-    public String getToken(HttpServletRequest request, HttpServletResponse response) {
-        return request.getParameter(authProperty.getTokenField());
+    public String getToken(final HttpServletRequest request, final HttpServletResponse response) {
+        return request.getParameter(this.authProperty.getTokenField());
     }
 }

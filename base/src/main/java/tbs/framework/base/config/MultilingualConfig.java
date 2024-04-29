@@ -29,18 +29,18 @@ import java.util.Locale;
 public class MultilingualConfig {
     private static ILogger log;
 
-    public MultilingualConfig(LogUtil logUtil) {
-        if (null == MultilingualConfig.log) {
-            log = logUtil.getLogger(MultilingualConfig.class.getName());
+    public MultilingualConfig(final LogUtil logUtil) {
+        if (null == log) {
+            MultilingualConfig.log = logUtil.getLogger(MultilingualConfig.class.getName());
         }
     }
 
     @Bean
-    WebMvcConfigurer multilingualConfigurer(LocalProperty localProperty,
-        @Qualifier(BeanNameConstant.LOCALE_CHANGE_INTERCEPTOR) HandlerInterceptor handlerInterceptor) {
+    WebMvcConfigurer multilingualConfigurer(final LocalProperty localProperty,
+        @Qualifier(BeanNameConstant.LOCALE_CHANGE_INTERCEPTOR) final HandlerInterceptor handlerInterceptor) {
         return new WebMvcConfigurer() {
             @Override
-            public void addInterceptors(InterceptorRegistry registry) {
+            public void addInterceptors(final InterceptorRegistry registry) {
                 registry.addInterceptor(handlerInterceptor).addPathPatterns(localProperty.getPathPattern());
                 WebMvcConfigurer.super.addInterceptors(registry);
             }
@@ -50,25 +50,25 @@ public class MultilingualConfig {
 
     @Bean
     @ConditionalOnMissingBean(ILocal.class)
-    public ILocal defaultLocal(LogUtil logUtil, MultilingualUtil multilingualUtil) {
+    public ILocal defaultLocal(final LogUtil logUtil, final MultilingualUtil multilingualUtil) {
         return new LocalStringTranslateImpl(logUtil, multilingualUtil);
     }
 
     @Bean(BeanNameConstant.LOCALE_CHANGE_INTERCEPTOR)
-    public HandlerInterceptor localeChangeInterceptor(LocalProperty localProperty,
-        @Qualifier(BeanNameConstant.BUILTIN_LOCALE_RESOLVER) LocaleResolver localeResolver) {
+    public HandlerInterceptor localeChangeInterceptor(final LocalProperty localProperty,
+        @Qualifier(BeanNameConstant.BUILTIN_LOCALE_RESOLVER) final LocaleResolver localeResolver) {
         return new HandlerInterceptor() {
             @Override
-            public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
                 throws Exception {
-                Locale locale = localeResolver.resolveLocale(request);
+                final Locale locale = localeResolver.resolveLocale(request);
                 localeResolver.setLocale(request, response, locale);
                 return HandlerInterceptor.super.preHandle(request, response, handler);
             }
         };
     }
 
-    private String getOrDefault(String value, String defaultValue) {
+    private String getOrDefault(String value, final String defaultValue) {
         if (StrUtil.isEmpty(value)) {
             value = defaultValue;
         }
@@ -77,35 +77,36 @@ public class MultilingualConfig {
 
     @Bean(BeanNameConstant.BUILTIN_LOCALE_RESOLVER)
     @ConditionalOnMissingBean(name = BeanNameConstant.BUILTIN_LOCALE_RESOLVER)
-    public LocaleResolver localeResolver(LocalProperty localProperty) {
+    public LocaleResolver localeResolver(final LocalProperty localProperty) {
         switch (localProperty.getType()) {
             case Parameter:
                 return new LocaleResolver() {
                     @Override
-                    public Locale resolveLocale(HttpServletRequest request) {
+                    public Locale resolveLocale(final HttpServletRequest request) {
                         return new Locale(
-                            MultilingualConfig.this.getOrDefault(request.getParameter(localProperty.getValue()), "zh"));
+                            getOrDefault(request.getParameter(localProperty.getValue()), "zh"));
                     }
 
                     @Override
-                    public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+                    public void setLocale(final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
                         LocaleContextHolder.setLocale(locale);
                     }
                 };
             case Cookie:
-                CookieLocaleResolver cookieLocaleResolver = new CookieLocaleResolver();
+                final CookieLocaleResolver cookieLocaleResolver = new CookieLocaleResolver();
                 cookieLocaleResolver.setCookieMaxAge(1000);
                 cookieLocaleResolver.setCookieName(localProperty.getValue());
                 return cookieLocaleResolver;
             case Header:
                 return new LocaleResolver() {
                     @Override
-                    public Locale resolveLocale(HttpServletRequest request) {
-                        return new Locale(getOrDefault(request.getHeader(localProperty.getValue()), "zh"));
+                    public Locale resolveLocale(final HttpServletRequest request) {
+                        return new Locale(
+                            MultilingualConfig.this.getOrDefault(request.getHeader(localProperty.getValue()), "zh"));
                     }
 
                     @Override
-                    public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+                    public void setLocale(final HttpServletRequest request, final HttpServletResponse response, final Locale locale) {
                         LocaleContextHolder.setLocale(locale);
                     }
                 };
@@ -120,7 +121,7 @@ public class MultilingualConfig {
     }
 
     @Bean
-    public MultilingualUtil multilingualUtil(LogUtil logUtil) {
+    public MultilingualUtil multilingualUtil(final LogUtil logUtil) {
         return new MultilingualUtil(logUtil);
     }
 }

@@ -14,7 +14,7 @@ public interface IQuery {
      * @param page
      * @return
      */
-    default String pageQuerySql(IPage page) {
+    default String pageQuerySql(final IPage page) {
         return String.format(" limit %d,%d", page.from(), page.number());
     }
 }

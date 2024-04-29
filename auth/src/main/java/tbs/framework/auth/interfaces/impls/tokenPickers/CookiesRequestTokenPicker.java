@@ -18,10 +18,10 @@ public class CookiesRequestTokenPicker implements IRequestTokenPicker {
     private AuthProperty authProperty;
 
     @Override
-    public String getToken(HttpServletRequest request, HttpServletResponse response) {
+    public String getToken(final HttpServletRequest request, final HttpServletResponse response) {
         String val = null;
-        for (Cookie c : request.getCookies()) {
-            if (Objects.equals(c.getName(), authProperty.getTokenField())) {
+        for (final Cookie c : request.getCookies()) {
+            if (Objects.equals(c.getName(), this.authProperty.getTokenField())) {
                 val = c.getValue();
                 break;
             }

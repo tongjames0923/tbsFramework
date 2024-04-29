@@ -17,8 +17,8 @@ public class MultilingualUtil {
 
     private final ILogger log;
 
-    public MultilingualUtil(LogUtil logUtil) {
-        log = logUtil.getLogger(MultilingualUtil.class.getName());
+    public MultilingualUtil(final LogUtil logUtil) {
+        this.log = logUtil.getLogger(MultilingualUtil.class.getName());
     }
 
     /**
@@ -28,36 +28,36 @@ public class MultilingualUtil {
      * @param args 参数
      * @return 获取国际化翻译值
      */
-    public String message(String code, Object... args) {
-        return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
+    public String message(final String code, final Object... args) {
+        return this.messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
-    public String messageOrDefault(String code, String defaultVal, Object... args) {
+    public String messageOrDefault(final String code, final String defaultVal, final Object... args) {
         try {
-            return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
-        } catch (Exception e) {
+            return this.messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
+        } catch (final Exception e) {
             return defaultVal;
         }
     }
 
-    public Object translate(Object value, Object[] args, Locale lang) {
+    public Object translate(final Object value, final Object[] args, final Locale lang) {
         try {
-            return messageSource.getMessage(value.toString(), args, lang);
-        } catch (Exception e) {
-            log.error(e, String.format("local translate fail for %s,msg:%s", value.toString(), e.getMessage()));
+            return this.messageSource.getMessage(value.toString(), args, lang);
+        } catch (final Exception e) {
+            this.log.error(e, String.format("local translate fail for %s,msg:%s", value.toString(), e.getMessage()));
             return value;
         }
     }
 
-    public Object translate(Object data) {
+    public Object translate(final Object data) {
         try {
-            for (Field field : data.getClass().getDeclaredFields()) {
+            for (final Field field : data.getClass().getDeclaredFields()) {
                 try {
-                    TranslateField tranlateField = field.getDeclaredAnnotation(TranslateField.class);
+                    final TranslateField tranlateField = field.getDeclaredAnnotation(TranslateField.class);
                     if (null == tranlateField) {
                         continue;
                     }
-                    ILocal ilocal = SpringUtil.getBean(tranlateField.value());
+                    final ILocal ilocal = SpringUtil.getBean(tranlateField.value());
                     if (null == ilocal) {
                         throw new ClassNotFoundException("不存在的翻译执行器");
                     }
@@ -67,12 +67,12 @@ public class MultilingualUtil {
                     field.setAccessible(true);
                     field.set(data, ilocal.translate(field.get(data), tranlateField.args().newInstance(),
                         LocaleContextHolder.getLocale()));
-                } catch (Exception e) {
-                    log.error(e, String.format("translate fail msg:%s,filed:%s", e.getMessage(), field.getName()));
+                } catch (final Exception e) {
+                    this.log.error(e, String.format("translate fail msg:%s,filed:%s", e.getMessage(), field.getName()));
                 }
             }
-        } catch (Exception e) {
-            log.error(e, e.getMessage());
+        } catch (final Exception e) {
+            this.log.error(e, e.getMessage());
         }
         return data;
     }

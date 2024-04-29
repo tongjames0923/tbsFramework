@@ -5,7 +5,7 @@ package tbs.framework.base.lock.expections;
  * @author abstergo
  */
 public class ObtainLockFailException extends Exception {
-    public ObtainLockFailException(String s) {
+    public ObtainLockFailException(final String s) {
         super(s);
     }
 }

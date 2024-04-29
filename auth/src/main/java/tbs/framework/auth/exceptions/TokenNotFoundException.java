@@ -6,7 +6,7 @@ package tbs.framework.auth.exceptions;
  * @author abstergo
  */
 public class TokenNotFoundException extends RuntimeException {
-    public TokenNotFoundException(String message) {
+    public TokenNotFoundException(final String message) {
         super(message);
     }
 }

@@ -23,31 +23,29 @@ public class LogExceptionProxy implements IProxy {
      *
      * @param util a {@link tbs.framework.base.utils.LogUtil} object
      */
-    public LogExceptionProxy(LogUtil util) {
-        logger = util.getLogger(LogExceptionProxy.class.getName());
+    public LogExceptionProxy(final LogUtil util) {
+        this.logger = util.getLogger(LogExceptionProxy.class.getName());
     }
 
-    /** {@inheritDoc} */
     @Override
-    public <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable {
-        String uuid = UuidUtils.getUuid();
-        logger.trace("Proxying [" + uuid + "]");
+    public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param) throws Throwable {
+        final String uuid = UuidUtils.getUuid();
+        this.logger.trace("Proxying [" + uuid + "]");
         Optional<R> result = Optional.empty();
         try {
             result = Optional.ofNullable(function.apply(param));
-            logger.trace(String.format("Proxying [%s] result returned", uuid));
-        } catch (Exception ex) {
-            logger.error(ex, String.format("Proxying [%s] failed.message:[%s]", uuid, ex.getMessage()));
+            this.logger.trace(String.format("Proxying [%s] result returned", uuid));
+        } catch (final Exception ex) {
+            this.logger.error(ex, String.format("Proxying [%s] failed.message:[%s]", uuid, ex.getMessage()));
         }
         return result;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public <R, P> Optional<R> safeProxy(FunctionWithThrows<P, R, Throwable> function, P param) {
+    public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param) {
         try {
-            return proxy(function, param);
-        } catch (Throwable throwable) {
+            return this.proxy(function, param);
+        } catch (final Throwable throwable) {
             throw new RuntimeException(throwable);
         }
     }

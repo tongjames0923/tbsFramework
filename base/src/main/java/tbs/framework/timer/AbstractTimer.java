@@ -34,17 +34,17 @@ public abstract class AbstractTimer {
      * @param delay    延迟时间
      * @param timeUnit 时间单位
      */
-    public void scheduled(ITimerCallback callback, long delay, TimeUnit timeUnit) {
-        String session = UuidUtils.getUuid();
-        if (!before(session, callback, delay, timeUnit)) {
+    public void scheduled(final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
+        final String session = UuidUtils.getUuid();
+        if (!this.before(session, callback, delay, timeUnit)) {
             return;
         }
         try {
-            protectedScheduled(session, callback, delay, timeUnit);
-        } catch (Exception e) {
+            this.protectedScheduled(session, callback, delay, timeUnit);
+        } catch (final Exception e) {
             callback.onException(e);
         }
-        after(session, callback, delay, timeUnit);
+        this.after(session, callback, delay, timeUnit);
     }
 
     /**
@@ -53,10 +53,10 @@ public abstract class AbstractTimer {
      * @param callback a {@link tbs.framework.timer.AbstractTimer.ITimerCallback} object
      * @param at a {@link java.time.LocalDateTime} object
      */
-    public void scheduledAt(ITimerCallback callback, LocalDateTime at) {
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(now, at);
-        scheduled(callback, duration.toMillis(), TimeUnit.MILLISECONDS);
+    public void scheduledAt(final ITimerCallback callback, final LocalDateTime at) {
+        final LocalDateTime now = LocalDateTime.now();
+        final Duration duration = Duration.between(now, at);
+        this.scheduled(callback, duration.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -68,7 +68,7 @@ public abstract class AbstractTimer {
      * @param uid      运行会话id
      * @return true 启动计时 false拒绝计时
      */
-    protected boolean before(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
+    protected boolean before(final String uid, final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
         return true;
     }
 
@@ -80,7 +80,7 @@ public abstract class AbstractTimer {
      * @param delay    延迟时间
      * @param timeUnit 时间单位
      */
-    protected void after(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
+    protected void after(final String uid, final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
     }
 
     /**

@@ -13,13 +13,13 @@ public class SimpleLogErrorHandler implements IErrorHandler {
 
     private final ILogger logger;
 
-    public SimpleLogErrorHandler(LogUtil logUtil) {
-        logger = logUtil.getLogger(SimpleLogErrorHandler.class.getName());
+    public SimpleLogErrorHandler(final LogUtil logUtil) {
+        this.logger = logUtil.getLogger(SimpleLogErrorHandler.class.getName());
     }
 
     @Override
-    public Object handleError(Throwable ex) {
-        logger.error(ex, ex.getMessage());
+    public Object handleError(final Throwable ex) {
+        this.logger.error(ex, ex.getMessage());
         return null;
     }
 }

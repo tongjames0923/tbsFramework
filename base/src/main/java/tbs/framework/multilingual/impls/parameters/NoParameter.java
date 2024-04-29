@@ -11,9 +11,8 @@ import java.util.Locale;
  * @version $Id: $Id
  */
 public class NoParameter implements ITranslationParameters {
-    /** {@inheritDoc} */
     @Override
-    public Object[] getParameters(String code, Locale locale, Object source) {
+    public Object[] getParameters(final String code, final Locale locale, final Object source) {
         return new Object[0];
     }
 }

@@ -33,42 +33,40 @@ public class LockProxy implements IProxy {
      * @param lockTimeOut a long
      * @param lockTimeUnit a {@link java.util.concurrent.TimeUnit} object
      */
-    public LockProxy(ILock lock, LogUtil util, long lockTimeOut, TimeUnit lockTimeUnit) {
+    public LockProxy(final ILock lock, final LogUtil util, final long lockTimeOut, final TimeUnit lockTimeUnit) {
         this.lock = lock;
-        if (null == LockProxy.logger) {
-            logger = util.getLogger(LockProxy.class.getName());
+        if (null == logger) {
+            LockProxy.logger = util.getLogger(LockProxy.class.getName());
         }
         this.lockTimeOut = lockTimeOut;
         this.lockTimeUnit = lockTimeUnit;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public <R, P> Optional<R> safeProxy(FunctionWithThrows<P, R, Throwable> function, P param) {
+    public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param) {
         try {
-            return proxy(function, param);
-        } catch (Throwable e) {
-            logger.error(e, e.getMessage());
+            return this.proxy(function, param);
+        } catch (final Throwable e) {
+            LockProxy.logger.error(e, e.getMessage());
         }
         return Optional.empty();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable {
+    public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param) throws Throwable {
         Optional<R> result = Optional.empty();
-        String s = UuidUtils.getUuid();
-        logger.trace(String.format("Locking proxied %s", s));
+        final String s = UuidUtils.getUuid();
+        LockProxy.logger.trace(String.format("Locking proxied %s", s));
         boolean isLocked = false;
         try {
-            isLocked = lock.tryLock(lockTimeOut, lockTimeUnit);
+            isLocked = this.lock.tryLock(this.lockTimeOut, this.lockTimeUnit);
             if (isLocked) {
                 result = Optional.ofNullable(function.apply(param));
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
         return result;
     }

@@ -34,10 +34,10 @@ public class MultilingualAspect {
      * @throws java.lang.Throwable if any.
      */
     @Around("multilingualAspect()")
-    public Object translateField(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object translateField(final ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = joinPoint.proceed();
         if (null != result) {
-            result = multilingualUtil.translate(result);
+            result = this.multilingualUtil.translate(result);
         }
         return result;
     }

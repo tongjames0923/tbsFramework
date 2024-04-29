@@ -20,17 +20,17 @@ public class BatchUtil {
 
     ILogger logger;
 
-    private static BatchUtil batchUtil = null;
+    private static BatchUtil batchUtil;
 
-    public BatchUtil(final LogUtil util) {
-        this.logger = util.getLogger(BatchUtil.class.getName());
-        if (null == BatchUtil.batchUtil) {
-            BatchUtil.batchUtil = this;
+    public BatchUtil(LogUtil util) {
+        logger = util.getLogger(BatchUtil.class.getName());
+        if (null == batchUtil) {
+            batchUtil = this;
         }
     }
 
     public static BatchUtil getInstance() {
-        return BatchUtil.batchUtil;
+        return batchUtil;
     }
 
     /**
@@ -42,9 +42,9 @@ public class BatchUtil {
      * @param mapper
      * @param <T>
      */
-    public static <T> void batchInsert(List<T> data, long batchSize, boolean ignoreError,
-        Class<? extends BaseMapper<T>> mapper) {
-        BatchUtil.batchUtil.batch(data, batchSize, (d, m) -> {
+    public static <T> void batchInsert(final List<T> data, final long batchSize, final boolean ignoreError,
+        final Class<? extends BaseMapper<T>> mapper) {
+        batchUtil.batch(data, batchSize, (d, m) -> {
             m.insert(d);
         }, mapper, ignoreError);
     }
@@ -57,8 +57,8 @@ public class BatchUtil {
      * @param mapper    mapper
      * @param <T>
      */
-    public static <T> void batchInsert(List<T> data, long batchSize, Class<? extends BaseMapper<T>> mapper) {
-        BatchUtil.batchUtil.batch(data, batchSize, (d, m) -> {
+    public static <T> void batchInsert(final List<T> data, final long batchSize, final Class<? extends BaseMapper<T>> mapper) {
+        batchUtil.batch(data, batchSize, (d, m) -> {
             m.insert(d);
         }, mapper, false);
     }
@@ -70,8 +70,8 @@ public class BatchUtil {
      * @param mapper mapper
      * @param <T>
      */
-    public static <T> void batchInsert(List<T> data, Class<? extends BaseMapper<T>> mapper) {
-        BatchUtil.batchUtil.batch(data, 300, (d, m) -> {
+    public static <T> void batchInsert(final List<T> data, final Class<? extends BaseMapper<T>> mapper) {
+        batchUtil.batch(data, 300, (d, m) -> {
             m.insert(d);
         }, mapper, false);
     }
@@ -85,9 +85,9 @@ public class BatchUtil {
      * @param mapper
      * @param <T>
      */
-    public static <T> void batchUpdate(List<T> data, long batchSize, boolean ignoreError,
-        Class<? extends BaseMapper<T>> mapper) {
-        BatchUtil.batchUtil.batch(data, batchSize, (d, m) -> {
+    public static <T> void batchUpdate(final List<T> data, final long batchSize, final boolean ignoreError,
+        final Class<? extends BaseMapper<T>> mapper) {
+        batchUtil.batch(data, batchSize, (d, m) -> {
             m.updateByPrimaryKey(d);
         }, mapper, ignoreError);
     }
@@ -100,8 +100,8 @@ public class BatchUtil {
      * @param mapper    mapper
      * @param <T>
      */
-    public static <T> void batchUpdate(List<T> data, long batchSize, Class<? extends BaseMapper<T>> mapper) {
-        BatchUtil.batchUpdate(data, batchSize, false, mapper);
+    public static <T> void batchUpdate(final List<T> data, final long batchSize, final Class<? extends BaseMapper<T>> mapper) {
+        batchUpdate(data, batchSize, false, mapper);
     }
 
     /**
@@ -111,8 +111,8 @@ public class BatchUtil {
      * @param mapper mapper
      * @param <T>
      */
-    public static <T> void batchUpdate(List<T> data, Class<? extends BaseMapper<T>> mapper) {
-        BatchUtil.batchUpdate(data, 200, mapper);
+    public static <T> void batchUpdate(final List<T> data, final Class<? extends BaseMapper<T>> mapper) {
+        batchUpdate(data, 200, mapper);
     }
 
     /**
@@ -125,27 +125,28 @@ public class BatchUtil {
      * @param ignoreError 忽略操作中的错误
      * @param <T>
      */
-    public <T> void batch(List<T> data, long batchSize, BiConsumer<T, BaseMapper<T>> work,
-        Class<? extends BaseMapper<T>> mapper, boolean ignoreError) {
+    public <T> void batch(final List<T> data, long batchSize, final BiConsumer<T, BaseMapper<T>> work,
+        final Class<? extends BaseMapper<T>> mapper, final boolean ignoreError) {
         if (0L >= batchSize) {
             batchSize = 1000L;
         }
         if (null == work) {
             throw new NullPointerException("必须有处理的操作");
         }
-        final SqlSession sqlSession = sqlSessionTemplate.getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
-        final BaseMapper<T> baseMapper = sqlSession.getMapper(mapper);
+        SqlSession sqlSession =
+            this.sqlSessionTemplate.getSqlSessionFactory().openSession(ExecutorType.BATCH, false);
+        BaseMapper<T> baseMapper = sqlSession.getMapper(mapper);
         if (null == baseMapper) {
             sqlSession.close();
             throw new NoSuchElementException("不存在的Mapper");
         }
 
         long cnt = 0;
-        for (final T d : data) {
+        for (T d : data) {
             try {
                 work.accept(d, baseMapper);
-            } catch (Exception e) {
-                this.logger.error(e, e.getMessage());
+            } catch (final Exception e) {
+                logger.error(e, e.getMessage());
                 if (!ignoreError) {
                     sqlSession.rollback();
                     break;

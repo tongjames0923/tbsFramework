@@ -13,8 +13,8 @@ public interface IJsonJobHandler<T> {
         return "";
     }
 
-    default T paramConvert(Map mp) {
-        return JSON.to(classType(), JSON.toJSONString(mp));
+    default T paramConvert(final Map mp) {
+        return JSON.to(this.classType(), JSON.toJSONString(mp));
     }
 
     String handle(T params) throws Exception;

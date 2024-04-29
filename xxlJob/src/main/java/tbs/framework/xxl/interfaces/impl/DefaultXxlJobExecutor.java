@@ -23,21 +23,21 @@ public class DefaultXxlJobExecutor {
 
     Map<String, IJsonJobHandler> jsonJobHandlerMap = new HashMap<>();
 
-    public DefaultXxlJobExecutor(ApplicationContext applicationContext, LogUtil logUtil) {
-        jsonJobHandlerMap = applicationContext.getBeansOfType(IJsonJobHandler.class);
-        if (null == DefaultXxlJobExecutor.log) {
-            log = logUtil.getLogger(DefaultXxlJobExecutor.class.getName());
+    public DefaultXxlJobExecutor(final ApplicationContext applicationContext, final LogUtil logUtil) {
+        this.jsonJobHandlerMap = applicationContext.getBeansOfType(IJsonJobHandler.class);
+        if (null == log) {
+            DefaultXxlJobExecutor.log = logUtil.getLogger(DefaultXxlJobExecutor.class.getName());
         }
     }
 
     @XxlJob("jsonJobHandler")
     public void function() {
         try {
-            ExecuteInfo executeInfo = JSON.parseObject(XxlJobHelper.getJobParam(), ExecuteInfo.class);
-            if (!jsonJobHandlerMap.containsKey(executeInfo.getMethod())) {
+            final ExecuteInfo executeInfo = JSON.parseObject(XxlJobHelper.getJobParam(), ExecuteInfo.class);
+            if (!this.jsonJobHandlerMap.containsKey(executeInfo.getMethod())) {
                 XxlJobHelper.handleFail("can not find any method name as " + executeInfo.getMethod());
             } else {
-                IJsonJobHandler jsonJobHandler = jsonJobHandlerMap.get(executeInfo.getMethod());
+                final IJsonJobHandler jsonJobHandler = this.jsonJobHandlerMap.get(executeInfo.getMethod());
                 if (null == jsonJobHandler) {
                     XxlJobHelper.handleFail("no json Job handler");
                     return;
@@ -45,17 +45,17 @@ public class DefaultXxlJobExecutor {
                 XxlJobHelper.handleSuccess(jsonJobHandler.handle(jsonJobHandler.paramConvert(executeInfo.getParams())));
             }
 
-        } catch (Exception e) {
-            log.error(e, "xxl-job error");
+        } catch (final Exception e) {
+            DefaultXxlJobExecutor.log.error(e, "xxl-job error");
             XxlJobHelper.handleFail("error:" + e.getMessage());
         }
     }
 
     @XxlJob("available")
     public void availables() {
-        List<Map> ls = new LinkedList<>();
-        for (Map.Entry<String, IJsonJobHandler> entry : jsonJobHandlerMap.entrySet()) {
-            Map<String, String> map = new HashMap<>();
+        final List<Map> ls = new LinkedList<>();
+        for (final Map.Entry<String, IJsonJobHandler> entry : this.jsonJobHandlerMap.entrySet()) {
+            final Map<String, String> map = new HashMap<>();
             map.put("methodName", entry.getKey());
             map.put("helpText", entry.getValue().help());
             ls.add(map);
@@ -65,9 +65,9 @@ public class DefaultXxlJobExecutor {
 
     @XxlJob("help_json")
     public void help() {
-        ExecuteInfo executeInfo = new ExecuteInfo();
+        final ExecuteInfo executeInfo = new ExecuteInfo();
         executeInfo.setMethod("demoMethodName");
-        Map m = new HashMap();
+        final Map m = new HashMap();
         m.put("intType", 1);
         m.put("stringType", "can be anything you need");
         executeInfo.setParams(m);

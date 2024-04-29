@@ -10,12 +10,12 @@ public enum UuidUtils {
     ;
     private static final Queue<String> uuids = new ConcurrentLinkedQueue<>();
     public static String getUuid() {
-        if (uuids.isEmpty()) {
+        if (UuidUtils.uuids.isEmpty()) {
             for (int i = 0; 100 > i; i++) {
-                uuids.add(UUID.fastUUID().toString());
+                UuidUtils.uuids.add(UUID.fastUUID().toString());
             }
         }
-        return uuids.poll();
+        return UuidUtils.uuids.poll();
     }
 
 }

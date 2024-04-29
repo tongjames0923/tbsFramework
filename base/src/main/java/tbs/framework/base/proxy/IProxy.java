@@ -31,10 +31,10 @@ public interface IProxy {
      * @param <P>
      * @return
      */
-    default <R, P> Optional<R> safeProxy(FunctionWithThrows<P, R, Throwable> function, P param) {
+    default <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param) {
         try {
-            return proxy(function, param);
-        } catch (Throwable e) {
+            return this.proxy(function, param);
+        } catch (final Throwable e) {
             e.printStackTrace();
             return Optional.empty();
         }

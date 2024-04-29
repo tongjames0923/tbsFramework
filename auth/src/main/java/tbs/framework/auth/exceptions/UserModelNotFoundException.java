@@ -5,7 +5,7 @@ package tbs.framework.auth.exceptions;
  * @author abstergo
  */
 public class UserModelNotFoundException extends RuntimeException{
-    public UserModelNotFoundException(String message) {
+    public UserModelNotFoundException(final String message) {
         super(message);
     }
 }

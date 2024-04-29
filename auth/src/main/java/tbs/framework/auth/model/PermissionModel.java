@@ -47,14 +47,14 @@ public class PermissionModel implements Serializable {
          * @return true:验证成功
          */
         public boolean success() {
-            return SUCCESS.equals(code);
+            return VerificationResult.SUCCESS.equals(this.code);
         }
 
         /**
          * @return true:存在异常
          */
         public boolean hasError() {
-            return null != this.error;
+            return null != error;
         }
 
         /**
@@ -63,8 +63,8 @@ public class PermissionModel implements Serializable {
          * @return
          */
 
-        public static VerificationResult success(String message) {
-            return new VerificationResult(SUCCESS, message, null);
+        public static VerificationResult success(final String message) {
+            return new VerificationResult(VerificationResult.SUCCESS, message, null);
         }
 
         /**
@@ -73,9 +73,9 @@ public class PermissionModel implements Serializable {
          * @param error 异常
          * @return
          */
-        public static VerificationResult error(String message, RuntimeException error) {
-            RuntimeException exception = Optional.ofNullable(error).orElse(new RuntimeException(message));
-            return new VerificationResult(FAIL, exception.getMessage(), exception);
+        public static VerificationResult error(final String message, final RuntimeException error) {
+            final RuntimeException exception = Optional.ofNullable(error).orElse(new RuntimeException(message));
+            return new VerificationResult(VerificationResult.FAIL, exception.getMessage(), exception);
         }
 
         /**
@@ -83,12 +83,12 @@ public class PermissionModel implements Serializable {
          * @param message 拒绝信息
          * @return
          */
-        public static VerificationResult reject(String message) {
-            return new VerificationResult(FAIL, message, null);
+        public static VerificationResult reject(final String message) {
+            return new VerificationResult(VerificationResult.FAIL, message, null);
         }
 
 
-        public VerificationResult(Integer code, String message, RuntimeException error) {
+        public VerificationResult(final Integer code, final String message, final RuntimeException error) {
             this.code = code;
             this.message = message;
             this.error = error;

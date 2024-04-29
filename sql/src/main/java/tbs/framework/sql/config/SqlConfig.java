@@ -9,12 +9,12 @@ import tbs.framework.sql.utils.QueryUtil;
 public class SqlConfig {
 
     @Bean
-    public BatchUtil batchUtil(LogUtil logUtil) {
+    public BatchUtil batchUtil(final LogUtil logUtil) {
         return new BatchUtil(logUtil);
     }
 
     @Bean
-    public QueryUtil sqlUtil(LogUtil logUtil) {
+    public QueryUtil sqlUtil(final LogUtil logUtil) {
         return new QueryUtil(logUtil);
     }
 

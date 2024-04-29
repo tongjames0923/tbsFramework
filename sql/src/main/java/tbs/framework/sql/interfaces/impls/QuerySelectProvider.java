@@ -7,10 +7,10 @@ import tbs.framework.sql.utils.QueryUtil;
 
 public class QuerySelectProvider {
 
-    public String dynamicSql(IQuery query, IPage page) {
-        QueryUtil queryUtil = SpringUtil.getBean(QueryUtil.class);
+    public String dynamicSql(final IQuery query, final IPage page) {
+        final QueryUtil queryUtil = SpringUtil.getBean(QueryUtil.class);
         String q = queryUtil.getQuery(query);
-        if (page != null) {
+        if (null != page) {
             q += query.pageQuerySql(page);
         }
         return q;

@@ -18,39 +18,39 @@ public class JdkLock implements ILock {
 
     private final AtomicBoolean isLocked = new AtomicBoolean(false);
 
-    public JdkLock(Lock lock, LogUtil util) {
-        l = lock;
-        logger = util.getLogger(JdkLock.class.getName());
+    public JdkLock(final Lock lock, final LogUtil util) {
+        this.l = lock;
+        this.logger = util.getLogger(JdkLock.class.getName());
     }
 
 
     @Override
-    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-        logger.trace(String.format("Trying to acquire lock %s %s", time, unit.toString()));
-        boolean set = l.tryLock(time, unit);
-        isLocked.set(set);
+    public boolean tryLock(final long time, final TimeUnit unit) throws InterruptedException {
+        this.logger.trace(String.format("Trying to acquire lock %s %s", time, unit.toString()));
+        final boolean set = this.l.tryLock(time, unit);
+        this.isLocked.set(set);
         return set;
     }
 
     @Override
     public boolean isLocked() {
-        return isLocked.get();
+        return this.isLocked.get();
     }
 
     @Override
     public void lock() {
-        l.lock();
-        isLocked.set(true);
-        logger.trace("Lock acquired");
+        this.l.lock();
+        this.isLocked.set(true);
+        this.logger.trace("Lock acquired");
     }
 
     @Override
     public void unlock() {
-        if (isLocked.get()) {
-            l.unlock();
-            logger.trace("Unlocked");
+        if (this.isLocked.get()) {
+            this.l.unlock();
+            this.logger.trace("Unlocked");
         } else {
-            logger.warn("locker already unlocked");
+            this.logger.warn("locker already unlocked");
         }
     }
 

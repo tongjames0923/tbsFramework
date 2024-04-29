@@ -10,7 +10,7 @@ public class CacheConfig {
 
     @Bean
     @ConditionalOnMissingBean(ICacheService.class)
-    public ICacheService cacheService(LogUtil logUtil) {
+    public ICacheService cacheService(final LogUtil logUtil) {
         return new SimpleCacheServiceImpl(logUtil);
     }
 }

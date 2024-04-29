@@ -8,25 +8,25 @@ import java.util.Date;
 
 public class SimpleValueMapper implements IValueMapper {
     @Override
-    public String map(Object value) {
-        if (value == null) {
+    public String map(final Object value) {
+        if (null == value) {
             return "";
         }
         if (value instanceof Iterable) {
-            StringBuilder sb = new StringBuilder();
-            for (Object v : (Iterable<?>)value) {
+            final StringBuilder sb = new StringBuilder();
+            for (final Object v : (Iterable<?>)value) {
                 sb.append("'").append(v.toString()).append("',");
             }
             sb.setLength(sb.length() - 1);
             return sb.toString();
         }
         if (value instanceof Temporal) {
-            Temporal instant = (Temporal)value;
-            return TimeUtil.DATE_FORMAT_TEMPORAL_yyyyMMddHHmmss.format(instant).toString();
+            final Temporal instant = (Temporal)value;
+            return TimeUtil.DATE_FORMAT_TEMPORAL_yyyyMMddHHmmss.format(instant);
         }
         if (value instanceof Date) {
-            Date date = (Date)value;
-            return TimeUtil.DATE_FORMAT_yyyyMMddHHmmss.format(date).toString();
+            final Date date = (Date)value;
+            return TimeUtil.DATE_FORMAT_yyyyMMddHHmmss.format(date);
         }
         return value.toString();
     }

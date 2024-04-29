@@ -37,51 +37,51 @@ public class SimpleCacheServiceImpl implements ICacheService {
         private String key;
         private long expiration;
 
-        public CacheEntry(String key, long expiration) {
+        public CacheEntry(final String key, final long expiration) {
             this.key = key;
             this.expiration = expiration;
         }
 
         public String getKey() {
-            return key;
+            return this.key;
         }
 
-        public void setKey(String key) {
+        public void setKey(final String key) {
             this.key = key;
         }
 
         public long getExpiration() {
-            return expiration;
+            return this.expiration;
         }
 
-        public void setExpiration(long expiration) {
+        public void setExpiration(final long expiration) {
             this.expiration = expiration;
         }
 
         @Override
-        public long getDelay(TimeUnit unit) {
-            return unit.convert(Duration.ofSeconds(this.expiration).getSeconds() -
+        public long getDelay(final TimeUnit unit) {
+            return unit.convert(Duration.ofSeconds(expiration).getSeconds() -
                 Duration.ofMillis(System.currentTimeMillis()).getSeconds(), TimeUnit.SECONDS);
         }
 
         @Override
-        public int compareTo(Delayed o) {
-            long diff = this.getDelay(TimeUnit.SECONDS) - o.getDelay(TimeUnit.SECONDS);
+        public int compareTo(final Delayed o) {
+            final long diff = getDelay(TimeUnit.SECONDS) - o.getDelay(TimeUnit.SECONDS);
             return Long.compare(diff, 0);
         }
     }
 
     private final DelayQueue<CacheEntry> expirationQueue = new DelayQueue<>();
 
-    private void inQueue(CacheEntry c) {
-        expirationQueue.add(c);
-        delayedCache.put(c.key, c);
+    private void inQueue(final CacheEntry c) {
+        this.expirationQueue.add(c);
+        this.delayedCache.put(c.key, c);
     }
 
     private CacheEntry outQueue() {
-        CacheEntry cacheEntry = expirationQueue.poll();
+        final CacheEntry cacheEntry = this.expirationQueue.poll();
         if (null != cacheEntry) {
-            delayedCache.remove(cacheEntry.getKey());
+            this.delayedCache.remove(cacheEntry.getKey());
         }
         return cacheEntry;
     }
@@ -91,29 +91,29 @@ public class SimpleCacheServiceImpl implements ICacheService {
      */
     @Scheduled(fixedRate = 500)
     public void scheduleExpiration() {
-        if (expirationQueue.isEmpty()) {
+        if (this.expirationQueue.isEmpty()) {
             return;
         }
-        CacheEntry entry = outQueue();
+        final CacheEntry entry = this.outQueue();
         if (null == entry) {
             return;
         }
 
-        lockProxy.safeProxy((p) -> {
-            if (!cache.containsKey(entry.key)) {
-                logger.debug("不在缓存中的Key:" + entry.key);
+        this.lockProxy.safeProxy((p) -> {
+            if (!this.cache.containsKey(entry.key)) {
+                this.logger.debug("不在缓存中的Key:" + entry.key);
                 return null;
             }
             while (null != p) {
-                long delay = p.getDelay(TimeUnit.SECONDS);
+                final long delay = p.getDelay(TimeUnit.SECONDS);
                 if (0 < delay) {
-                    inQueue(p);
+                    this.inQueue(p);
                     break;
                 } else {
-                    logger.debug(String.format("'%s' cache expired", p.getKey()));
-                    cache.remove(p.key);
+                    this.logger.debug(String.format("'%s' cache expired", p.getKey()));
+                    this.cache.remove(p.key);
                 }
-                p = outQueue();
+                p = this.outQueue();
             }
 
             return null;
@@ -126,29 +126,27 @@ public class SimpleCacheServiceImpl implements ICacheService {
      *
      * @param logUtil a {@link tbs.framework.base.utils.LogUtil} object
      */
-    public SimpleCacheServiceImpl(LogUtil logUtil) {
-        this.logger = logUtil.getLogger(SimpleCacheServiceImpl.class.getName());
+    public SimpleCacheServiceImpl(final LogUtil logUtil) {
+        logger = logUtil.getLogger(SimpleCacheServiceImpl.class.getName());
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void put(String key, Object value, boolean override) {
-        if (cache.containsKey(key) && !override) {
+    public void put(final String key, final Object value, final boolean override) {
+        if (this.cache.containsKey(key) && !override) {
             return;
         }
-        cache.put(key, value);
+        this.cache.put(key, value);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Optional get(String key, boolean isRemove, long delay) {
-        if (cache.containsKey(key)) {
-            Optional result = Optional.ofNullable(cache.get(key));
+    public Optional get(final String key, final boolean isRemove, final long delay) {
+        if (this.cache.containsKey(key)) {
+            final Optional result = Optional.ofNullable(this.cache.get(key));
             if (isRemove && 0 <= delay) {
                 if (0 == delay) {
-                    cache.remove(key);
+                    this.cache.remove(key);
                 } else {
-                    expire(key, delay);
+                    this.expire(key, delay);
                 }
             }
             return result;
@@ -156,42 +154,38 @@ public class SimpleCacheServiceImpl implements ICacheService {
         return Optional.empty();
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void remove(String key) {
-        expire(key, 0);
+    public void remove(final String key) {
+        this.expire(key, 0);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void clear() {
-        lockProxy.safeProxy((p -> {
-            cache.clear();
-            delayedCache.clear();
-            expirationQueue.clear();
+        this.lockProxy.safeProxy((p -> {
+            this.cache.clear();
+            this.delayedCache.clear();
+            this.expirationQueue.clear();
             return null;
         }), null);
 
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void expire(String key, long seconds) {
-        long now = System.currentTimeMillis() / 1000L;
-        lockProxy.safeProxy((p) -> {
-            CacheEntry entry = new CacheEntry(key, now + seconds);
-            inQueue(entry);
+    public void expire(final String key, final long seconds) {
+        final long now = System.currentTimeMillis() / 1000L;
+        this.lockProxy.safeProxy((p) -> {
+            final CacheEntry entry = new CacheEntry(key, now + seconds);
+            this.inQueue(entry);
             return null;
         }, null);
 
 
     }
 
-    /** {@inheritDoc} */
     @Override
-    public long remain(String key) {
-        if (delayedCache.containsKey(key)) {
-            return delayedCache.get(key).getDelay(TimeUnit.SECONDS);
+    public long remain(final String key) {
+        if (this.delayedCache.containsKey(key)) {
+            return this.delayedCache.get(key).getDelay(TimeUnit.SECONDS);
         }
         return Long.MIN_VALUE;
     }

@@ -16,7 +16,7 @@ public class CustomParameter implements ITranslationParameters {
 
     private static ICacheService cacheService;
 
-    private static String keyGen(String code) {
+    private static String keyGen(final String code) {
         return String.format(String.format("LOCALE_PARAMETER:%s", code));
     }
 
@@ -26,12 +26,12 @@ public class CustomParameter implements ITranslationParameters {
      * @param code a {@link java.lang.String} object
      * @param values an array of {@link java.lang.Object} objects
      */
-    public static void setParameter(String code, Object[] values) {
-        if (null == CustomParameter.cacheService) {
-            cacheService = SpringUtil.getBean(ICacheService.class);
+    public static void setParameter(final String code, final Object[] values) {
+        if (null == cacheService) {
+            CustomParameter.cacheService = SpringUtil.getBean(ICacheService.class);
         }
-        String key = keyGen(code);
-        cacheService.put(key, values, true);
+        final String key = CustomParameter.keyGen(code);
+        CustomParameter.cacheService.put(key, values, true);
     }
 
     /**
@@ -40,17 +40,16 @@ public class CustomParameter implements ITranslationParameters {
      * @param code a {@link java.lang.String} object
      * @return an array of {@link java.lang.Object} objects
      */
-    public static Object[] getParameter(String code) {
-        if (null == CustomParameter.cacheService) {
-            cacheService = SpringUtil.getBean(ICacheService.class);
+    public static Object[] getParameter(final String code) {
+        if (null == cacheService) {
+            CustomParameter.cacheService = SpringUtil.getBean(ICacheService.class);
         }
-        String key = keyGen(code);
-        return (Object[])cacheService.get(key, true, 0).orElse(new Object[0]);
+        final String key = CustomParameter.keyGen(code);
+        return (Object[])CustomParameter.cacheService.get(key, true, 0).orElse(new Object[0]);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Object[] getParameters(String code, Locale locale, Object source) {
-        return CustomParameter.getParameter(code);
+    public Object[] getParameters(final String code, final Locale locale, final Object source) {
+        return getParameter(code);
     }
 }

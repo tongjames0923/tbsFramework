@@ -21,16 +21,16 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     ILogger logger;
 
-    public TokenInterceptor(IRequestTokenPicker tokenPicker, LogUtil logUtil) {
+    public TokenInterceptor(final IRequestTokenPicker tokenPicker, final LogUtil logUtil) {
         this.tokenPicker = tokenPicker;
-        logger = logUtil.getLogger(TokenInterceptor.class.getName());
+        this.logger = logUtil.getLogger(TokenInterceptor.class.getName());
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
         throws Exception {
 
-        RuntimeData.getInstance().setRequestToken(tokenPicker.getToken(request, response));
+        RuntimeData.getInstance().setRequestToken(this.tokenPicker.getToken(request, response));
         RuntimeData.getInstance().setInvokeUrl(request.getRequestURI());
         if (!StrUtil.isEmpty(RuntimeData.getInstance().getRequestToken())) {
             RuntimeData.getInstance().setStatus(RuntimeData.TOKEN_PASS);

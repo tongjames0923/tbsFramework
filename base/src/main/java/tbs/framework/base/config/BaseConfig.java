@@ -32,10 +32,10 @@ public class BaseConfig {
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
     @Order(0)
     public ILogProvider getLogger() {
-        if (null == this.baseProperty.getLoggerProvider()) {
+        if (null == baseProperty.getLoggerProvider()) {
             return new Slf4jLoggerProvider();
         }
-        return SpringUtil.getBean(baseProperty.getLoggerProvider());
+        return SpringUtil.getBean(this.baseProperty.getLoggerProvider());
     }
 
     @Bean
@@ -46,21 +46,21 @@ public class BaseConfig {
 
 
     @Bean(BeanNameConstant.ERROR_LOG_PROXY)
-    public IProxy logErrorProxy(LogUtil util) {
+    public IProxy logErrorProxy(final LogUtil util) {
         return new LogExceptionProxy(util);
     }
 
 
     @Bean(BeanNameConstant.BUILTIN_JDK_LOCK)
     @ConditionalOnMissingBean(ILock.class)
-    public ILock builtinJdkLock(LogUtil util) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        return new JdkLock(lockProperty.getLockImpl().getConstructor().newInstance(), util);
+    public ILock builtinJdkLock(final LogUtil util) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        return new JdkLock(this.lockProperty.getLockImpl().getConstructor().newInstance(), util);
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     @ConditionalOnMissingBean(LockProxy.class)
-    public LockProxy lockProxy(ILock lock, LogUtil util) {
-        return new LockProxy(lock, util, lockProperty.getLockTimeout(), lockProperty.getLockTimeUnit());
+    public LockProxy lockProxy(final ILock lock, final LogUtil util) {
+        return new LockProxy(lock, util, this.lockProperty.getLockTimeout(), this.lockProperty.getLockTimeUnit());
     }
 
     @Bean

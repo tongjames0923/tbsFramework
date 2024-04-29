@@ -19,16 +19,16 @@ public class UserModelInterceptor implements HandlerInterceptor {
     IUserModelPicker userModelPicker;
     ILogger logger;
 
-    public UserModelInterceptor(IUserModelPicker userModelPicker, LogUtil logUtil) {
+    public UserModelInterceptor(final IUserModelPicker userModelPicker, final LogUtil logUtil) {
         this.userModelPicker = userModelPicker;
-        logger = logUtil.getLogger(UserModelInterceptor.class.getName());
+        this.logger = logUtil.getLogger(UserModelInterceptor.class.getName());
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
         throws Exception {
         RuntimeData.getInstance()
-            .setUserModel(userModelPicker.getUserModel(RuntimeData.getInstance().getRequestToken()));
+            .setUserModel(this.userModelPicker.getUserModel(RuntimeData.getInstance().getRequestToken()));
 
         if (null != RuntimeData.getInstance().getUserModel()) {
             RuntimeData.getInstance().setStatus(RuntimeData.USER_PASS);

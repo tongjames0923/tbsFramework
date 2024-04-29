@@ -21,49 +21,49 @@ public class QueryUtil {
 
     ILogger logger;
 
-    public QueryUtil(LogUtil logUtil) {
-        logger = logUtil.getLogger(QueryUtil.class.getName());
+    public QueryUtil(final LogUtil logUtil) {
+        this.logger = logUtil.getLogger(QueryUtil.class.getName());
     }
 
-    public String getQuery(IQuery queryObject) {
-        StringBuilder query = new StringBuilder();
+    public String getQuery(final IQuery queryObject) {
+        final StringBuilder query = new StringBuilder();
         query.append(queryObject.baseQuerySql());
 
-        List<Field> fields = getFieldList(queryObject);
-        List<Pair<Boolean, String>> totalWhereSql = new LinkedList<>();
-        StringBuilder orderString = new StringBuilder();
-        for (Field field : fields) {
+        final List<Field> fields = QueryUtil.getFieldList(queryObject);
+        final List<Pair<Boolean, String>> totalWhereSql = new LinkedList<>();
+        final StringBuilder orderString = new StringBuilder();
+        for (final Field field : fields) {
             field.setAccessible(true);
-            Set<QueryField> anns = getAnnotations(field);
-            List<QueryField> list = anns.stream().sorted((o1, o2) -> {
+            final Set<QueryField> anns = QueryUtil.getAnnotations(field);
+            final List<QueryField> list = anns.stream().sorted((o1, o2) -> {
                 return o1.index() - o2.index();
             }).collect(Collectors.toList());
 
-            StringBuilder whereSql = new StringBuilder();
-            List<Pair<String, String>> l = this.extractedSql(queryObject, field, list, orderString);
+            final StringBuilder whereSql = new StringBuilder();
+            final List<Pair<String, String>> l = extractedSql(queryObject, field, list, orderString);
             if (l.isEmpty()) {
                 continue;
             }
-            Pair<String, String> fir = l.get(0);
+            final Pair<String, String> fir = l.get(0);
             whereSql.append(fir.getKey());
             for (int i = 1; i < l.size(); i++) {
-                Pair<String, String> pair = l.get(i);
+                final Pair<String, String> pair = l.get(i);
                 whereSql.append(pair.getValue()).append(" ").append(pair.getKey());
             }
 
-            boolean orField = null != field.getDeclaredAnnotation(OrField.class);
+            final boolean orField = null != field.getDeclaredAnnotation(OrField.class);
             totalWhereSql.add(new Pair<>(orField, String.format("(%s)", whereSql)));
         }
-        assmebly(totalWhereSql, query, orderString);
+        QueryUtil.assmebly(totalWhereSql, query, orderString);
         return query.toString();
     }
 
-    private static void assmebly(List<Pair<Boolean, String>> totalWhereSql, StringBuilder query,
-        StringBuilder orderString) {
-        StringBuilder whereSql = new StringBuilder();
+    private static void assmebly(final List<Pair<Boolean, String>> totalWhereSql, final StringBuilder query,
+        final StringBuilder orderString) {
+        final StringBuilder whereSql = new StringBuilder();
         if (!totalWhereSql.isEmpty()) {
             whereSql.append(" WHERE ");
-            Pair<Boolean, String> fp = totalWhereSql.get(0);
+            final Pair<Boolean, String> fp = totalWhereSql.get(0);
             if (fp.getKey()) {
                 whereSql.append("(").append(fp.getValue()).append(")");
             } else {
@@ -71,7 +71,7 @@ public class QueryUtil {
             }
 
             for (int i = 1; i < totalWhereSql.size(); i++) {
-                Pair<Boolean, String> pair = totalWhereSql.get(i);
+                final Pair<Boolean, String> pair = totalWhereSql.get(i);
                 if (pair.getKey()) {
                     whereSql.append(" OR (").append(pair.getValue()).append(")");
                 } else {
@@ -84,21 +84,21 @@ public class QueryUtil {
         query.append(whereSql).append(orderString);
     }
 
-    private static List<Field> getFieldList(IQuery queryObject) {
-        Class<?> clazz = queryObject.getClass();
-        List<Field> fields =
+    private static List<Field> getFieldList(final IQuery queryObject) {
+        final Class<?> clazz = queryObject.getClass();
+        final List<Field> fields =
             new ArrayList<>(List.of(clazz.getDeclaredFields())).stream().sorted(new Comparator<Field>() {
                 @Override
-                public int compare(Field o1, Field o2) {
-                    return QueryUtil.getFieldIndex(o1) - QueryUtil.getFieldIndex(o2);
+                public int compare(final Field o1, final Field o2) {
+                    return getFieldIndex(o1) - getFieldIndex(o2);
                 }
             }).collect(Collectors.toList());
         return fields;
     }
 
-    private static int getFieldIndex(Field o1) {
-        QueryIndex q1 = o1.getDeclaredAnnotation(QueryIndex.class);
-        return q1 == null ? 1000 : q1.index();
+    private static int getFieldIndex(final Field o1) {
+        final QueryIndex q1 = o1.getDeclaredAnnotation(QueryIndex.class);
+        return null == q1 ? 1000 : q1.index();
     }
 
     /**
@@ -107,45 +107,45 @@ public class QueryUtil {
      * @param list        key:sql语句 value:connector
      * @return
      */
-    private List<Pair<String, String>> extractedSql(IQuery queryObject, Field field, List<QueryField> list,
-        StringBuilder orderString) {
-        List<Pair<String, String>> l = new LinkedList<>();
+    private List<Pair<String, String>> extractedSql(final IQuery queryObject, final Field field, final List<QueryField> list,
+        final StringBuilder orderString) {
+        final List<Pair<String, String>> l = new LinkedList<>();
         for (int i = 0; i < list.size(); i++) {
-            QueryField queryField = list.get(i);
+            final QueryField queryField = list.get(i);
             Object value = null;
-            IValueMapper valueMapper;
+            final IValueMapper valueMapper;
             try {
                 value = field.get(queryObject);
                 valueMapper = SpringUtil.getBean(queryField.valueMapper());
-            } catch (IllegalAccessException e) {
-                logger.error(e, e.getMessage());
+            } catch (final IllegalAccessException e) {
+                this.logger.error(e, e.getMessage());
                 continue;
             }
-            if (ignoreNull(queryField, value)) {
+            if (QueryUtil.ignoreNull(queryField, value)) {
                 continue;
             }
-            String name = getNameField(field, queryField);
-            getFieldOrder(field, orderString, name);
-            value = ignoreCase(value, queryField);
+            final String name = QueryUtil.getNameField(field, queryField);
+            QueryUtil.getFieldOrder(field, orderString, name);
+            value = QueryUtil.ignoreCase(value, queryField);
 
-            StringBuilder builder = makeSingleSql(queryField, name, valueMapper, value);
-            l.add(new Pair<>(builder.toString(), this.connector(queryField.connector())));
+            final StringBuilder builder = this.makeSingleSql(queryField, name, valueMapper, value);
+            l.add(new Pair<>(builder.toString(), connector(queryField.connector())));
         }
         return l;
     }
 
-    private static Object ignoreCase(Object value, QueryField queryField) {
+    private static Object ignoreCase(Object value, final QueryField queryField) {
         if (value instanceof String && queryField.ignoreCase()) {
             value = ((String)value).toLowerCase();
         }
         return value;
     }
 
-    private static void getFieldOrder(Field field, StringBuilder orderString, String name) {
-        QueryOrderField orderField = field.getDeclaredAnnotation(QueryOrderField.class);
-        if (orderField != null) {
-            String ord = orderField.order() == QueryOrderEnum.DESC ? "DESC" : "ASC";
-            if (orderString.length() > 0) {
+    private static void getFieldOrder(final Field field, final StringBuilder orderString, final String name) {
+        final QueryOrderField orderField = field.getDeclaredAnnotation(QueryOrderField.class);
+        if (null != orderField) {
+            final String ord = QueryOrderEnum.DESC == orderField.order() ? "DESC" : "ASC";
+            if (0 < orderString.length()) {
                 orderString.append(",").append(name).append(" ").append(ord);
             } else {
                 orderString.append(" ORDER BY ").append(name).append(" ").append(ord);
@@ -153,7 +153,7 @@ public class QueryUtil {
         }
     }
 
-    private static boolean ignoreNull(QueryField queryField, Object value) {
+    private static boolean ignoreNull(final QueryField queryField, final Object value) {
         if (queryField.ignoreNull()) {
             if (null == value) {
                 return true;
@@ -164,41 +164,41 @@ public class QueryUtil {
                 }
             }
             if (value instanceof Iterable) {
-                final boolean hasNext = ((Iterable<?>)value).iterator().hasNext();
+                boolean hasNext = ((Iterable<?>)value).iterator().hasNext();
                 return !hasNext;
             }
         }
         return false;
     }
 
-    private StringBuilder makeSingleSql(QueryField queryField, String name, IValueMapper valueMapper, Object value) {
-        StringBuilder builder = new StringBuilder();
+    private StringBuilder makeSingleSql(final QueryField queryField, final String name, final IValueMapper valueMapper, final Object value) {
+        final StringBuilder builder = new StringBuilder();
         if (QueryContrastEnum.IS_NOT_NULL == queryField.contrast() ||
             QueryContrastEnum.IS_NULL == queryField.contrast()) {
-            builder.append(name).append(this.contrast(queryField.contrast()));
+            builder.append(name).append(contrast(queryField.contrast()));
         } else if (QueryContrastEnum.RLIKE == queryField.contrast()) {
-            builder.append(name).append(this.contrast(queryField.contrast())).append("'%")
+            builder.append(name).append(contrast(queryField.contrast())).append("'%")
                 .append(valueMapper.map(value)).append("' ");
         } else if (QueryContrastEnum.LLIKE == queryField.contrast()) {
-            builder.append(name).append(this.contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
+            builder.append(name).append(contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
                 .append("%' ");
         } else if (QueryContrastEnum.IN == queryField.contrast() || QueryContrastEnum.NOT_IN == queryField.contrast()) {
-            builder.append(name).append(this.contrast(queryField.contrast())).append("(").append(valueMapper.map(value))
+            builder.append(name).append(contrast(queryField.contrast())).append("(").append(valueMapper.map(value))
                 .append(")");
         } else {
-            builder.append(name).append(this.contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
+            builder.append(name).append(contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
                 .append("' ");
         }
         return builder;
     }
 
-    private static String getNameField(Field field, QueryField queryField) {
+    private static String getNameField(final Field field, final QueryField queryField) {
         String name = StrUtil.isEmpty(queryField.map()) ? field.getName() : queryField.map();
         name = String.format("`%s`", name);
         return name;
     }
 
-    private String contrast(QueryContrastEnum queryContrastEnum) {
+    private String contrast(final QueryContrastEnum queryContrastEnum) {
         switch (queryContrastEnum) {
             case EQUAL:
                 return " = ";
@@ -230,7 +230,7 @@ public class QueryUtil {
         }
     }
 
-    private String connector(QueryConnectorEnum connectorEnum) {
+    private String connector(final QueryConnectorEnum connectorEnum) {
 
         switch (connectorEnum) {
             case AND:
@@ -242,10 +242,10 @@ public class QueryUtil {
         }
     }
 
-    private static Set<QueryField> getAnnotations(Field field) {
-        Set<QueryFields> set1 = AnnotatedElementUtils.getAllMergedAnnotations(field, QueryFields.class);
-        Set<QueryField> set2 = AnnotatedElementUtils.getAllMergedAnnotations(field, QueryField.class);
-        for (QueryFields queryField : set1) {
+    private static Set<QueryField> getAnnotations(final Field field) {
+        final Set<QueryFields> set1 = AnnotatedElementUtils.getAllMergedAnnotations(field, QueryFields.class);
+        final Set<QueryField> set2 = AnnotatedElementUtils.getAllMergedAnnotations(field, QueryField.class);
+        for (final QueryFields queryField : set1) {
             set2.addAll(Arrays.asList(queryField.value()));
         }
         return set2;

@@ -12,8 +12,8 @@ public class HeaderRequestTokenPicker implements IRequestTokenPicker {
     private AuthProperty authProperty;
 
     @Override
-    public String getToken(HttpServletRequest request, HttpServletResponse response) {
-        String token = request.getHeader(authProperty.getTokenField());
+    public String getToken(final HttpServletRequest request, final HttpServletResponse response) {
+        final String token = request.getHeader(this.authProperty.getTokenField());
         return token;
     }
 }

@@ -9,38 +9,38 @@ public class Slf4jLogger implements ILogger {
     private final Logger log;
     private final String name;
 
-    public Slf4jLogger(String name) {
+    public Slf4jLogger(final String name) {
         this.name = name;
-        log = LoggerFactory.getLogger(this.name);
+        this.log = LoggerFactory.getLogger(this.name);
     }
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     @Override
-    public void trace(String message) {
-        log.trace(message);
+    public void trace(final String message) {
+        this.log.trace(message);
     }
 
     @Override
-    public void debug(String message) {
-        log.debug(message);
+    public void debug(final String message) {
+        this.log.debug(message);
     }
 
     @Override
-    public void info(String message) {
-        log.info(message);
+    public void info(final String message) {
+        this.log.info(message);
     }
 
     @Override
-    public void warn(String message) {
-        log.warn(message);
+    public void warn(final String message) {
+        this.log.warn(message);
     }
 
     @Override
-    public void error(Throwable ex, String message) {
-        log.error(message, ex);
+    public void error(final Throwable ex, final String message) {
+        this.log.error(message, ex);
     }
 }

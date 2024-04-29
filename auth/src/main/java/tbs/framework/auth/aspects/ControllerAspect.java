@@ -40,8 +40,8 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
     }
 
-    public ControllerAspect(LogUtil logUtil, Map<String, IPermissionValidator> permissionValidators) {
-        logger = logUtil.getLogger(ControllerAspect.class.getName());
+    public ControllerAspect(final LogUtil logUtil, final Map<String, IPermissionValidator> permissionValidators) {
+        this.logger = logUtil.getLogger(ControllerAspect.class.getName());
         this.permissionValidators = permissionValidators;
     }
 
@@ -53,8 +53,8 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
     @ExceptionHandler
     @ResponseBody
-    public Object errorHandle(Throwable e) {
-        return errorHandler.handleError(e);
+    public Object errorHandle(final Throwable e) {
+        return this.errorHandler.handleError(e);
     }
 
 
@@ -66,35 +66,35 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
 
     @Around("requestMapping()")
-    public Object controllerAspect(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object controllerAspect(final ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = null;
-        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+        final MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
 
-        runtimeData.setInvokeArgs(joinPoint.getArgs());
-        runtimeData.setInvokeMethod(methodSignature.getMethod());
-        logger.trace("permission check: " + methodSignature);
-        if (RuntimeData.USER_PASS.equals(runtimeData.getStatus())) {
-            checkPermissions();
+        this.runtimeData.setInvokeArgs(joinPoint.getArgs());
+        this.runtimeData.setInvokeMethod(methodSignature.getMethod());
+        this.logger.trace("permission check: " + methodSignature);
+        if (RuntimeData.USER_PASS.equals(this.runtimeData.getStatus())) {
+            this.checkPermissions();
         }
 
-        logger.trace("executing method: " + methodSignature);
-        runtimeData.setInvokeBegin(LocalDateTime.now());
+        this.logger.trace("executing method: " + methodSignature);
+        this.runtimeData.setInvokeBegin(LocalDateTime.now());
             result = joinPoint.proceed();
-        runtimeData.setInvokeEnd(LocalDateTime.now());
+        this.runtimeData.setInvokeEnd(LocalDateTime.now());
 
         return result;
     }
 
     private void checkPermissions() {
-        for (Map.Entry<String, IPermissionValidator> entry : permissionValidators.entrySet()) {
-            Set<PermissionModel> list =
-                entry.getValue().pullPermission(runtimeData.getInvokeUrl(), runtimeData.getInvokeMethod());
+        for (final Map.Entry<String, IPermissionValidator> entry : this.permissionValidators.entrySet()) {
+            final Set<PermissionModel> list =
+                entry.getValue().pullPermission(this.runtimeData.getInvokeUrl(), this.runtimeData.getInvokeMethod());
             if (CollUtil.isEmpty(list)) {
                 continue;
             }
-            for (PermissionModel permissionModel : list) {
-                PermissionModel.VerificationResult validate =
-                    entry.getValue().validate(permissionModel, runtimeData.getUserModel());
+            for (final PermissionModel permissionModel : list) {
+                final PermissionModel.VerificationResult validate =
+                    entry.getValue().validate(permissionModel, this.runtimeData.getUserModel());
                 if (validate.success()) {
                     continue;
                 } else if (validate.hasError()) {
@@ -107,18 +107,18 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
     }
 
     @Override
-    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        ApplyRuntimeData applyRuntimeData = returnType.getMethodAnnotation(ApplyRuntimeData.class);
+    public boolean supports(final MethodParameter returnType, final Class<? extends HttpMessageConverter<?>> converterType) {
+        final ApplyRuntimeData applyRuntimeData = returnType.getMethodAnnotation(ApplyRuntimeData.class);
         return null != applyRuntimeData;
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-        Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
-        ServerHttpResponse response) {
+    public Object beforeBodyWrite(final Object body, final MethodParameter returnType, final MediaType selectedContentType,
+        final Class<? extends HttpMessageConverter<?>> selectedConverterType, final ServerHttpRequest request,
+        final ServerHttpResponse response) {
         if (null == body) {
             return body;
         }
-        return exchanger.exchange(runtimeData, body);
+        return this.exchanger.exchange(this.runtimeData, body);
     }
 }

@@ -25,28 +25,25 @@ public class ScheduledExecutorTimer extends AbstractTimer {
      * @param scheduledExecutorService a {@link java.util.concurrent.ScheduledExecutorService} object
      * @param logUtil a {@link tbs.framework.base.utils.LogUtil} object
      */
-    public ScheduledExecutorTimer(ScheduledExecutorService scheduledExecutorService, LogUtil logUtil) {
+    public ScheduledExecutorTimer(final ScheduledExecutorService scheduledExecutorService, final LogUtil logUtil) {
         this.scheduledExecutorService = scheduledExecutorService;
-        logger = logUtil.getLogger(ScheduledExecutorTimer.class.getName());
+        this.logger = logUtil.getLogger(ScheduledExecutorTimer.class.getName());
     }
 
-    /** {@inheritDoc} */
     @Override
-    protected void protectedScheduled(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
-        scheduledExecutorService.schedule(callback::callback, delay, timeUnit);
+    protected void protectedScheduled(final String uid, final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
+        this.scheduledExecutorService.schedule(callback::callback, delay, timeUnit);
     }
 
-    /** {@inheritDoc} */
     @Override
-    protected boolean before(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
-        logger.trace(String.format("%s will Scheduled at %d %s", uid, delay, timeUnit.toString()));
+    protected boolean before(final String uid, final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
+        this.logger.trace(String.format("%s will Scheduled at %d %s", uid, delay, timeUnit.toString()));
 
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
-    protected void after(String uid, ITimerCallback callback, long delay, TimeUnit timeUnit) {
-        logger.trace(String.format("%s Scheduled", uid));
+    protected void after(final String uid, final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
+        this.logger.trace(String.format("%s Scheduled", uid));
     }
 }

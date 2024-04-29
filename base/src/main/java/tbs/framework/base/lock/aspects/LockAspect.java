@@ -18,14 +18,14 @@ public class LockAspect {
     }
 
     @Around("toLock()")
-    public Object run(ProceedingJoinPoint joinPoint) {
-        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
-        LockIt lockIt = methodSignature.getMethod().getDeclaredAnnotation(LockIt.class);
+    public Object run(final ProceedingJoinPoint joinPoint) {
+        final MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+        final LockIt lockIt = methodSignature.getMethod().getDeclaredAnnotation(LockIt.class);
         if (null == lockIt) {
             throw new RuntimeException("LockIt annotation not present");
         }
-        String lockName = lockIt.value();
-        LockProxy proxy = SpringUtil.getBean(lockName);
+        final String lockName = lockIt.value();
+        final LockProxy proxy = SpringUtil.getBean(lockName);
         return proxy.safeProxy((o -> {
             return joinPoint.proceed();
         }), null);

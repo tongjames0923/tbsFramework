@@ -12,7 +12,7 @@ import tbs.framework.auth.model.RuntimeData;
 public class CopyRuntimeDataExchanger<T> implements IRuntimeDataExchanger<T> {
 
     @Override
-    public T exchange(RuntimeData data, T val) {
+    public T exchange(final RuntimeData data, final T val) {
         BeanUtil.copyProperties(data, val, CopyOptions.create().ignoreNullValue().ignoreError().ignoreCase());
         return val;
     }

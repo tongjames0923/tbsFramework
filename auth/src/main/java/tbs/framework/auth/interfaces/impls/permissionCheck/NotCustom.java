@@ -17,12 +17,12 @@ public class NotCustom implements ICustomPermissionChecker, IPermissionProvider 
 
 
     @Override
-    public PermissionModel.VerificationResult checkPermission(PermissionModel permission, UserModel u) {
+    public PermissionModel.VerificationResult checkPermission(final PermissionModel permission, final UserModel u) {
         throw new UnsupportedOperationException("Not Custom");
     }
 
     @Override
-    public List<PermissionModel> retrievePermissions(UserModel userModel, String url, Method method) {
+    public List<PermissionModel> retrievePermissions(final UserModel userModel, final String url, final Method method) {
         throw new UnsupportedOperationException("Not Custom");
     }
 }

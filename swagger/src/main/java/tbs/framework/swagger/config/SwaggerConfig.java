@@ -25,7 +25,7 @@ public class SwaggerConfig {
     WebMvcConfigurer swaggerConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+            public void addResourceHandlers(final ResourceHandlerRegistry registry) {
                 registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
                 registry.addResourceHandler("/webjars/**")
                     .addResourceLocations("classpath:/META-INF/resources/webjars/");
@@ -36,15 +36,15 @@ public class SwaggerConfig {
 
     @Bean("defaultApi2")
     Docket defaultApi2() {
-        return new Docket(swaggerProperty.getDocumentationType()).apiInfo(
-                new ApiInfoBuilder().title(swaggerProperty.getTitle())
-                    .termsOfServiceUrl(swaggerProperty.getTermsOfService()).version(swaggerProperty.getVersion())
-                    .contact(new Contact(swaggerProperty.getContact(), swaggerProperty.getContactUrl(),
-                        swaggerProperty.getEmail())).description(swaggerProperty.getDescription())
-                    .license(swaggerProperty.getLicense()).licenseUrl(swaggerProperty.getLicenseUrl()).build())
-            .groupName(swaggerProperty.getGroupName()).select()
-            .apis(RequestHandlerSelectors.basePackage(swaggerProperty.getBasePackage())).paths(
-                StrUtil.isEmpty(swaggerProperty.getPathPattern()) ? PathSelectors.any()
-                    : PathSelectors.regex(swaggerProperty.getPathPattern())).build();
+        return new Docket(this.swaggerProperty.getDocumentationType()).apiInfo(
+                new ApiInfoBuilder().title(this.swaggerProperty.getTitle())
+                    .termsOfServiceUrl(this.swaggerProperty.getTermsOfService()).version(this.swaggerProperty.getVersion())
+                    .contact(new Contact(this.swaggerProperty.getContact(), this.swaggerProperty.getContactUrl(),
+                        this.swaggerProperty.getEmail())).description(this.swaggerProperty.getDescription())
+                    .license(this.swaggerProperty.getLicense()).licenseUrl(this.swaggerProperty.getLicenseUrl()).build())
+            .groupName(this.swaggerProperty.getGroupName()).select()
+            .apis(RequestHandlerSelectors.basePackage(this.swaggerProperty.getBasePackage())).paths(
+                StrUtil.isEmpty(this.swaggerProperty.getPathPattern()) ? PathSelectors.any()
+                    : PathSelectors.regex(this.swaggerProperty.getPathPattern())).build();
     }
 }

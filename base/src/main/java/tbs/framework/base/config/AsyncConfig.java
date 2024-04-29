@@ -26,19 +26,19 @@ public class AsyncConfig {
 
     private final ILogger logger;
 
-    AsyncConfig(LogUtil util) {
-        logger = util.getLogger(AsyncConfig.class.getName());
-        logger.trace("Async config initialized");
+    AsyncConfig(final LogUtil util) {
+        this.logger = util.getLogger(AsyncConfig.class.getName());
+        this.logger.trace("Async config initialized");
     }
 
 
     @Bean(name = BeanNameConstant.ASYNC_EXECUTOR)
     public ExecutorService asyncExecutor()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        return new ThreadPoolExecutor(executorProperty.getCorePoolSize(), executorProperty.getMaxPoolSize(),
-            executorProperty.getKeepAliveTime(), TimeUnit.SECONDS, new LinkedBlockingQueue<>(32),
+        return new ThreadPoolExecutor(this.executorProperty.getCorePoolSize(), this.executorProperty.getMaxPoolSize(),
+            this.executorProperty.getKeepAliveTime(), TimeUnit.SECONDS, new LinkedBlockingQueue<>(32),
             new ThreadFactoryBuilder().setNamePrefix("main-pool-").build(),
-            executorProperty.getRejectedExecutionHandler().getConstructor().newInstance());
+            this.executorProperty.getRejectedExecutionHandler().getConstructor().newInstance());
     }
 
 }

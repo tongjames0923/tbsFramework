@@ -12,8 +12,8 @@ public class LogUtil {
     @Resource(name = BeanNameConstant.BUILTIN_LOGGER)
     private ILogProvider logProvider;
 
-    public ILogger getLogger(String name) {
-        return logProvider.getLogger(name);
+    public ILogger getLogger(final String name) {
+        return this.logProvider.getLogger(name);
     }
 
 }
