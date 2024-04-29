@@ -6,10 +6,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.sql.annotations.OrField;
-import tbs.framework.sql.annotations.QueryField;
-import tbs.framework.sql.annotations.QueryFields;
-import tbs.framework.sql.annotations.QueryOrderField;
+import tbs.framework.sql.annotations.*;
 import tbs.framework.sql.enums.QueryConnectorEnum;
 import tbs.framework.sql.enums.QueryContrastEnum;
 import tbs.framework.sql.enums.QueryOrderEnum;
@@ -32,18 +29,14 @@ public class QueryUtil {
         StringBuilder query = new StringBuilder();
         query.append(queryObject.baseQuerySql());
 
-        Class<?> clazz = queryObject.getClass();
-        Field[] fields = clazz.getDeclaredFields();
+        List<Field> fields = getFieldList(queryObject);
         List<Pair<Boolean, String>> totalWhereSql = new LinkedList<>();
         StringBuilder orderString = new StringBuilder();
         for (Field field : fields) {
             field.setAccessible(true);
             Set<QueryField> anns = getAnnotations(field);
-            List<QueryField> list = anns.stream().sorted(new Comparator<QueryField>() {
-                @Override
-                public int compare(QueryField o1, QueryField o2) {
-                    return o1.index() - o2.index();
-                }
+            List<QueryField> list = anns.stream().sorted((o1, o2) -> {
+                return o1.index() - o2.index();
             }).collect(Collectors.toList());
 
             StringBuilder whereSql = new StringBuilder();
@@ -61,6 +54,12 @@ public class QueryUtil {
             boolean orField = null != field.getDeclaredAnnotation(OrField.class);
             totalWhereSql.add(new Pair<>(orField, String.format("(%s)", whereSql)));
         }
+        assmebly(totalWhereSql, query, orderString);
+        return query.toString();
+    }
+
+    private static void assmebly(List<Pair<Boolean, String>> totalWhereSql, StringBuilder query,
+        StringBuilder orderString) {
         StringBuilder whereSql = new StringBuilder();
         if (!totalWhereSql.isEmpty()) {
             whereSql.append(" WHERE ");
@@ -83,7 +82,23 @@ public class QueryUtil {
         }
 
         query.append(whereSql).append(orderString);
-        return query.toString();
+    }
+
+    private static List<Field> getFieldList(IQuery queryObject) {
+        Class<?> clazz = queryObject.getClass();
+        List<Field> fields =
+            new ArrayList<>(List.of(clazz.getDeclaredFields())).stream().sorted(new Comparator<Field>() {
+                @Override
+                public int compare(Field o1, Field o2) {
+                    return QueryUtil.getFieldIndex(o1) - QueryUtil.getFieldIndex(o2);
+                }
+            }).collect(Collectors.toList());
+        return fields;
+    }
+
+    private static int getFieldIndex(Field o1) {
+        QueryIndex q1 = o1.getDeclaredAnnotation(QueryIndex.class);
+        return q1 == null ? 1000 : q1.index();
     }
 
     /**
@@ -106,47 +121,75 @@ public class QueryUtil {
                 logger.error(e, e.getMessage());
                 continue;
             }
+            if (ignoreNull(queryField, value)) {
+                continue;
+            }
             String name = getNameField(field, queryField);
-            QueryOrderField orderField = field.getDeclaredAnnotation(QueryOrderField.class);
-            if (orderField != null) {
-                String ord = orderField.order() == QueryOrderEnum.DESC ? "DESC" : "ASC";
-                if (orderString.length() > 0) {
-                    orderString.append(",").append(name).append(" ").append(ord);
-                } else {
-                    orderString.append(" ORDER BY ").append(name).append(" ").append(ord);
-                }
-            }
-            if (queryField.ignoreNull()) {
-                if (null == value) {
-                    continue;
-                }
-                if (value instanceof String) {
-                    if (StrUtil.isEmpty(value.toString())) {
-                        continue;
-                    }
-                }
-            }
-            if (value instanceof String && queryField.ignoreCase()) {
-                value = ((String)value).toLowerCase();
-            }
+            getFieldOrder(field, orderString, name);
+            value = ignoreCase(value, queryField);
 
-            StringBuilder builder = new StringBuilder();
-            if (QueryContrastEnum.IS_NOT_NULL == queryField.contrast() ||
-                QueryContrastEnum.IS_NULL == queryField.contrast()) {
-                builder.append(name).append(this.contrast(queryField.contrast()));
-            } else if (QueryContrastEnum.RLIKE == queryField.contrast()) {
-                builder.append(name).append(this.contrast(queryField.contrast())).append("'%")
-                    .append(valueMapper.map(value)).append("' ");
-            } else if (QueryContrastEnum.LLIKE == queryField.contrast()) {
-                builder.append(name).append(this.contrast(queryField.contrast())).append("'")
-                    .append(valueMapper.map(value)).append("%' ");
-            } else {
-                builder.append(name).append(this.contrast(queryField.contrast())).append("'")
-                    .append(valueMapper.map(value)).append("' ");
-            }
+            StringBuilder builder = makeSingleSql(queryField, name, valueMapper, value);
             l.add(new Pair<>(builder.toString(), this.connector(queryField.connector())));
         }
         return l;
+    }
+
+    private static Object ignoreCase(Object value, QueryField queryField) {
+        if (value instanceof String && queryField.ignoreCase()) {
+            value = ((String)value).toLowerCase();
+        }
+        return value;
+    }
+
+    private static void getFieldOrder(Field field, StringBuilder orderString, String name) {
+        QueryOrderField orderField = field.getDeclaredAnnotation(QueryOrderField.class);
+        if (orderField != null) {
+            String ord = orderField.order() == QueryOrderEnum.DESC ? "DESC" : "ASC";
+            if (orderString.length() > 0) {
+                orderString.append(",").append(name).append(" ").append(ord);
+            } else {
+                orderString.append(" ORDER BY ").append(name).append(" ").append(ord);
+            }
+        }
+    }
+
+    private static boolean ignoreNull(QueryField queryField, Object value) {
+        if (queryField.ignoreNull()) {
+            if (null == value) {
+                return true;
+            }
+            if (value instanceof String) {
+                if (StrUtil.isEmpty(value.toString())) {
+                    return true;
+                }
+            }
+            if (value instanceof Iterable) {
+                final boolean hasNext = ((Iterable<?>)value).iterator().hasNext();
+                return !hasNext;
+            }
+        }
+        return false;
+    }
+
+    private StringBuilder makeSingleSql(QueryField queryField, String name, IValueMapper valueMapper, Object value) {
+        StringBuilder builder = new StringBuilder();
+        if (QueryContrastEnum.IS_NOT_NULL == queryField.contrast() ||
+            QueryContrastEnum.IS_NULL == queryField.contrast()) {
+            builder.append(name).append(this.contrast(queryField.contrast()));
+        } else if (QueryContrastEnum.RLIKE == queryField.contrast()) {
+            builder.append(name).append(this.contrast(queryField.contrast())).append("'%")
+                .append(valueMapper.map(value)).append("' ");
+        } else if (QueryContrastEnum.LLIKE == queryField.contrast()) {
+            builder.append(name).append(this.contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
+                .append("%' ");
+        } else if (QueryContrastEnum.IN == queryField.contrast() || QueryContrastEnum.NOT_IN == queryField.contrast()) {
+            builder.append(name).append(this.contrast(queryField.contrast())).append("(").append(valueMapper.map(value))
+                .append(")");
+        } else {
+            builder.append(name).append(this.contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
+                .append("' ");
+        }
+        return builder;
     }
 
     private static String getNameField(Field field, QueryField queryField) {
@@ -170,6 +213,10 @@ public class QueryUtil {
             case RLIKE:
             case LLIKE:
                 return " like ";
+            case IN:
+                return " in ";
+            case NOT_IN:
+                return " not in ";
             case NOT_LIKE:
                 return " not like ";
             case IS_NULL:
