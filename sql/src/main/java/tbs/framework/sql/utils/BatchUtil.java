@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
 
-@Component
 public class BatchUtil {
     @Autowired
     private SqlSessionTemplate sqlSessionTemplate;
