@@ -11,6 +11,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+@EnableTbsFramework
 @EnableAsync
 @EnableScheduling
 @Retention(RetentionPolicy.RUNTIME)
