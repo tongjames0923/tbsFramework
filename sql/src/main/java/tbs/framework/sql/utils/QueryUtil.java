@@ -17,6 +17,10 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 复杂条件查询工具
+ * @author abstergo
+ */
 public class QueryUtil {
 
     ILogger logger;

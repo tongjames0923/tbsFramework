@@ -7,6 +7,10 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
 
+/**
+ * 事务工具
+ * @author abstergo
+ */
 public class TransactionUtil {
 
     private PlatformTransactionManager transactionManager;
@@ -19,7 +23,9 @@ public class TransactionUtil {
         return transactionUtil;
     }
 
-    // 通过构造器注入事务管理器
+    /**
+     * 通过构造器注入事务管理器
+     */
     public TransactionUtil(PlatformTransactionManager transactionManager, LogUtil l) {
         this.transactionManager = transactionManager;
         logger = l.getLogger(TransactionUtil.class.getName());
@@ -56,7 +62,14 @@ public class TransactionUtil {
         }
     }
 
+    /**
+     * 执行事务的方法，允许用户传入Propagation的事务参数
+     *
+     * @param propagationBehavior
+     * @param businessLogic
+     */
     public void executeTransaction(int propagationBehavior, Runnable businessLogic) {
+
         executeInTransaction(new DefaultTransactionDefinition(propagationBehavior), businessLogic);
     }
 }
