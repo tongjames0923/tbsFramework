@@ -9,9 +9,8 @@ import java.util.Date;
 /**
  * 日期转换 Temporal 和Date
  * @author Abstergo
- * @param <P>
  */
-public class DateValueConvertor<P> extends AbstractChain<P, String> {
+public class DateValueConvertor extends AbstractChain<Object, String> {
     @Override
     public void doChain(Object value) {
         if (value instanceof Temporal) {

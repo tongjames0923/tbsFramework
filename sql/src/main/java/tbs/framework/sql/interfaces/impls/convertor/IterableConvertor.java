@@ -6,7 +6,7 @@ import tbs.framework.base.intefaces.impls.chain.AbstractChain;
  * 遍历器值转换 Iterable
  * @author Abstergo
  */
-public class IterableConvertor<P> extends AbstractChain<P, String> {
+public class IterableConvertor extends AbstractChain<Object, String> {
     @Override
     public void doChain(Object value) {
         if (value instanceof Iterable) {

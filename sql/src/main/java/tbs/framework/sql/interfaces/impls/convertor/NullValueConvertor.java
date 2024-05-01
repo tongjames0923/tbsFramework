@@ -7,7 +7,7 @@ import tbs.framework.base.intefaces.impls.chain.AbstractChain;
  *
  * @author Abstergo
  */
-public class NullValueConvertor<P> extends AbstractChain<P, String> {
+public class NullValueConvertor extends AbstractChain<Object, String> {
     @Override
     public void doChain(Object param) {
         if (param == null) {

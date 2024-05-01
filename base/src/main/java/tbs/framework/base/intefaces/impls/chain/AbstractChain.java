@@ -8,6 +8,7 @@ import java.util.Queue;
 /**
  * 抽象责任链 提供更方便的调用
  *
+ * @author abstergo
  * @param <P>
  * @param <R>
  */
@@ -28,8 +29,6 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
     /**
      * 产生一个新的创建者
      *
-     * @param <P>
-     * @param <R>
      * @return
      */
     public static Builder newChain() {
@@ -62,7 +61,7 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
     public static class Builder<P, R, TR extends AbstractChain<P, R>> {
         private Queue<TR> queue = new LinkedList<>();
 
-        public Builder<P, R, TR> add(TR chain) {
+        public Builder<P, R, TR> add(final TR chain) {
             if (null != chain) {
                 queue.add(chain);
             }

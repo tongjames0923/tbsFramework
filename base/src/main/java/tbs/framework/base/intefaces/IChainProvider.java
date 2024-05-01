@@ -4,12 +4,13 @@ import tbs.framework.base.intefaces.impls.chain.AbstractChain;
 
 /**
  * 责任链提供接口
+ * @author abstergo
  */
-public interface IChainProvider {
+public interface IChainProvider<P,R> {
     /**
      * 产生责任链
      *
      * @return
      */
-    AbstractChain beginChain();
+    AbstractChain<P,R> beginChain();
 }
