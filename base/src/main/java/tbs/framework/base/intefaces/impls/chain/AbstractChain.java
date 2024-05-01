@@ -16,6 +16,15 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
     private boolean isAvailable = false;
     private R result;
 
+    protected R onChangeResult(R result) {
+
+        return result;
+    }
+
+    protected AbstractChain<P, R> onNextBefore(AbstractChain<P, R> nxt) {
+        return nxt;
+    }
+
     /**
      * 产生一个新的创建者
      *
@@ -25,6 +34,25 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
      */
     public static <P, R> Builder<P, R> newChain() {
         return new Builder<>();
+    }
+
+    /**
+     * 设置结果
+     *
+     * @param result
+     */
+    protected void setResult(R result) {
+        this.result = result;
+        onChangeResult(result);
+    }
+
+    /**
+     * 设置是否结束责任链
+     *
+     * @param available
+     */
+    protected void setAvailable(boolean available) {
+        this.isAvailable = available;
     }
 
     /**
@@ -44,16 +72,17 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
         }
 
         public AbstractChain<P, R> build() {
-            AbstractChain<P, R> chain = null;
+            AbstractChain<P, R> head = null, tail = null;
             while (!queue.isEmpty()) {
-                final AbstractChain<P, R> temp = queue.poll();
-                if (null == chain) {
-                    chain = temp;
+                final AbstractChain<P, R> current = queue.poll();
+                if (null == head) {
+                    head = current; // 第一个节点将成为链的头部
                 } else {
-                    chain.next = temp;
+                    tail.next = current; // 将当前节点链接到链的末尾
                 }
+                tail = current; // 更新链的末尾为当前节点
             }
-            return chain;
+            return head; // 返回链的头部节点
         }
     }
 
@@ -63,10 +92,9 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
      * @param result
      */
     public void done(R result) {
-        isAvailable = true;
-        this.result = result;
+        setResult(result);
+        setAvailable(true);
     }
-
 
     @Override
     public R getResult() {
@@ -75,6 +103,7 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
 
     @Override
     public IChain<P, R> next() {
+        next = onNextBefore(next);
         return next;
     }
 
