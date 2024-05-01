@@ -32,8 +32,8 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
      * @param <R>
      * @return
      */
-    public static <P, R> Builder<P, R> newChain() {
-        return new Builder<>();
+    public static Builder newChain() {
+        return new Builder();
     }
 
     /**
@@ -58,27 +58,25 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
     /**
      * 责任链创建器
      *
-     * @param <P>
-     * @param <R>
      */
-    public static class Builder<P, R> {
-        private Queue<AbstractChain<P, R>> queue = new LinkedList<>();
+    public static class Builder<P, R, TR extends AbstractChain<P, R>> {
+        private Queue<TR> queue = new LinkedList<>();
 
-        public Builder<P, R> add(AbstractChain<P, R> chain) {
+        public Builder<P, R, TR> add(TR chain) {
             if (null != chain) {
                 queue.add(chain);
             }
             return this;
         }
 
-        public AbstractChain<P, R> build() {
-            AbstractChain<P, R> head = null, tail = null;
+        public TR build() {
+            TR head = null, tail = null;
             while (!queue.isEmpty()) {
-                final AbstractChain<P, R> current = queue.poll();
+                final TR current = queue.poll();
                 if (null == head) {
                     head = current; // 第一个节点将成为链的头部
                 } else {
-                    tail.next = current; // 将当前节点链接到链的末尾
+                    tail.setNext(current);  // 将当前节点链接到链的末尾
                 }
                 tail = current; // 更新链的末尾为当前节点
             }
@@ -105,6 +103,10 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
     public IChain<P, R> next() {
         next = onNextBefore(next);
         return next;
+    }
+
+    protected void setNext(AbstractChain<P, R> next) {
+        this.next = next;
     }
 
     @Override

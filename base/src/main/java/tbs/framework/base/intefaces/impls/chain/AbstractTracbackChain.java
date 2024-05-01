@@ -8,6 +8,15 @@ package tbs.framework.base.intefaces.impls.chain;
 public abstract class AbstractTracbackChain<P, R> extends AbstractChain<P, R> {
     private AbstractTracbackChain<P, R> previousChain = null;
 
+    @Override
+    protected AbstractChain<P, R> onNextBefore(AbstractChain<P, R> nxt) {
+        if (nxt instanceof AbstractTracbackChain) {
+            AbstractTracbackChain abstractTracbackChain = (AbstractTracbackChain)nxt;
+            abstractTracbackChain.previousChain = this;
+        }
+        return super.onNextBefore(nxt);
+    }
+
     /**
      * 上一个节点
      *
