@@ -4,14 +4,15 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import tbs.framework.base.intefaces.IChain;
 import tbs.framework.base.log.ILogger;
+import tbs.framework.base.utils.ChainUtil;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.sql.annotations.*;
 import tbs.framework.sql.enums.QueryConnectorEnum;
 import tbs.framework.sql.enums.QueryContrastEnum;
 import tbs.framework.sql.enums.QueryOrderEnum;
 import tbs.framework.sql.interfaces.IQuery;
-import tbs.framework.sql.interfaces.IValueMapper;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * 复杂条件查询工具
+ *
  * @author abstergo
  */
 public class QueryUtil {
@@ -111,16 +113,16 @@ public class QueryUtil {
      * @param list        key:sql语句 value:connector
      * @return
      */
-    private List<Pair<String, String>> extractedSql(final IQuery queryObject, final Field field, final List<QueryField> list,
-        final StringBuilder orderString) {
+    private List<Pair<String, String>> extractedSql(final IQuery queryObject, final Field field,
+        final List<QueryField> list, final StringBuilder orderString) {
         final List<Pair<String, String>> l = new LinkedList<>();
         for (int i = 0; i < list.size(); i++) {
             final QueryField queryField = list.get(i);
             Object value = null;
-            final IValueMapper valueMapper;
+            final IChain valueMapperChains;
             try {
                 value = field.get(queryObject);
-                valueMapper = SpringUtil.getBean(queryField.valueMapper());
+                valueMapperChains = SpringUtil.getBean(queryField.valueMapper()).beginChain();
             } catch (final IllegalAccessException e) {
                 this.logger.error(e, e.getMessage());
                 continue;
@@ -132,7 +134,7 @@ public class QueryUtil {
             QueryUtil.getFieldOrder(field, orderString, name);
             value = QueryUtil.ignoreCase(value, queryField);
 
-            final StringBuilder builder = this.makeSingleSql(queryField, name, valueMapper, value);
+            final StringBuilder builder = this.makeSingleSql(queryField, name, valueMapperChains, value);
             l.add(new Pair<>(builder.toString(), connector(queryField.connector())));
         }
         return l;
@@ -175,23 +177,21 @@ public class QueryUtil {
         return false;
     }
 
-    private StringBuilder makeSingleSql(final QueryField queryField, final String name, final IValueMapper valueMapper, final Object value) {
+    private StringBuilder makeSingleSql(final QueryField queryField, final String name, final IChain valueMapper,
+        final Object value) {
         final StringBuilder builder = new StringBuilder();
+        String mped = ChainUtil.process(valueMapper, value).toString();
         if (QueryContrastEnum.IS_NOT_NULL == queryField.contrast() ||
             QueryContrastEnum.IS_NULL == queryField.contrast()) {
             builder.append(name).append(contrast(queryField.contrast()));
         } else if (QueryContrastEnum.RLIKE == queryField.contrast()) {
-            builder.append(name).append(contrast(queryField.contrast())).append("'%")
-                .append(valueMapper.map(value)).append("' ");
+            builder.append(name).append(contrast(queryField.contrast())).append("'%").append(mped).append("' ");
         } else if (QueryContrastEnum.LLIKE == queryField.contrast()) {
-            builder.append(name).append(contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
-                .append("%' ");
+            builder.append(name).append(contrast(queryField.contrast())).append("'").append(mped).append("%' ");
         } else if (QueryContrastEnum.IN == queryField.contrast() || QueryContrastEnum.NOT_IN == queryField.contrast()) {
-            builder.append(name).append(contrast(queryField.contrast())).append("(").append(valueMapper.map(value))
-                .append(")");
+            builder.append(name).append(contrast(queryField.contrast())).append("(").append(mped).append(")");
         } else {
-            builder.append(name).append(contrast(queryField.contrast())).append("'").append(valueMapper.map(value))
-                .append("' ");
+            builder.append(name).append(contrast(queryField.contrast())).append("'").append(mped).append("' ");
         }
         return builder;
     }

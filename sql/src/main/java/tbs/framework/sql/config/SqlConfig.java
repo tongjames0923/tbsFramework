@@ -7,9 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.PlatformTransactionManager;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
+import tbs.framework.base.intefaces.IChainProvider;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.interfaces.impls.NoSqlLogger;
-import tbs.framework.sql.interfaces.impls.SimpleValueMapper;
+import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
 import tbs.framework.sql.properties.SqlProperty;
 import tbs.framework.sql.utils.QueryUtil;
 import tbs.framework.sql.utils.TransactionUtil;
@@ -27,15 +28,14 @@ public class SqlConfig {
         logger = logUtil.getLogger(SqlConfig.class.getName());
     }
 
-
     @Bean
     public QueryUtil sqlUtil(final LogUtil logUtil) {
         return new QueryUtil(logUtil);
     }
 
     @Bean
-    public SimpleValueMapper simpleValueMapper() {
-        return new SimpleValueMapper();
+    public IChainProvider defaultvalueMappingProvider() {
+        return new BuiltInValueConvertChainProvider();
     }
 
     @Bean

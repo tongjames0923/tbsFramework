@@ -1,10 +1,10 @@
 package tbs.framework.sql.annotations;
 
 import org.springframework.stereotype.Component;
+import tbs.framework.base.intefaces.IChainProvider;
 import tbs.framework.sql.enums.QueryConnectorEnum;
 import tbs.framework.sql.enums.QueryContrastEnum;
-import tbs.framework.sql.interfaces.IValueMapper;
-import tbs.framework.sql.interfaces.impls.SimpleValueMapper;
+import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
 
 import java.lang.annotation.*;
 
@@ -59,6 +59,12 @@ public @interface QueryField {
      */
     boolean ignoreNull() default true;
 
-    Class<? extends IValueMapper> valueMapper() default SimpleValueMapper.class;
+    /**
+     * 责任链模式进行值转化，通过spring bean获取
+     *
+     * @return
+     */
+
+    Class<? extends IChainProvider> valueMapper() default BuiltInValueConvertChainProvider.class;
 
 }
