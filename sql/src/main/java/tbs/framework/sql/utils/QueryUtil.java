@@ -135,7 +135,7 @@ public class QueryUtil {
             value = QueryUtil.ignoreCase(value, queryField);
 
             final StringBuilder builder = this.makeSingleSql(queryField, name, valueMapperChains, value);
-            l.add(new Pair<>(builder.toString(), connector(queryField.connector())));
+            l.add(new Pair<>(builder.toString(), this.connector(queryField.connector())));
         }
         return l;
     }

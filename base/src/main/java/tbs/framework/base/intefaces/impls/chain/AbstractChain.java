@@ -13,8 +13,8 @@ import java.util.Queue;
  * @param <R>
  */
 public abstract class AbstractChain<P, R> implements IChain<P, R> {
-    private AbstractChain<P, R> next = null;
-    private boolean isAvailable = false;
+    private AbstractChain<P, R> next;
+    private boolean isAvailable;
     private R result;
 
     protected R onChangeResult(R result) {
@@ -41,8 +41,7 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
      * @param result
      */
     protected void setResult(R result) {
-        this.result = result;
-        onChangeResult(result);
+        this.result = onChangeResult(result);
     }
 
     /**
@@ -59,7 +58,7 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
      *
      */
     public static class Builder<P, R, TR extends AbstractChain<P, R>> {
-        private Queue<TR> queue = new LinkedList<>();
+        private final Queue<TR> queue = new LinkedList<>();
 
         public Builder<P, R, TR> add(final TR chain) {
             if (null != chain) {
@@ -90,7 +89,7 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
      */
     public void done(R result) {
         setResult(result);
-        setAvailable(true);
+        this.isAvailable = true;
     }
 
     @Override

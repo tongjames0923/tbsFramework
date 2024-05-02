@@ -19,8 +19,6 @@ import javax.annotation.Resource;
 
 public class SqlConfig {
 
-    @Resource
-    SqlProperty sqlProperty;
 
     ILogger logger;
 

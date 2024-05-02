@@ -2,7 +2,8 @@ package tbs.framework.base.utils;
 
 import tbs.framework.base.intefaces.IChain;
 
-public class ChainUtil {
+public enum ChainUtil {
+    ;
 
     public static <P, R> IChain<P, R> processForChain(IChain<P, R> chain, P param) {
         R r = null;
@@ -21,7 +22,7 @@ public class ChainUtil {
     }
 
     public static <P, R> R process(IChain<P, R> chain, P param) {
-        return processForChain(chain, param).getResult();
+        return ChainUtil.processForChain(chain, param).getResult();
     }
 
 }

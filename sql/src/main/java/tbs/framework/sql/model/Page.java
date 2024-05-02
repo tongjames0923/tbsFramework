@@ -4,6 +4,9 @@ import tbs.framework.sql.interfaces.IPage;
 
 import java.io.Serializable;
 
+/**
+ * @author abstergo
+ */
 public class Page implements IPage, Serializable {
 
     private static final long serialVersionUID = 7922366116007242398L;

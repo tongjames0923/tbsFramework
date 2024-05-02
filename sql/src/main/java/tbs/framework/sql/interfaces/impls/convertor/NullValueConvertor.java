@@ -10,7 +10,7 @@ import tbs.framework.base.intefaces.impls.chain.AbstractChain;
 public class NullValueConvertor extends AbstractChain<Object, String> {
     @Override
     public void doChain(Object param) {
-        if (param == null) {
+        if (null == param) {
             done("null");
         }
     }

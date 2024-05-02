@@ -7,6 +7,9 @@ import org.apache.ibatis.mapping.SqlCommandType;
 
 import java.io.Serializable;
 
+/**
+ * @author abstergo
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

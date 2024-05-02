@@ -29,6 +29,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author abstergo
+ */
 @RestControllerAdvice
 @Aspect
 public class ControllerAspect implements ResponseBodyAdvice<Object> {
@@ -95,9 +98,7 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
             for (final PermissionModel permissionModel : list) {
                 final PermissionModel.VerificationResult validate =
                     entry.getValue().validate(permissionModel, this.runtimeData.getUserModel());
-                if (validate.success()) {
-                    continue;
-                } else if (validate.hasError()) {
+                if (validate.hasError()) {
                     throw validate.getError();
                 } else {
                     throw new RuntimeException(validate.getMessage());

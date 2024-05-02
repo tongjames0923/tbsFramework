@@ -5,6 +5,9 @@ import tbs.framework.sql.interfaces.IPage;
 import tbs.framework.sql.interfaces.IQuery;
 import tbs.framework.sql.utils.QueryUtil;
 
+/**
+ * @author abstergo
+ */
 public class QuerySelectProvider {
 
     public String dynamicSql(final IQuery query, final IPage page) {

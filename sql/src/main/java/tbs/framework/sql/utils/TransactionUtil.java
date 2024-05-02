@@ -13,9 +13,9 @@ import tbs.framework.base.utils.LogUtil;
  */
 public class TransactionUtil {
 
-    private PlatformTransactionManager transactionManager;
+    private final PlatformTransactionManager transactionManager;
 
-    private ILogger logger;
+    private final ILogger logger;
 
     private static TransactionUtil transactionUtil;
 

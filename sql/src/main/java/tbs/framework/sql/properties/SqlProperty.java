@@ -9,5 +9,5 @@ import java.util.List;
 @Data
 @ConfigurationProperties("tbs.framework.sql")
 public class SqlProperty {
-    private boolean enableLogInterceptor = false;
+    private boolean enableLogInterceptor;
 }

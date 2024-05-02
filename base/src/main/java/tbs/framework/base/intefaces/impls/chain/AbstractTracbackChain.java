@@ -6,7 +6,7 @@ package tbs.framework.base.intefaces.impls.chain;
  * @author abstergo
  */
 public abstract class AbstractTracbackChain<P, R> extends AbstractChain<P, R> {
-    private AbstractTracbackChain<P, R> previousChain = null;
+    private AbstractTracbackChain<P, R> previousChain;
 
     @Override
     protected AbstractChain<P, R> onNextBefore(AbstractChain<P, R> nxt) {
