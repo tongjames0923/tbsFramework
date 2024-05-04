@@ -7,7 +7,10 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import tbs.framework.base.lock.annotations.LockIt;
+import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.base.proxy.impls.LockProxy;
+
+import java.util.NoSuchElementException;
 
 @Aspect
 public class LockAspect {
@@ -22,12 +25,13 @@ public class LockAspect {
         final MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         final LockIt lockIt = methodSignature.getMethod().getDeclaredAnnotation(LockIt.class);
         if (null == lockIt) {
-            throw new RuntimeException("LockIt annotation not present");
+            throw new NoSuchElementException("LockIt annotation not present");
         }
         final String lockName = lockIt.value();
+        final String lockId = lockIt.lockId();
         final LockProxy proxy = SpringUtil.getBean(lockName);
         return proxy.safeProxy((o -> {
             return joinPoint.proceed();
-        }), null);
+        }), null, new SimpleLockAddtionalInfo(lockId));
     }
 }

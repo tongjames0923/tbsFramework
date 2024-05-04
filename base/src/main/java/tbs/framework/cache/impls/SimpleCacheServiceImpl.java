@@ -1,7 +1,9 @@
 package tbs.framework.cache.impls;
 
 import org.springframework.scheduling.annotation.Scheduled;
+import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.base.log.ILogger;
+import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.proxy.impls.LockProxy;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.cache.ICacheService;
@@ -28,6 +30,10 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
 
     private final ILogger logger;
+
+    private IProxy.IProxyAddtionalInfo getLockId() {
+        return new SimpleLockAddtionalInfo(this.toString());
+    }
 
     @Resource
     LockProxy lockProxy;
@@ -117,7 +123,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
             }
 
             return null;
-        }, entry);
+        }, entry, getLockId());
 
     }
 
@@ -166,7 +172,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
             this.delayedCache.clear();
             this.expirationQueue.clear();
             return null;
-        }), null);
+        }), null, getLockId());
 
     }
 
@@ -177,7 +183,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
             final CacheEntry entry = new CacheEntry(key, now + seconds);
             this.inQueue(entry);
             return null;
-        }, null);
+        }, null, getLockId());
 
 
     }

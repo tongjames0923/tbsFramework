@@ -11,30 +11,40 @@ import java.util.Optional;
  * @author abstergo
  */
 public interface IProxy {
+
+    public static interface IProxyAddtionalInfo {
+        <T> T getInfoAs(Class<T> clazz, String key);
+    }
+
+
     /**
      * 不安全的代理
      *
-     * @param function 代理方法
-     * @param param    参数
-     * @param <R>      返回值
-     * @param <P>      参数
+     * @param <R>        返回值
+     * @param <P>        参数
+     * @param function   代理方法
+     * @param param      参数
+     * @param additional
      * @return 代理后的结果
      * @throws Throwable 异常
      */
-    <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param) throws Throwable;
+    <R, P> Optional<R> proxy(FunctionWithThrows<P, R, Throwable> function, P param, IProxyAddtionalInfo additional)
+        throws Throwable;
 
     /**
      * 安全代理，将异常内部处理
      *
-     * @param function
-     * @param param
      * @param <R>
      * @param <P>
+     * @param function
+     * @param param
+     * @param addtional
      * @return
      */
-    default <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param) {
+    default <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
+        IProxyAddtionalInfo addtional) {
         try {
-            return this.proxy(function, param);
+            return this.proxy(function, param, addtional);
         } catch (final Throwable e) {
             LogUtil.getInstance().getLogger(this.getClass().getName()).error(e, e.getMessage());
             return Optional.empty();

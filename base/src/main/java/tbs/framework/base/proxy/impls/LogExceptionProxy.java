@@ -28,7 +28,8 @@ public class LogExceptionProxy implements IProxy {
     }
 
     @Override
-    public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param) throws Throwable {
+    public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
+        IProxyAddtionalInfo additional) throws Throwable {
         final String uuid = UuidUtils.getUuid();
         this.logger.trace("Proxying [" + uuid + "]");
         Optional<R> result = Optional.empty();
@@ -42,9 +43,10 @@ public class LogExceptionProxy implements IProxy {
     }
 
     @Override
-    public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param) {
+    public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
+        IProxyAddtionalInfo addtional) {
         try {
-            return this.proxy(function, param);
+            return this.proxy(function, param, addtional);
         } catch (final Throwable throwable) {
             throw new RuntimeException(throwable);
         }

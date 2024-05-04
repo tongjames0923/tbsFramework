@@ -6,12 +6,12 @@ import java.util.concurrent.TimeUnit;
  * @author abstergo
  */
 public interface ILock {
-    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
+    boolean tryLock(long time, TimeUnit unit, String lockId) throws InterruptedException;
 
-    void lock();
+    void lock(String lockId);
 
-    boolean isLocked();
+    boolean isLocked(String lockId);
 
-    void unlock();
+    void unlock(String lockId);
 
 }

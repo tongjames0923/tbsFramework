@@ -19,6 +19,11 @@ import tbs.framework.base.utils.LogUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 
 @Order(0)
 public class BaseConfig {
@@ -54,7 +59,20 @@ public class BaseConfig {
     @Bean(BeanNameConstant.BUILTIN_JDK_LOCK)
     @ConditionalOnMissingBean(ILock.class)
     public ILock builtinJdkLock(final LogUtil util) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        return new JdkLock(this.lockProperty.getLockImpl().getConstructor().newInstance(), util);
+        return new JdkLock(new Function<String, Lock>() {
+            private Map<String, Lock> lockMap = new HashMap<>();
+
+            @Override
+            public Lock apply(String s) {
+                if (lockMap.containsKey(s)) {
+                    return lockMap.get(s);
+                } else {
+                    Lock l = new ReentrantLock();
+                    lockMap.put(s, l);
+                    return l;
+                }
+            }
+        }, util);
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)

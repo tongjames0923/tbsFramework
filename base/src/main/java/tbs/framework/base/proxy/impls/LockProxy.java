@@ -25,6 +25,8 @@ public class LockProxy implements IProxy {
     private final long lockTimeOut;
     private final TimeUnit lockTimeUnit;
 
+    private static final String addtionalLockIdKey = "LOCK_ID";
+
     /**
      * <p>Constructor for LockProxy.</p>
      *
@@ -43,30 +45,47 @@ public class LockProxy implements IProxy {
     }
 
     @Override
-    public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param) {
+    public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
+        IProxyAddtionalInfo addtional) {
         try {
-            return this.proxy(function, param);
+            return this.proxy(function, param, addtional);
         } catch (final Throwable e) {
             LockProxy.logger.error(e, e.getMessage());
         }
         return Optional.empty();
     }
 
+    /**
+     * 代理锁
+     *
+     * @param <R>
+     * @param <P>
+     * @param function   代理方法
+     * @param param      参数 代理方法参数
+     * @param additional 锁名称参数 若为空则使用默认锁名""
+     * @return
+     * @throws Throwable
+     */
     @Override
-    public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param) throws Throwable {
+    public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
+        IProxyAddtionalInfo additional) throws Throwable {
         Optional<R> result = Optional.empty();
         final String s = UuidUtils.getUuid();
+        String lockId = "";
+        if (additional != null) {
+            lockId = additional.getInfoAs(String.class, addtionalLockIdKey);
+        }
         LockProxy.logger.trace(String.format("Locking proxied %s", s));
         boolean isLocked = false;
         try {
-            isLocked = this.lock.tryLock(this.lockTimeOut, this.lockTimeUnit);
+            isLocked = this.lock.tryLock(this.lockTimeOut, this.lockTimeUnit, lockId);
             if (isLocked) {
                 result = Optional.ofNullable(function.apply(param));
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }
         } finally {
-            this.lock.unlock();
+            this.lock.unlock(lockId);
         }
         return result;
     }
