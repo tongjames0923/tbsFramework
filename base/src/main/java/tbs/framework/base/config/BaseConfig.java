@@ -26,7 +26,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
-
 public class BaseConfig {
 
     @Resource
@@ -36,7 +35,6 @@ public class BaseConfig {
     LockProperty lockProperty;
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
-    @Order(PriorityConstants.LOW_PRIORITY)
     public ILogProvider getLogger() {
         if (null == baseProperty.getLoggerProvider()) {
             return new Slf4jLoggerProvider();
@@ -45,11 +43,9 @@ public class BaseConfig {
     }
 
     @Bean
-    @Order(PriorityConstants.HIGH_PRIORITY)
     public LogUtil getLogUtil() {
         return new LogUtil();
     }
-
 
     @Bean(BeanNameConstant.ERROR_LOG_PROXY)
     public IProxy logErrorProxy(final LogUtil util) {
@@ -57,9 +53,8 @@ public class BaseConfig {
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK)
-    @ConditionalOnMissingBean(ILock.class)
-    @Order
-    public ILock builtinJdkLock(final LogUtil util) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public ILock builtinJdkLock(final LogUtil util)
+        throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return new JdkLock(new Function<String, Lock>() {
             private Map<String, Lock> lockMap = new HashMap<>();
 
@@ -77,10 +72,9 @@ public class BaseConfig {
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
-    @ConditionalOnMissingBean(LockProxy.class)
-    @Order
-    public LockProxy lockProxy(final ILock lock, final LogUtil util) {
-        return new LockProxy(lock, util, this.lockProperty.getLockTimeout(), this.lockProperty.getLockTimeUnit());
+    public LockProxy lockProxy(final LogUtil util) {
+        return new LockProxy(this.lockProperty.getLockType(), util, this.lockProperty.getLockTimeout(),
+            this.lockProperty.getLockTimeUnit());
     }
 
     @Bean

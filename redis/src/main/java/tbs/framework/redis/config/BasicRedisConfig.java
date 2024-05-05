@@ -10,6 +10,7 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -47,14 +48,13 @@ public class BasicRedisConfig {
         return redissonClient;
     }
 
-    @Bean(BeanNameConstant.BUILTIN_LOCK)
+    @Bean
     RedissonLockImpl redissonLock() {
         return new RedissonLockImpl();
     }
 
     @Bean
     @ConditionalOnMissingBean(ObjectMapper.class)
-    @Order(PriorityConstants.HIGHEST_PRIORITY)
     ObjectMapper objectMapper() {
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
@@ -64,7 +64,6 @@ public class BasicRedisConfig {
 
     @Bean
     @ConditionalOnMissingBean(Jackson2JsonRedisSerializer.class)
-    @Order(PriorityConstants.HIGHEST_PRIORITY)
     Jackson2JsonRedisSerializer redisSerializer(ObjectMapper objectMapper) {
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
@@ -73,7 +72,6 @@ public class BasicRedisConfig {
 
     @Bean
     @ConditionalOnMissingBean(StringRedisSerializer.class)
-    @Order(PriorityConstants.HIGHEST_PRIORITY)
     StringRedisSerializer stringRedisSerializer() {
         return new StringRedisSerializer();
     }
@@ -120,7 +118,6 @@ public class BasicRedisConfig {
     }
 
     @Bean
-    @Order(PriorityConstants.LOW_PRIORITY)
     ICacheService redisCacheService() {
         return new RedisCacheService();
     }

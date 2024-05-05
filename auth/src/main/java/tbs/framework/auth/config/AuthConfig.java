@@ -73,7 +73,6 @@ public class AuthConfig {
     }
 
     @Bean
-    @Order(PriorityConstants.LOW_PRIORITY)
     public ControllerAspect controllerAspect(final LogUtil logUtil, final Map<String, IPermissionValidator> map) {
         return new ControllerAspect(logUtil,map);
     }
