@@ -10,6 +10,11 @@ import java.util.Optional;
  */
 public interface ICacheService {
 
+    default String keyGeneration(String key) {
+        return "Cache-" + key;
+    }
+
+
     /**
      * 设置缓存
      *

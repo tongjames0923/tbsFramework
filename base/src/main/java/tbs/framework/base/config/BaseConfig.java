@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import tbs.framework.base.constants.BeanNameConstant;
+import tbs.framework.base.constants.PriorityConstants;
 import tbs.framework.base.lock.ILock;
 import tbs.framework.base.lock.aspects.LockAspect;
 import tbs.framework.base.lock.impls.JdkLock;
@@ -25,7 +26,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
-@Order(0)
+
 public class BaseConfig {
 
     @Resource
@@ -35,7 +36,7 @@ public class BaseConfig {
     LockProperty lockProperty;
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
-    @Order(0)
+    @Order(PriorityConstants.LOW_PRIORITY)
     public ILogProvider getLogger() {
         if (null == baseProperty.getLoggerProvider()) {
             return new Slf4jLoggerProvider();
@@ -44,7 +45,7 @@ public class BaseConfig {
     }
 
     @Bean
-    @Order(10)
+    @Order(PriorityConstants.HIGH_PRIORITY)
     public LogUtil getLogUtil() {
         return new LogUtil();
     }
@@ -55,9 +56,9 @@ public class BaseConfig {
         return new LogExceptionProxy(util);
     }
 
-
-    @Bean(BeanNameConstant.BUILTIN_JDK_LOCK)
+    @Bean(BeanNameConstant.BUILTIN_LOCK)
     @ConditionalOnMissingBean(ILock.class)
+    @Order
     public ILock builtinJdkLock(final LogUtil util) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return new JdkLock(new Function<String, Lock>() {
             private Map<String, Lock> lockMap = new HashMap<>();
@@ -77,6 +78,7 @@ public class BaseConfig {
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     @ConditionalOnMissingBean(LockProxy.class)
+    @Order
     public LockProxy lockProxy(final ILock lock, final LogUtil util) {
         return new LockProxy(lock, util, this.lockProperty.getLockTimeout(), this.lockProperty.getLockTimeUnit());
     }

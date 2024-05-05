@@ -20,6 +20,7 @@ import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
 import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;
+import tbs.framework.base.constants.PriorityConstants;
 import tbs.framework.base.utils.LogUtil;
 
 import javax.annotation.Resource;
@@ -72,7 +73,7 @@ public class AuthConfig {
     }
 
     @Bean
-    @Order(10)
+    @Order(PriorityConstants.LOW_PRIORITY)
     public ControllerAspect controllerAspect(final LogUtil logUtil, final Map<String, IPermissionValidator> map) {
         return new ControllerAspect(logUtil,map);
     }
@@ -84,7 +85,6 @@ public class AuthConfig {
     }
 
     @Bean
-    @Order(1)
     @ConditionalOnProperty(name = "tbs.framework.auth.enable-annotation-permission-validator", havingValue = "true")
     IPermissionValidator permissionValidator() {
         return new AnnotationPermissionValidator();

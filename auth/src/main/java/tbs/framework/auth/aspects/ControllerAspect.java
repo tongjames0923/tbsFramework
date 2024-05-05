@@ -75,9 +75,11 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
         this.runtimeData.setInvokeArgs(joinPoint.getArgs());
         this.runtimeData.setInvokeMethod(methodSignature.getMethod());
-        this.logger.trace("permission check: " + methodSignature);
         if (RuntimeData.USER_PASS.equals(this.runtimeData.getStatus())) {
+            this.logger.trace("permission check: " + methodSignature);
             this.checkPermissions();
+        } else {
+            this.logger.trace("permission check skiped: " + methodSignature);
         }
 
         this.logger.trace("executing method: " + methodSignature);

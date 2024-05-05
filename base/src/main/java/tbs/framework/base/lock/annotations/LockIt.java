@@ -18,7 +18,7 @@ public @interface LockIt {
      *
      * @return
      */
-    String value() default BeanNameConstant.BUILTIN_LOCK_PROXY;
+    String proxyImpl() default BeanNameConstant.BUILTIN_LOCK_PROXY;
 
     /**
      * 锁id

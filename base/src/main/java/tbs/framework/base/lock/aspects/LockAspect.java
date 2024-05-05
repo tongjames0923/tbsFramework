@@ -27,7 +27,7 @@ public class LockAspect {
         if (null == lockIt) {
             throw new NoSuchElementException("LockIt annotation not present");
         }
-        final String lockName = lockIt.value();
+        final String lockName = lockIt.proxyImpl();
         final String lockId = lockIt.lockId();
         final LockProxy proxy = SpringUtil.getBean(lockName);
         return proxy.safeProxy((o -> {

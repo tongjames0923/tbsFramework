@@ -138,21 +138,23 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public void put(final String key, final Object value, final boolean override) {
-        if (this.cache.containsKey(key) && !override) {
+        String tk = this.keyGeneration(key);
+        if (this.cache.containsKey(tk) && !override) {
             return;
         }
-        this.cache.put(key, value);
+        this.cache.put(tk, value);
     }
 
     @Override
     public Optional get(final String key, final boolean isRemove, final long delay) {
-        if (this.cache.containsKey(key)) {
-            final Optional result = Optional.ofNullable(this.cache.get(key));
+        String tk = this.keyGeneration(key);
+        if (this.cache.containsKey(tk)) {
+            final Optional result = Optional.ofNullable(this.cache.get(tk));
             if (isRemove && 0 <= delay) {
                 if (0 == delay) {
-                    this.cache.remove(key);
+                    this.cache.remove(tk);
                 } else {
-                    this.expire(key, delay);
+                    this.expire(tk, delay);
                 }
             }
             return result;
@@ -162,7 +164,9 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public void remove(final String key) {
-        this.expire(key, 0);
+        String tk = this.keyGeneration(key);
+
+        this.expire(tk, 0);
     }
 
     @Override
@@ -178,9 +182,10 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public void expire(final String key, final long seconds) {
+        String tk = this.keyGeneration(key);
         final long now = System.currentTimeMillis() / 1000L;
         this.lockProxy.safeProxy((p) -> {
-            final CacheEntry entry = new CacheEntry(key, now + seconds);
+            final CacheEntry entry = new CacheEntry(tk, now + seconds);
             this.inQueue(entry);
             return null;
         }, null, getLockId());
@@ -190,8 +195,9 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public long remain(final String key) {
-        if (this.delayedCache.containsKey(key)) {
-            return this.delayedCache.get(key).getDelay(TimeUnit.SECONDS);
+        String tk = this.keyGeneration(key);
+        if (this.delayedCache.containsKey(tk)) {
+            return this.delayedCache.get(tk).getDelay(TimeUnit.SECONDS);
         }
         return Long.MIN_VALUE;
     }
