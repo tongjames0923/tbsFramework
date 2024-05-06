@@ -7,6 +7,7 @@ import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.proxy.impls.LockProxy;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.cache.ICacheService;
+import tbs.framework.cache.IkeyGenerator;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -22,7 +23,11 @@ import java.util.concurrent.TimeUnit;
  * @author abstergo
  * @version $Id: $Id
  */
-public class SimpleCacheServiceImpl implements ICacheService {
+public class SimpleCacheServiceImpl implements ICacheService, IkeyGenerator {
+    @Override
+    public String generateKey(String key) {
+        return "SIMPLE_CACHE-" + key;
+    }
 
     private final ConcurrentHashMap<String, Object> cache = new ConcurrentHashMap<>();
 
@@ -138,7 +143,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public void put(final String key, final Object value, final boolean override) {
-        String tk = this.keyGeneration(key);
+        String tk = this.generateKey(key);
         if (this.cache.containsKey(tk) && !override) {
             return;
         }
@@ -147,7 +152,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public Optional get(final String key, final boolean isRemove, final long delay) {
-        String tk = this.keyGeneration(key);
+        String tk = this.generateKey(key);
         if (this.cache.containsKey(tk)) {
             final Optional result = Optional.ofNullable(this.cache.get(tk));
             if (isRemove && 0 <= delay) {
@@ -163,8 +168,13 @@ public class SimpleCacheServiceImpl implements ICacheService {
     }
 
     @Override
+    public boolean exists(String key) {
+        return cache.containsKey(generateKey(key));
+    }
+
+    @Override
     public void remove(final String key) {
-        String tk = this.keyGeneration(key);
+        String tk = this.generateKey(key);
 
         this.expire(tk, 0);
     }
@@ -182,7 +192,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public void expire(final String key, final long seconds) {
-        String tk = this.keyGeneration(key);
+        String tk = this.generateKey(key);
         final long now = System.currentTimeMillis() / 1000L;
         this.lockProxy.safeProxy((p) -> {
             final CacheEntry entry = new CacheEntry(tk, now + seconds);
@@ -195,7 +205,7 @@ public class SimpleCacheServiceImpl implements ICacheService {
 
     @Override
     public long remain(final String key) {
-        String tk = this.keyGeneration(key);
+        String tk = this.generateKey(key);
         if (this.delayedCache.containsKey(tk)) {
             return this.delayedCache.get(tk).getDelay(TimeUnit.SECONDS);
         }

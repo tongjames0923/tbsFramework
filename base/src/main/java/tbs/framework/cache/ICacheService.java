@@ -10,11 +10,6 @@ import java.util.Optional;
  */
 public interface ICacheService {
 
-    default String keyGeneration(String key) {
-        return "Cache-" + key;
-    }
-
-
     /**
      * 设置缓存
      *
@@ -33,6 +28,8 @@ public interface ICacheService {
      * @return 获取的值
      */
     Optional get(String key, boolean isRemove,long delay);
+
+    boolean exists(String key);
 
     /**
      * 移除值

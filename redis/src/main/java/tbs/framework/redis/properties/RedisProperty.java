@@ -15,10 +15,4 @@ public class RedisProperty {
     private Class<? extends RedisSerializer> HashValueSerializer = Jackson2JsonRedisSerializer.class;
     private long cacheTimeout = 3000;
     private boolean allowNullValues = false;
-
-    private RedissonType redissonType = RedissonType.Single;
-
-    public static enum RedissonType {
-        Single, Cluster, MasterSlave, Replicated, Sentinel
-    }
 }

@@ -10,8 +10,6 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
@@ -19,8 +17,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.base.constants.PriorityConstants;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.redis.impls.RedisCacheService;
 import tbs.framework.redis.impls.RedissonLockImpl;
@@ -30,13 +26,13 @@ import java.time.Duration;
 
 public class BasicRedisConfig {
 
-    @Value("${spring.redis.host}")
+    @Value("${spring.redis.host:localhost}")
     private String host;
-    @Value("${spring.redis.port}")
+    @Value("${spring.redis.port:6379}")
     private Integer port;
-    @Value("${spring.redis.timeout}")
-    private String timeout;
-    @Value("${spring.redis.password}")
+    @Value("${spring.redis.timeout:30000}")
+    private long timeout;
+    @Value("${spring.redis.password:123456}")
     private String password;
 
     @Bean(destroyMethod = "shutdown")
