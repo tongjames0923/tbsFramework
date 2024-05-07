@@ -65,8 +65,7 @@ public class BaseConfig {
     }
 
     @Bean
-    public UuidUtil uuidUtil()
-        throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public UuidUtil uuidUtil() throws Exception {
         if (null == this.baseProperty.getUuidProvider()) {
             return new SimpleUuidUtil();
         }

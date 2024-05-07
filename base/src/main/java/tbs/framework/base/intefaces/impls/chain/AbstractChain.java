@@ -17,11 +17,22 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
     private boolean isAvailable;
     private R result;
 
+    /**
+     * 当结果改变时触发
+     *
+     * @param result
+     * @return
+     */
     protected R onChangeResult(R result) {
 
         return result;
     }
 
+    /**
+     * 当调用next时触发
+     * @param nxt
+     * @return
+     */
     protected AbstractChain<P, R> onNextBefore(AbstractChain<P, R> nxt) {
         return nxt;
     }

@@ -7,8 +7,8 @@ import tbs.framework.base.lock.expections.ObtainLockFailException;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.base.utils.UuidUtil;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +23,8 @@ public class LockProxy implements IProxy {
     private static ILogger logger;
     private ILock lock;
     private Class<? extends ILock> lockClass;
+
+    private BigDecimal lockId = new BigDecimal(0);
 
     ILock getLock() {
         if (lock == null) {
@@ -79,12 +81,10 @@ public class LockProxy implements IProxy {
     public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
         IProxyAdditionalInfo additional) throws Throwable {
         Optional<R> result = Optional.empty();
-        final String s = UuidUtil.getUuid();
         String lockId = "";
         if (null != additional) {
             lockId = additional.getInfoAs(String.class, addtionalLockIdKey);
         }
-        LockProxy.logger.trace(String.format("Locking proxied %s", s));
         boolean isLocked = false;
         try {
             isLocked = this.getLock().tryLock(this.lockTimeOut, this.lockTimeUnit, lockId);
