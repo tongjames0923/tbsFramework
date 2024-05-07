@@ -2,7 +2,7 @@ package tbs.framework.base.lock.impls;
 
 import tbs.framework.base.proxy.IProxy;
 
-public class SimpleLockAddtionalInfo implements IProxy.IProxyAddtionalInfo {
+public class SimpleLockAddtionalInfo implements IProxy.IProxyAdditionalInfo {
 
     private String lockName;
 

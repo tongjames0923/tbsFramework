@@ -13,6 +13,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * 启动常用框架功能
+ */
 @EnableSpringUtil
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

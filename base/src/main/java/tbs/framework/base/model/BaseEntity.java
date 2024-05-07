@@ -4,6 +4,10 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 含有Serializable和id的基础实体类
+ * @author Abstergo
+ */
 @Data
 public class BaseEntity<T> implements Serializable {
 

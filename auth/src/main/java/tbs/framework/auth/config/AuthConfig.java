@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -20,7 +19,6 @@ import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
 import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;
-import tbs.framework.base.constants.PriorityConstants;
 import tbs.framework.base.utils.LogUtil;
 
 import javax.annotation.Resource;

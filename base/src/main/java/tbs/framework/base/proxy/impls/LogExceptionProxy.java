@@ -4,7 +4,7 @@ import tbs.framework.base.intefaces.FunctionWithThrows;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.base.utils.UuidUtils;
+import tbs.framework.base.utils.UuidUtil;
 
 import java.util.Optional;
 
@@ -29,8 +29,8 @@ public class LogExceptionProxy implements IProxy {
 
     @Override
     public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
-        IProxyAddtionalInfo additional) throws Throwable {
-        final String uuid = UuidUtils.getUuid();
+        IProxyAdditionalInfo additional) throws Throwable {
+        final String uuid = UuidUtil.getUuid();
         this.logger.trace("Proxying [" + uuid + "]");
         Optional<R> result = Optional.empty();
         try {
@@ -44,7 +44,7 @@ public class LogExceptionProxy implements IProxy {
 
     @Override
     public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
-        IProxyAddtionalInfo addtional) {
+        IProxyAdditionalInfo addtional) {
         try {
             return this.proxy(function, param, addtional);
         } catch (final Throwable throwable) {

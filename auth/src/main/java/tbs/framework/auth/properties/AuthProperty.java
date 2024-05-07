@@ -27,6 +27,9 @@ public class AuthProperty {
      */
     private List<String> authPathPattern;
 
+    /**
+     * 是否启动默认的注解权限验证器
+     */
     private boolean enableAnnotationPermissionValidator = true;
 
 }

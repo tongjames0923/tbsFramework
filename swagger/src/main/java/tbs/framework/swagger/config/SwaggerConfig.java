@@ -1,6 +1,10 @@
 package tbs.framework.swagger.config;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -9,6 +13,8 @@ import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spring.web.plugins.Docket;
+import tbs.framework.base.log.ILogger;
+import tbs.framework.base.utils.LogUtil;
 import tbs.framework.swagger.properties.SwaggerProperty;
 
 import javax.annotation.Resource;
@@ -21,6 +27,12 @@ public class SwaggerConfig {
     @Resource
     private SwaggerProperty swaggerProperty;
 
+    ILogger logger;
+
+    public SwaggerConfig(LogUtil logUtil) {
+        logger = logUtil.getLogger(this.getClass().getName());
+    }
+
     @Bean
     WebMvcConfigurer swaggerConfigurer() {
         return new WebMvcConfigurer() {
@@ -30,6 +42,23 @@ public class SwaggerConfig {
                 registry.addResourceHandler("/webjars/**")
                     .addResourceLocations("classpath:/META-INF/resources/webjars/");
                 WebMvcConfigurer.super.addResourceHandlers(registry);
+            }
+        };
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "tbs.framework.swagger.show-document-url", havingValue = "true",
+        matchIfMissing = true)
+    ApplicationRunner showDocumentUrl() {
+        String context = SpringUtil.getApplicationContext().getEnvironment().getProperty("server.servlet.context-path");
+        context = StrUtil.isEmpty(context) ? "" : context;
+
+        String finalContext = context;
+        return new ApplicationRunner() {
+            @Override
+            public void run(ApplicationArguments args) throws Exception {
+                SwaggerConfig.this.logger.trace(String.format("visit: http://127.0.0.1:%s%s/doc.html",
+                    SpringUtil.getApplicationContext().getEnvironment().getProperty("server.port"), finalContext));
             }
         };
     }

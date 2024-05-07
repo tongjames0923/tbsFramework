@@ -22,23 +22,23 @@ public class SwaggerProperty {
     /**
      * 周期服务
      */
-    private String termsOfService="termsOfService";
+    private String termsOfService = "termsOfService";
     /**
      * 许可证
      */
-    private String license="license";
+    private String license = "license";
     /**
      * 许可证url
      */
-    private String licenseUrl="licenseUrl";
+    private String licenseUrl = "licenseUrl";
     /**
-     *联系人
+     * 联系人
      */
-    private String contact="contact";
+    private String contact = "contact";
     /**
      * 联系人url
      */
-    private String contactUrl="contactUrl";
+    private String contactUrl = "contactUrl";
     /**
      * 扫描包路径
      */
@@ -46,11 +46,11 @@ public class SwaggerProperty {
     /**
      * 分组
      */
-    private String groupName="group";
+    private String groupName = "group";
     /**
      * 联系电子邮件
      */
-    private String email="email";
+    private String email = "email";
     /**
      * 路径匹配
      */
@@ -59,4 +59,9 @@ public class SwaggerProperty {
      * 文档类型
      */
     private DocumentationType documentationType = DocumentationType.OAS_30;
+
+    /**
+     * 是否在日志中显示文档url
+     */
+    private boolean showDocumentUrl = true;
 }

@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.IkeyGenerator;
+import tbs.framework.cache.IkeyMixer;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author abstergo
  */
-public class RedisCacheService implements ICacheService, IkeyGenerator {
+public class RedisCacheService implements ICacheService, IkeyMixer {
     @Override
-    public String generateKey(String key) {
+    public String mixKey(String key) {
         return "Cache-" + key;
     }
 
@@ -28,9 +28,9 @@ public class RedisCacheService implements ICacheService, IkeyGenerator {
     public void put(String key, Object value, boolean override) {
         ValueOperations<String, Object> vo = redisTemplate.opsForValue();
         if (override) {
-            vo.set(generateKey(key), value);
+            vo.set(mixKey(key), value);
         } else {
-            vo.setIfAbsent(generateKey(key), value);
+            vo.setIfAbsent(mixKey(key), value);
         }
     }
 
@@ -38,34 +38,34 @@ public class RedisCacheService implements ICacheService, IkeyGenerator {
     public Optional get(String key, boolean isRemove, long delay) {
         ValueOperations<String, Object> vo = redisTemplate.opsForValue();
         if (isRemove && delay > 0) {
-            return Optional.ofNullable(vo.getAndExpire(generateKey(key), Duration.ofSeconds(delay)));
+            return Optional.ofNullable(vo.getAndExpire(mixKey(key), Duration.ofSeconds(delay)));
         }
-        return Optional.ofNullable(vo.get(generateKey(key)));
+        return Optional.ofNullable(vo.get(mixKey(key)));
     }
 
     @Override
     public boolean exists(String key) {
-        return redisTemplate.hasKey(generateKey(key));
+        return redisTemplate.hasKey(mixKey(key));
     }
 
     @Override
     public void remove(String key) {
-        redisTemplate.delete(generateKey(key));
+        redisTemplate.delete(mixKey(key));
     }
 
     @Override
     public void clear() {
-        redisTemplate.delete(generateKey("*"));
+        redisTemplate.delete(mixKey("*"));
     }
 
     @Override
     public void expire(String key, long seconds) {
-        redisTemplate.expire(generateKey(key), seconds, TimeUnit.SECONDS);
+        redisTemplate.expire(mixKey(key), seconds, TimeUnit.SECONDS);
     }
 
     @Override
     public long remain(String key) {
-        Long re = redisTemplate.getExpire(generateKey(key), TimeUnit.SECONDS);
+        Long re = redisTemplate.getExpire(mixKey(key), TimeUnit.SECONDS);
         return re == null ? 0 : re;
     }
 }

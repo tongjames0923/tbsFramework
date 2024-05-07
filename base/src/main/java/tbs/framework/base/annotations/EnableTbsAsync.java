@@ -11,6 +11,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * 启动异步功能
+ */
 @EnableTbsFramework
 @EnableAsync
 @EnableScheduling

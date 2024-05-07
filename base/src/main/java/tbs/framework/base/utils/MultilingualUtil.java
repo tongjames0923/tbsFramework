@@ -32,6 +32,15 @@ public class MultilingualUtil {
         return this.messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 
+    /**
+     * 根据消息和参数获取消息委托给spring messageSource，若不存在返回默认值
+     *
+     * @param code       消息键
+     * @param defaultVal 默认值
+     * @param args       参数
+     * @return 获取的国际化凡一直
+     */
+
     public String messageOrDefault(final String code, final String defaultVal, final Object... args) {
         try {
             return this.messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
@@ -40,6 +49,14 @@ public class MultilingualUtil {
         }
     }
 
+    /**
+     * 根据消息和参数获取消息委托给spring messageSource，若不存在返回默认值
+     *
+     * @param value 消息键，使用tostring转化为字符串
+     * @param args  参数
+     * @param lang  所需转化的语言地区
+     * @return 若不存在返回value参数本身，若存在返回翻译结果
+     */
     public Object translate(final Object value, final Object[] args, final Locale lang) {
         try {
             return this.messageSource.getMessage(value.toString(), args, lang);
@@ -49,6 +66,12 @@ public class MultilingualUtil {
         }
     }
 
+    /**
+     * 根据注解TranslateField对数据中的字段进行国际化翻译 翻译实现根据ILocal接口实现情况而定
+     *
+     * @param data 所需翻译的数据
+     * @return 翻译后的结果
+     */
     public Object translate(final Object data) {
         try {
             for (final Field field : data.getClass().getDeclaredFields()) {

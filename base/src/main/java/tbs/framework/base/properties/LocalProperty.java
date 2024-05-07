@@ -4,6 +4,9 @@ import cn.hutool.http.Header;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * @author Abstergo
+ */
 @ConfigurationProperties(prefix = "tbs.framework.locale")
 @Data
 public class LocalProperty {

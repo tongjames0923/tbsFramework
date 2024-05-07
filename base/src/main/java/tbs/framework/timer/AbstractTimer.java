@@ -1,6 +1,6 @@
 package tbs.framework.timer;
 
-import tbs.framework.base.utils.UuidUtils;
+import tbs.framework.base.utils.UuidUtil;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -35,7 +35,7 @@ public abstract class AbstractTimer {
      * @param timeUnit 时间单位
      */
     public void scheduled(final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
-        final String session = UuidUtils.getUuid();
+        final String session = UuidUtil.getUuid();
         if (!this.before(session, callback, delay, timeUnit)) {
             return;
         }

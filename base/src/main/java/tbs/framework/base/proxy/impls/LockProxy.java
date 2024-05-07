@@ -7,7 +7,7 @@ import tbs.framework.base.lock.expections.ObtainLockFailException;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.base.utils.UuidUtils;
+import tbs.framework.base.utils.UuidUtil;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +55,7 @@ public class LockProxy implements IProxy {
 
     @Override
     public <R, P> Optional<R> safeProxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
-        IProxyAddtionalInfo addtional) {
+        IProxyAdditionalInfo addtional) {
         try {
             return this.proxy(function, param, addtional);
         } catch (final Throwable e) {
@@ -77,9 +77,9 @@ public class LockProxy implements IProxy {
      */
     @Override
     public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
-        IProxyAddtionalInfo additional) throws Throwable {
+        IProxyAdditionalInfo additional) throws Throwable {
         Optional<R> result = Optional.empty();
-        final String s = UuidUtils.getUuid();
+        final String s = UuidUtil.getUuid();
         String lockId = "";
         if (null != additional) {
             lockId = additional.getInfoAs(String.class, addtionalLockIdKey);

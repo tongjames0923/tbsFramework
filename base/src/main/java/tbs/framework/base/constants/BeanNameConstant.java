@@ -1,5 +1,8 @@
 package tbs.framework.base.constants;
 
+/**
+ * 内置bean名称常量
+ */
 public enum BeanNameConstant {
     ;
     public static final String BUILTIN_LOGGER="BUILTIN_LOGGER";

@@ -1,22 +1,20 @@
 package tbs.framework.base.config;
 
 import cn.hutool.extra.spring.SpringUtil;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
 import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.base.constants.PriorityConstants;
 import tbs.framework.base.lock.ILock;
 import tbs.framework.base.lock.aspects.LockAspect;
 import tbs.framework.base.lock.impls.JdkLock;
-import tbs.framework.base.log.ILogProvider;
-import tbs.framework.base.log.impls.Slf4jLoggerProvider;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.proxy.impls.LockProxy;
 import tbs.framework.base.proxy.impls.LogExceptionProxy;
 import tbs.framework.base.utils.LogUtil;
+import tbs.framework.base.utils.UuidUtil;
+import tbs.framework.base.utils.impls.SimpleUuidUtil;
+import tbs.framework.base.utils.impls.Slf4jLoggerUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -35,16 +33,11 @@ public class BaseConfig {
     LockProperty lockProperty;
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
-    public ILogProvider getLogger() {
-        if (null == baseProperty.getLoggerProvider()) {
-            return new Slf4jLoggerProvider();
+    public LogUtil getLogger() {
+        if (null == this.baseProperty.getLoggerProvider()) {
+            return new Slf4jLoggerUtil();
         }
         return SpringUtil.getBean(this.baseProperty.getLoggerProvider());
-    }
-
-    @Bean
-    public LogUtil getLogUtil() {
-        return new LogUtil();
     }
 
     @Bean(BeanNameConstant.ERROR_LOG_PROXY)
@@ -69,6 +62,14 @@ public class BaseConfig {
                 }
             }
         }, util);
+    }
+
+    @Bean
+    public UuidUtil uuidUtil() {
+        if (null == this.baseProperty.getUuidProvider()) {
+            return new SimpleUuidUtil();
+        }
+        return SpringUtil.getBean(baseProperty.getUuidProvider());
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)

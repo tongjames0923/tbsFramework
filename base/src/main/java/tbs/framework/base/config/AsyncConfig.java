@@ -2,8 +2,6 @@ package tbs.framework.base.config;
 
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.properties.ExecutorProperty;
