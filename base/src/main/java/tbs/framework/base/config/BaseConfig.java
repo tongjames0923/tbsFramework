@@ -1,6 +1,5 @@
 package tbs.framework.base.config;
 
-import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.lock.ILock;
@@ -33,11 +32,12 @@ public class BaseConfig {
     LockProperty lockProperty;
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
-    public LogUtil getLogger() {
+    public LogUtil getLogger()
+        throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         if (null == this.baseProperty.getLoggerProvider()) {
             return new Slf4jLoggerUtil();
         }
-        return SpringUtil.getBean(this.baseProperty.getLoggerProvider());
+        return this.baseProperty.getLoggerProvider().getConstructor().newInstance();
     }
 
     @Bean(BeanNameConstant.ERROR_LOG_PROXY)
@@ -65,11 +65,12 @@ public class BaseConfig {
     }
 
     @Bean
-    public UuidUtil uuidUtil() {
+    public UuidUtil uuidUtil()
+        throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         if (null == this.baseProperty.getUuidProvider()) {
             return new SimpleUuidUtil();
         }
-        return SpringUtil.getBean(baseProperty.getUuidProvider());
+        return baseProperty.getUuidProvider().getConstructor().newInstance();
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
