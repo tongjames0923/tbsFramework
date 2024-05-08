@@ -23,6 +23,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
+/**
+ * @author Abstergo
+ */
 public class BaseConfig {
 
     @Resource
@@ -74,8 +77,8 @@ public class BaseConfig {
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     public LockProxy lockProxy(final LogUtil util) {
-        return new LockProxy(this.lockProperty.getLockType(), util, this.lockProperty.getLockTimeout(),
-            this.lockProperty.getLockTimeUnit());
+        return new LockProxy(this.lockProperty.getProxyLockType(), util, this.lockProperty.getProxyLockTimeout(),
+            this.lockProperty.getProxyLockTimeUnit());
     }
 
     @Bean

@@ -7,6 +7,9 @@ import tbs.framework.base.utils.LogUtil;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * @author Abstergo
+ */
 public class Slf4jLoggerUtil extends LogUtil {
 
     private static final ConcurrentMap<String, ILogger> loggers = new ConcurrentHashMap<>(10);

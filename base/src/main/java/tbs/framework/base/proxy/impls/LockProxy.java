@@ -27,7 +27,7 @@ public class LockProxy implements IProxy {
     private BigDecimal lockId = new BigDecimal(0);
 
     ILock getLock() {
-        if (lock == null) {
+        if (null == lock) {
             lock = SpringUtil.getBean(lockClass);
         }
         return lock;

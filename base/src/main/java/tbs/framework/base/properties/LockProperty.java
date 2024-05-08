@@ -17,15 +17,15 @@ public class LockProperty {
     /**
      * 锁类型
      */
-    private Class<? extends ILock> lockType = JdkLock.class;
+    private Class<? extends ILock> proxyLockType = JdkLock.class;
 
     /**
      * 锁等待时间
      */
-    private long lockTimeout = 10000;
+    private long proxyLockTimeout = 10000;
 
     /**
      * 等待时间单位
      */
-    private TimeUnit lockTimeUnit = TimeUnit.MILLISECONDS;
+    private TimeUnit proxyLockTimeUnit = TimeUnit.MILLISECONDS;
 }
