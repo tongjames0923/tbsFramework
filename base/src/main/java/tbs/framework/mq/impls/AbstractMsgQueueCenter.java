@@ -1,39 +1,37 @@
 package tbs.framework.mq.impls;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.base.proxy.impls.LockProxy;
 import tbs.framework.mq.AbstractMessageCenter;
 import tbs.framework.mq.IMessage;
 import tbs.framework.mq.IMessageConsumer;
-import tbs.framework.mq.IMessageQueue;
+import tbs.framework.mq.IMessageQueueEvents;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
  * @author abstergo
  */
-public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
+public abstract class AbstractMsgQueueCenter extends AbstractMessageCenter {
 
     ConcurrentHashMap<String, Map<String, IMessageConsumer>> consumers = new ConcurrentHashMap<>();
-    AtomicBoolean beginReciving = new AtomicBoolean(false);
 
     private static final String LOCK_NAME = "SIMPLE_MSG_CENTER_LOCK";
     @Resource
     LockProxy lockProxy;
 
+    @Resource
+    List<IMessageConsumer> consumerList;
+
     ExecutorService service = Executors.newFixedThreadPool(1);
 
-    protected abstract IMessageQueue getMessageQueue();
-
-
+    protected abstract QueueListener getQueueListener();
 
     @Override
     public AbstractMessageCenter setMessageConsumer(IMessageConsumer messageConsumer) {
@@ -67,9 +65,6 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
 
     @Override
     public void publish(IMessage message) {
-        if (!isStart()) {
-            centerStartToWork();
-        }
         lockProxy.safeProxy((p) -> {
             super.publish(message);
             return null;
@@ -78,11 +73,11 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
 
     @Override
     protected void sendMessage(IMessage message) {
-        getMessageQueue().insert(message);
+        getQueueListener().getQueue().insert(message);
     }
 
     @Override
-    protected boolean onMessageReceived(IMessage message) {
+    public boolean onMessageReceived(IMessage message) {
         List<IMessageConsumer> consumers = selectMessageConsumer(message);
         if (CollUtil.isEmpty(consumers)) {
             throw new UnsupportedOperationException("none consumer found");
@@ -92,37 +87,36 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
             try {
                 consumer.consume(message);
             } catch (Exception e) {
-                onMessageFailed(message, r++, MessageHandleType.Receive, e, consumer);
+                if (!onMessageFailed(message, r++, IMessageQueueEvents.MessageHandleType.Receive, e, consumer)) {
+                    break;
+                }
             }
         }
         return message.consumed();
     }
 
     @Override
-    protected List<IMessageConsumer> selectMessageConsumer(IMessage message) {
+    public List<IMessageConsumer> selectMessageConsumer(IMessage message) {
         List<IMessageConsumer> c = new LinkedList<>();
         return consumers.getOrDefault(message.getTopic(), new HashMap<>()).values().stream()
             .collect(Collectors.toList());
     }
 
+    public AbstractMsgQueueCenter init() {
+        centerStartToWork();
+        return this;
+    }
+
     @Override
     public void centerStartToWork() {
-        beginReciving.set(true);
+        for (IMessageConsumer consumer : consumerList) {
+            setMessageConsumer(consumer);
+        }
+        setStarted(true);
         service.execute(() -> {
-            while (beginReciving.get()) {
+            while (isStart()) {
                 lockProxy.safeProxy((p) -> {
-                    if (getMessageQueue().isEmpty()) {
-                        Thread.yield();
-                        return null;
-                    }
-                    IMessage message = getMessageQueue().getNext();
-                    if (message == null) {
-                        Thread.yield();
-                        return null;
-                    }
-                    if (!onMessageReceived(message)) {
-                        getMessageQueue().insert(message);
-                    }
+                    getQueueListener().listen(this);
                     return null;
                 }, null, new SimpleLockAddtionalInfo(LOCK_NAME));
             }
@@ -132,12 +126,7 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
 
     @Override
     public void centerStopToWork() {
-        beginReciving.set(false);
+        setStarted(false);
         service.shutdown();
-    }
-
-    @Override
-    public boolean isStart() {
-        return beginReciving.get();
     }
 }

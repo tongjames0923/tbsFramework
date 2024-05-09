@@ -5,29 +5,38 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import tbs.framework.base.log.ILogger;
+import tbs.framework.base.utils.LogUtil;
 import tbs.framework.mq.AbstractMessageCenter;
 import tbs.framework.mq.IMessage;
 import tbs.framework.mq.IMessageConsumer;
-import tbs.framework.redis.properties.RedisProperty;
 
 import javax.annotation.Resource;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RedisMessageCenter extends AbstractMessageCenter {
+/**
+ * @author abstergo
+ */
+public abstract class AbstractRedisMessageCenter extends AbstractMessageCenter {
 
-    RedisMessageListenerContainer listenerContainer;
+    private RedisMessageListenerContainer listenerContainer;
+
+    private ILogger logger = null;
 
     @Resource(name = "REDIS_MSG")
     private RedisTemplate<String, Object> redisTemplate;
 
-    public RedisMessageCenter(RedisMessageListenerContainer listenerContainer) {
+    public AbstractRedisMessageCenter(RedisMessageListenerContainer listenerContainer) {
         this.listenerContainer = listenerContainer;
-
     }
 
-    @Resource
-    RedisProperty redisProperty;
+    private ILogger getLogger() {
+        if (logger == null) {
+            logger = LogUtil.getInstance().getLogger(this.getClass().getName());
+        }
+        return logger;
+    }
 
     @Override
     public AbstractMessageCenter setMessageConsumer(IMessageConsumer messageConsumer) {
@@ -45,8 +54,15 @@ public class RedisMessageCenter extends AbstractMessageCenter {
     }
 
     @Override
+    @Deprecated
     public boolean removeMessageConsumer(IMessageConsumer messageConsumer) {
-        return false;
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    @Deprecated
+    public List<IMessageConsumer> selectMessageConsumer(IMessage message) {
+        return List.of();
     }
 
     @Override
@@ -55,39 +71,21 @@ public class RedisMessageCenter extends AbstractMessageCenter {
     }
 
     @Override
-    protected boolean onMessageReceived(IMessage message) {
-        return false;
-    }
-
-    @Override
-    protected void onMessageSent(IMessage message) {
-
-    }
-
-    @Override
-    protected boolean onMessageFailed(IMessage message, int retryed, MessageHandleType type, Throwable throwable,
-        IMessageConsumer consumer) {
-
-        return false;
-    }
-
-    @Override
-    protected List<IMessageConsumer> selectMessageConsumer(IMessage message) {
-        return List.of();
-    }
-
-    @Override
     public void centerStartToWork() {
+        setStarted(true);
         this.listenerContainer.start();
     }
 
     @Override
     public void centerStopToWork() {
         this.listenerContainer.stop();
+        setStarted(false);
     }
 
     @Override
-    public boolean isStart() {
+    @Deprecated
+    public boolean onMessageReceived(IMessage message) {
         return false;
     }
+
 }

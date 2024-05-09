@@ -14,6 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class SimpleMessage implements IMessage {
 
+    private static final long serialVersionUID = 3955380416103910707L;
     private String topic;
     private String tag;
     private Map<String, Object> headers;
@@ -63,5 +64,24 @@ public class SimpleMessage implements IMessage {
     @Override
     public boolean consumed() {
         return headers.containsKey(CONSUMED);
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleMessage{" +
+            "topic='" +
+            topic +
+            '\'' +
+            ", tag='" +
+            tag +
+            '\'' +
+            ", headers=" +
+            headers +
+            ", id='" +
+            id +
+            '\'' +
+            ", priority=" +
+            priority +
+            '}';
     }
 }
