@@ -1,11 +1,24 @@
 package tbs.framework.mq;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public abstract class AbstractMessageCenter {
 
     public enum MessageHandleType {
         Send, Receive
+    }
+
+    protected void checkInputConsumer(IMessageConsumer messageConsumer) {
+        if (messageConsumer == null || StrUtil.isEmpty(messageConsumer.consumerId())) {
+            throw new NullPointerException("消费者为空或消息者id为空");
+        }
+        if (CollUtil.isEmpty(messageConsumer.avaliableTopics())) {
+            throw new NoSuchElementException("none topic to listen");
+        }
     }
 
     /**

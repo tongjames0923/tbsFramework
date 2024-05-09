@@ -1,8 +1,9 @@
 package tbs.framework.mq;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public interface IMessage {
+public interface IMessage extends Serializable {
     /**
      * 消息类型（话题）
      *

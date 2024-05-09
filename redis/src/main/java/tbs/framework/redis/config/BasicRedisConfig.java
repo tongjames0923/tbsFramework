@@ -10,12 +10,15 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.redis.impls.RedisCacheService;
@@ -59,7 +62,6 @@ public class BasicRedisConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean(Jackson2JsonRedisSerializer.class)
     Jackson2JsonRedisSerializer redisSerializer(ObjectMapper objectMapper) {
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
@@ -67,12 +69,41 @@ public class BasicRedisConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean(StringRedisSerializer.class)
     StringRedisSerializer stringRedisSerializer() {
+
         return new StringRedisSerializer();
     }
 
+    @Bean("REDIS_MSG")
+    RedisTemplate<String, Object> redisMsg(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
+        template.setConnectionFactory(connectionFactory);
+
+        // key采用String的序列化方式
+        template.setKeySerializer(new JdkSerializationRedisSerializer());
+
+        // hash的key也采用String的序列化方式
+        template.setHashKeySerializer(new JdkSerializationRedisSerializer());
+
+        // value序列化方式采用jackson
+        template.setValueSerializer(new JdkSerializationRedisSerializer());
+
+        // hash的value序列化方式采用jackson
+        template.setHashValueSerializer(new JdkSerializationRedisSerializer());
+        template.setDefaultSerializer(new JdkSerializationRedisSerializer());
+        template.afterPropertiesSet();
+        return template;
+    }
+
     @Bean
+    public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        return container;
+    }
+
+    @Bean
+    @Primary
     RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory, RedisProperty redisProperty) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
         template.setConnectionFactory(connectionFactory);

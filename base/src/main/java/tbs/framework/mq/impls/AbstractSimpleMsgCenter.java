@@ -7,6 +7,7 @@ import tbs.framework.base.proxy.impls.LockProxy;
 import tbs.framework.mq.AbstractMessageCenter;
 import tbs.framework.mq.IMessage;
 import tbs.framework.mq.IMessageConsumer;
+import tbs.framework.mq.IMessageQueue;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
 
     ConcurrentHashMap<String, Map<String, IMessageConsumer>> consumers = new ConcurrentHashMap<>();
-    PriorityQueue<IMessage> messages = new PriorityQueue<>(AbstractSimpleMsgCenter::compare);
     AtomicBoolean beginReciving = new AtomicBoolean(false);
 
     private static final String LOCK_NAME = "SIMPLE_MSG_CENTER_LOCK";
@@ -31,15 +31,9 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
 
     ExecutorService service = Executors.newFixedThreadPool(1);
 
-    private static int compare(IMessage o1, IMessage o2) {
-        return o1.getPriority() > o2.getPriority() ? 1 : -1;
-    }
+    protected abstract IMessageQueue getMessageQueue();
 
-    void checkInputConsumer(IMessageConsumer messageConsumer) {
-        if (messageConsumer == null || StrUtil.isEmpty(messageConsumer.consumerId())) {
-            throw new NullPointerException("消费者为空或消息者id为空");
-        }
-    }
+
 
     @Override
     public AbstractMessageCenter setMessageConsumer(IMessageConsumer messageConsumer) {
@@ -84,7 +78,7 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
 
     @Override
     protected void sendMessage(IMessage message) {
-        messages.add(message);
+        getMessageQueue().insert(message);
     }
 
     @Override
@@ -93,7 +87,6 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
         if (CollUtil.isEmpty(consumers)) {
             throw new UnsupportedOperationException("none consumer found");
         }
-
         for (IMessageConsumer consumer : consumers) {
             int r = 0;
             try {
@@ -118,17 +111,17 @@ public abstract class AbstractSimpleMsgCenter extends AbstractMessageCenter {
         service.execute(() -> {
             while (beginReciving.get()) {
                 lockProxy.safeProxy((p) -> {
-                    if (messages.isEmpty()) {
+                    if (getMessageQueue().isEmpty()) {
                         Thread.yield();
                         return null;
                     }
-                    IMessage message = messages.poll();
+                    IMessage message = getMessageQueue().getNext();
                     if (message == null) {
                         Thread.yield();
                         return null;
                     }
                     if (!onMessageReceived(message)) {
-                        messages.add(message);
+                        getMessageQueue().insert(message);
                     }
                     return null;
                 }, null, new SimpleLockAddtionalInfo(LOCK_NAME));
