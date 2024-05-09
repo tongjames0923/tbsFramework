@@ -6,6 +6,8 @@ import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.properties.ExecutorProperty;
 import tbs.framework.base.utils.LogUtil;
+import tbs.framework.base.utils.ThreadUtil;
+import tbs.framework.base.utils.impls.SimpleThreadUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -34,9 +36,20 @@ public class AsyncConfig {
     public ExecutorService asyncExecutor()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return new ThreadPoolExecutor(this.executorProperty.getCorePoolSize(), this.executorProperty.getMaxPoolSize(),
-            this.executorProperty.getKeepAliveTime(), TimeUnit.SECONDS, new LinkedBlockingQueue<>(32),
-            new ThreadFactoryBuilder().setNamePrefix("main-pool-").build(),
+            this.executorProperty.getKeepAliveTime(), TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(this.executorProperty.getQueueCapacity()),
+            new ThreadFactoryBuilder().setNamePrefix("main-pool-").setUncaughtExceptionHandler(
+                this.executorProperty.getUncaughtExceptionHandler().getConstructor().newInstance()).build(),
             this.executorProperty.getRejectedExecutionHandler().getConstructor().newInstance());
+    }
+
+    @Bean(BeanNameConstant.BUILTIN_THREADUTIL)
+    ThreadUtil threadUtil() throws Exception {
+        if (executorProperty.getThreadUtilProvider() == null) {
+            return new SimpleThreadUtil();
+        } else {
+            return executorProperty.getThreadUtilProvider().getConstructor().newInstance();
+        }
     }
 
 }

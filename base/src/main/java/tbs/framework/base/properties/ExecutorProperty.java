@@ -2,6 +2,9 @@ package tbs.framework.base.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import tbs.framework.base.intefaces.impls.threads.handlers.LogExceptionHandler;
+import tbs.framework.base.utils.ThreadUtil;
+import tbs.framework.base.utils.impls.SimpleThreadUtil;
 
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,4 +35,11 @@ public class ExecutorProperty {
      * 拒绝策略
      */
     private Class<? extends RejectedExecutionHandler> rejectedExecutionHandler = ThreadPoolExecutor.AbortPolicy.class;
+
+    private Class<? extends Thread.UncaughtExceptionHandler> uncaughtExceptionHandler = LogExceptionHandler.class;
+
+    /**
+     * 内置线程工具
+     */
+    private Class<? extends ThreadUtil> threadUtilProvider = SimpleThreadUtil.class;
 }

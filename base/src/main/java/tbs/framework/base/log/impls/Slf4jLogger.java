@@ -1,7 +1,9 @@
 package tbs.framework.base.log.impls;
 
+import cn.hutool.core.util.StrUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 import tbs.framework.base.log.ILogger;
 
 /**
@@ -46,7 +48,12 @@ public class Slf4jLogger implements ILogger {
     @Override
     public void error(final Throwable ex, final String message, Object... args) {
         if (null != ex) {
-            this.log.error(ex.getMessage(), ex);
+            if (StrUtil.isEmpty(message)) {
+                this.log.error(ex.getMessage(), ex);
+            } else {
+                String mg = MessageFormatter.arrayFormat(message, args).getMessage();
+                this.log.error(mg, ex);
+            }
         } else {
             this.log.error(message, args);
         }
