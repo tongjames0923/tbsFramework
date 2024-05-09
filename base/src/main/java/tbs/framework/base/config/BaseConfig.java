@@ -56,13 +56,9 @@ public class BaseConfig {
 
             @Override
             public Lock apply(String s) {
-                if (lockMap.containsKey(s)) {
-                    return lockMap.get(s);
-                } else {
-                    Lock l = new ReentrantLock();
-                    lockMap.put(s, l);
-                    return l;
-                }
+                Lock l = lockMap.getOrDefault(s, new ReentrantLock());
+                lockMap.put(s, l);
+                return l;
             }
         }, util);
     }
