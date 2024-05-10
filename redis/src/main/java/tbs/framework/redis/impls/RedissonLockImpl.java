@@ -30,6 +30,8 @@ public class RedissonLockImpl implements ILock {
 
     @Override
     public void unlock(String lockId) {
-        redissonClient.getLock(lockId).unlock();
+        if (redissonClient.getLock(lockId).isLocked()) {
+            redissonClient.getLock(lockId).unlock();
+        }
     }
 }

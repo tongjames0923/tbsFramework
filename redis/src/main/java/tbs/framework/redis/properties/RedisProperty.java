@@ -37,4 +37,9 @@ public class RedisProperty {
      * springboot框架默认的是否允许空值
      */
     private boolean allowNullValues = false;
+
+    /**
+     * 消息中心仅允许消费一次
+     */
+    private boolean messageHandleOnce = true;
 }

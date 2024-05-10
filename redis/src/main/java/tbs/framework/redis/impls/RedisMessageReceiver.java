@@ -5,9 +5,15 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import tbs.framework.base.lock.expections.ObtainLockFailException;
+import tbs.framework.base.log.ILogger;
+import tbs.framework.base.utils.LogUtil;
 import tbs.framework.mq.IMessage;
 import tbs.framework.mq.IMessageQueue;
 import tbs.framework.mq.IMessageReceiver;
+import tbs.framework.redis.properties.RedisProperty;
+
+import javax.annotation.Resource;
 
 /**
  * @author abstergo
@@ -26,6 +32,12 @@ public class RedisMessageReceiver implements IMessageReceiver {
     public IMessageQueue messageQueue() {
         return messageQueue;
     }
+
+    @Resource
+    RedisBlockLock redisBlockLock;
+
+    @Resource
+    RedisProperty redisProperty;
 
     MessageListenerAdapter adapter;
 
@@ -53,15 +65,33 @@ public class RedisMessageReceiver implements IMessageReceiver {
     }
 
     @Data
-    private static class RedisMessageConsumer {
+    private class RedisMessageConsumer {
         private IMessageQueue messageQueue;
 
+        ILogger logger = null;
+
+        private ILogger getLogger() {
+            if (logger == null) {
+                logger = LogUtil.getInstance().getLogger(this.getClass().getName());
+            }
+            return logger;
+        }
         public RedisMessageConsumer(IMessageQueue messageQueue) {
             this.messageQueue = messageQueue;
         }
 
+        private static final String LOCK_KEY = "MESSAGE_CENTER_BLOCK_KEY";
+
         public void consume(IMessage message) {
-            messageQueue.insert(message);
+            try {
+                if (redisProperty.isMessageHandleOnce()) {
+                    redisBlockLock.lock(LOCK_KEY + message.getMessageId());
+                }
+                messageQueue.insert(message);
+                redisBlockLock.unlock(LOCK_KEY + message.getMessageId());
+            } catch (ObtainLockFailException r) {
+                getLogger().warn("get lock to fail:{}", r.getMessage());
+            }
         }
     }
 
