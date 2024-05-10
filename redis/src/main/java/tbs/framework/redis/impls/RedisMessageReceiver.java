@@ -8,12 +8,10 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import tbs.framework.base.lock.expections.ObtainLockFailException;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
+import tbs.framework.mq.AbstractMessageCenter;
 import tbs.framework.mq.IMessage;
-import tbs.framework.mq.IMessageQueue;
 import tbs.framework.mq.IMessageReceiver;
 import tbs.framework.redis.properties.RedisProperty;
-
-import javax.annotation.Resource;
 
 /**
  * @author abstergo
@@ -23,28 +21,23 @@ public class RedisMessageReceiver implements IMessageReceiver {
     public static final String TOPIC_PREFIX = "MESSAGE_CENTER.";
 
     private RedisMessageListenerContainer listenerContainer;
-    private IMessageQueue messageQueue;
 
     public RedisMessageListenerContainer listenerContainer() {
         return listenerContainer;
     }
 
-    public IMessageQueue messageQueue() {
-        return messageQueue;
-    }
+    RedisTaksBlockLock redisTaksBlockLock;
 
-    @Resource
-    RedisBlockLock redisBlockLock;
-
-    @Resource
     RedisProperty redisProperty;
 
     MessageListenerAdapter adapter;
 
-    public RedisMessageReceiver(RedisMessageListenerContainer listenerContainer, IMessageQueue messageQueue) {
+    public RedisMessageReceiver(RedisMessageListenerContainer listenerContainer, AbstractMessageCenter center,
+        RedisProperty property, RedisTaksBlockLock redisTaksBlockLock) {
         this.listenerContainer = listenerContainer;
-        this.messageQueue = messageQueue;
-        RedisMessageConsumer redisMessageConsumer = new RedisMessageConsumer(messageQueue);
+        this.redisTaksBlockLock = redisTaksBlockLock;
+        this.redisProperty = property;
+        RedisMessageConsumer redisMessageConsumer = new RedisMessageConsumer(center);
         adapter = new MessageListenerAdapter(redisMessageConsumer, "consume");
         adapter.setSerializer(new JdkSerializationRedisSerializer());
         listenerContainer.addMessageListener(adapter, new PatternTopic("MESSAGE_CENTER.*"));
@@ -60,15 +53,15 @@ public class RedisMessageReceiver implements IMessageReceiver {
     }
 
     @Override
+    @Deprecated
     public IMessage receive() {
-        return messageQueue.getNext();
+        throw new RuntimeException("no implement because RedisMessageReceiver will handle message auto");
     }
 
     @Data
     private class RedisMessageConsumer {
-        private IMessageQueue messageQueue;
-
-        ILogger logger = null;
+        private AbstractMessageCenter center;
+        private ILogger logger = null;
 
         private ILogger getLogger() {
             if (logger == null) {
@@ -76,8 +69,9 @@ public class RedisMessageReceiver implements IMessageReceiver {
             }
             return logger;
         }
-        public RedisMessageConsumer(IMessageQueue messageQueue) {
-            this.messageQueue = messageQueue;
+
+        public RedisMessageConsumer(AbstractMessageCenter center) {
+            this.center = center;
         }
 
         private static final String LOCK_KEY = "MESSAGE_CENTER_BLOCK_KEY";
@@ -85,12 +79,15 @@ public class RedisMessageReceiver implements IMessageReceiver {
         public void consume(IMessage message) {
             try {
                 if (redisProperty.isMessageHandleOnce()) {
-                    redisBlockLock.lock(LOCK_KEY + message.getMessageId());
+                    redisTaksBlockLock.lock(LOCK_KEY + message.getMessageId());
                 }
-                messageQueue.insert(message);
-                redisBlockLock.unlock(LOCK_KEY + message.getMessageId());
+                if (!center.messageArrived(message)) {
+                    center.publish(message);
+                }
             } catch (ObtainLockFailException r) {
                 getLogger().warn("get lock to fail:{}", r.getMessage());
+            } finally {
+                redisTaksBlockLock.unlock(LOCK_KEY + message.getMessageId());
             }
         }
     }

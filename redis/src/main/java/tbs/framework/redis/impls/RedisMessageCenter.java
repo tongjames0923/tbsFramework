@@ -1,53 +1,57 @@
 package tbs.framework.redis.impls;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
+import tbs.framework.mq.AbstractMessageCenter;
 import tbs.framework.mq.IMessage;
 import tbs.framework.mq.IMessageConsumerManager;
-import tbs.framework.mq.IMessageQueue;
 import tbs.framework.mq.IMessageQueueEvents;
-import tbs.framework.mq.impls.center.AbstractMsgQueueCenter;
-import tbs.framework.mq.impls.listener.BaseQueueListener;
+import tbs.framework.redis.properties.RedisProperty;
 
 import javax.annotation.Resource;
-import java.util.concurrent.ExecutorService;
+import java.util.Optional;
 
 /**
  * @author abstergo
  */
-public class RedisMessageCenter extends AbstractMsgQueueCenter {
+public class RedisMessageCenter extends AbstractMessageCenter {
 
     private RedisMessageReceiver receiver;
-
-    private BaseQueueListener baseQueueListener;
     private ILogger logger = null;
 
     @Resource(name = "REDIS_MSG")
     private RedisTemplate<String, Object> redisTemplate;
 
-    public RedisMessageCenter(RedisMessageReceiver receiver, IMessageConsumerManager cm, IMessageQueueEvents qe,
-        ExecutorService es) {
-        super(cm, qe, es);
-        this.receiver = receiver;
-        this.baseQueueListener = new BaseQueueListener() {
-            @Override
-            public IMessageQueue getQueue() {
-                return receiver.messageQueue();
-            }
-        };
+    private IMessageQueueEvents messageQueueEvents;
+    private IMessageConsumerManager messageConsumerManager;
+
+    public RedisMessageCenter(RedisMessageListenerContainer messageListenerContainer, IMessageConsumerManager cm,
+        IMessageQueueEvents qe, RedisProperty property, RedisTaksBlockLock blockLock) {
+        messageConsumerManager = cm;
+        messageQueueEvents = qe;
+        this.receiver = new RedisMessageReceiver(messageListenerContainer, this, property, blockLock);
     }
 
     @Override
     protected void centerStopToWork() {
         receiver.end();
-        super.centerStopToWork();
     }
 
     @Override
     protected void centerStartToWork() {
         receiver.begin();
-        super.centerStartToWork();
+    }
+
+    @Override
+    protected Optional<IMessageQueueEvents> getMessageQueueEvents() {
+        return Optional.ofNullable(messageQueueEvents);
+    }
+
+    @Override
+    protected Optional<IMessageConsumerManager> getMessageConsumerManager() {
+        return Optional.ofNullable(messageConsumerManager);
     }
 
     @Override
@@ -60,15 +64,5 @@ public class RedisMessageCenter extends AbstractMsgQueueCenter {
             logger = LogUtil.getInstance().getLogger(this.getClass().getName());
         }
         return logger;
-    }
-
-    @Override
-    protected BaseQueueListener getQueueListener() {
-        return baseQueueListener;
-    }
-
-    @Override
-    protected long listenSpan() {
-        return baseQueueListener.getQueue().isEmpty() ? 50 : 0;
     }
 }

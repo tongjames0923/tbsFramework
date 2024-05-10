@@ -6,12 +6,26 @@ import tbs.framework.base.lock.ILock;
 import tbs.framework.base.lock.expections.ObtainLockFailException;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 使用redis实现的分布式任务阻拦锁，一个锁id在规定时限a内有效或解锁后在规定时间b内持续有效
  * @author abstergo
  */
-public class RedisBlockLock implements ILock {
+public class RedisTaksBlockLock implements ILock {
+
+    private Duration maxLockAliveTime = Duration.ofMinutes(5);
+
+    private Duration unLockDelayTime = Duration.ofSeconds(10);
+
+    public RedisTaksBlockLock(Duration maxLockAliveTime, Duration unLockDelayTime) {
+        this.maxLockAliveTime = maxLockAliveTime;
+        this.unLockDelayTime = unLockDelayTime;
+    }
+
+    public RedisTaksBlockLock() {
+    }
 
     @Resource
     @Lazy
@@ -28,7 +42,7 @@ public class RedisBlockLock implements ILock {
 
     @Override
     public void lock(String lockId) {
-        boolean locked = redisTemplate.opsForValue().setIfAbsent(key(lockId), true, 5, TimeUnit.MINUTES);
+        boolean locked = redisTemplate.opsForValue().setIfAbsent(key(lockId), true, maxLockAliveTime);
         if (!locked) {
             throw new ObtainLockFailException("lock has been obtained.");
         }
@@ -41,6 +55,6 @@ public class RedisBlockLock implements ILock {
 
     @Override
     public void unlock(String lockId) {
-        redisTemplate.expire(key(lockId), 50, TimeUnit.MILLISECONDS);
+        redisTemplate.expire(key(lockId), unLockDelayTime);
     }
 }

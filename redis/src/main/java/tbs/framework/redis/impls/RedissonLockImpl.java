@@ -1,5 +1,6 @@
 package tbs.framework.redis.impls;
 
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import tbs.framework.base.lock.ILock;
 
@@ -30,8 +31,9 @@ public class RedissonLockImpl implements ILock {
 
     @Override
     public void unlock(String lockId) {
-        if (redissonClient.getLock(lockId).isLocked()) {
-            redissonClient.getLock(lockId).unlock();
+        RLock lock = redissonClient.getLock(lockId);
+        if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+            lock.unlock();
         }
     }
 }
