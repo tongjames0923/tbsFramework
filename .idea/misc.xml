@@ -11,6 +11,7 @@
         <option value="$PROJECT_DIR$/../demo/pom.xml" />
         <option value="$PROJECT_DIR$/swagger/pom.xml" />
         <option value="$PROJECT_DIR$/redis/pom.xml" />
+        <option value="$PROJECT_DIR$/../demo/SecPart/pom.xml" />
       </list>
     </option>
   </component>

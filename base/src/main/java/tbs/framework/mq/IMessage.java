@@ -41,17 +41,5 @@ public interface IMessage extends Serializable {
      */
 
     Map<String, Object> parmamterMap();
-
-    /**
-     * 设置消息已被消费
-     */
-
-    void setConsumed();
-
-    /**
-     * 消息是否被消费
-     *
-     * @return
-     */
-    boolean consumed();
+    
 }

@@ -23,8 +23,9 @@ public interface IMessageConsumer {
      * 消费方法
      *
      * @param message
+     * @return
      */
 
-    void consume(IMessage message);
+    boolean consume(IMessage message);
 
 }

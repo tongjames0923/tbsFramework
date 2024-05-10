@@ -8,6 +8,7 @@ import tbs.framework.base.config.BaseConfig;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.ExecutorProperty;
 import tbs.framework.base.properties.LockProperty;
+import tbs.framework.base.properties.MqProperty;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -19,7 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 @EnableSpringUtil
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@EnableConfigurationProperties({BaseProperty.class, LockProperty.class, ExecutorProperty.class})
+@EnableConfigurationProperties({BaseProperty.class, LockProperty.class, ExecutorProperty.class, MqProperty.class})
 @Import(BaseConfig.class)
 @EnableAspectJAutoProxy
 public @interface EnableTbsFramework {

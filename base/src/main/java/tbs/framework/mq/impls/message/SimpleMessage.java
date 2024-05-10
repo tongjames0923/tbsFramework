@@ -1,4 +1,4 @@
-package tbs.framework.mq.impls;
+package tbs.framework.mq.impls.message;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.NoArgsConstructor;
@@ -54,16 +54,6 @@ public class SimpleMessage implements IMessage {
     @Override
     public Map<String, Object> parmamterMap() {
         return headers;
-    }
-
-    @Override
-    public void setConsumed() {
-        headers.put(CONSUMED, true);
-    }
-
-    @Override
-    public boolean consumed() {
-        return headers.containsKey(CONSUMED);
     }
 
     @Override

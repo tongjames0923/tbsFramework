@@ -4,44 +4,48 @@ import org.springframework.data.redis.core.RedisTemplate;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.mq.IMessage;
+import tbs.framework.mq.IMessageConsumerManager;
 import tbs.framework.mq.IMessageQueue;
-import tbs.framework.mq.impls.AbstractMsgQueueCenter;
-import tbs.framework.mq.impls.QueueListener;
+import tbs.framework.mq.IMessageQueueEvents;
+import tbs.framework.mq.impls.center.AbstractMsgQueueCenter;
+import tbs.framework.mq.impls.listener.BaseQueueListener;
 
 import javax.annotation.Resource;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author abstergo
  */
-public abstract class AbstractRedisMessageCenter extends AbstractMsgQueueCenter {
+public class RedisMessageCenter extends AbstractMsgQueueCenter {
 
     private RedisMessageReceiver receiver;
 
-    private QueueListener queueListener;
+    private BaseQueueListener baseQueueListener;
     private ILogger logger = null;
 
     @Resource(name = "REDIS_MSG")
     private RedisTemplate<String, Object> redisTemplate;
 
-    public AbstractRedisMessageCenter(RedisMessageReceiver receiver) {
+    public RedisMessageCenter(RedisMessageReceiver receiver, IMessageConsumerManager cm, IMessageQueueEvents qe,
+        ExecutorService es) {
+        super(cm, qe, es);
         this.receiver = receiver;
-        this.queueListener = new QueueListener() {
+        this.baseQueueListener = new BaseQueueListener() {
             @Override
-            protected IMessageQueue getQueue() {
+            public IMessageQueue getQueue() {
                 return receiver.messageQueue();
             }
         };
     }
 
     @Override
-    public void centerStopToWork() {
+    protected void centerStopToWork() {
         receiver.end();
         super.centerStopToWork();
-
     }
 
     @Override
-    public void centerStartToWork() {
+    protected void centerStartToWork() {
         receiver.begin();
         super.centerStartToWork();
     }
@@ -59,7 +63,12 @@ public abstract class AbstractRedisMessageCenter extends AbstractMsgQueueCenter 
     }
 
     @Override
-    protected QueueListener getQueueListener() {
-        return queueListener;
+    protected BaseQueueListener getQueueListener() {
+        return baseQueueListener;
+    }
+
+    @Override
+    protected long listenSpan() {
+        return baseQueueListener.getQueue().isEmpty() ? 50 : 0;
     }
 }

@@ -72,7 +72,6 @@ public class BaseConfig {
     }
 
 
-
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     public LockProxy lockProxy(final LogUtil util) {
         return new LockProxy(this.lockProperty.getProxyLockType(), util, this.lockProperty.getProxyLockTimeout(),

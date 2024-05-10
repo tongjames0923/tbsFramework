@@ -37,6 +37,10 @@ public interface IMessageQueueEvents {
         /**
          * 接收事件
          */
-        Receive
+        Receive,
+        /**
+         * 消费事件
+         */
+        Consume
     }
 }

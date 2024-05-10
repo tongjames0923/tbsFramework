@@ -4,6 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import tbs.framework.base.intefaces.FunctionWithThrows;
 import tbs.framework.base.lock.ILock;
 import tbs.framework.base.lock.expections.ObtainLockFailException;
+import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.utils.LogUtil;
@@ -19,6 +20,16 @@ import java.util.concurrent.TimeUnit;
  * @version $Id: $Id
  */
 public class LockProxy implements IProxy {
+
+    private static LockProxy lockProxy;
+
+    public static final LockProxy getInstance() {
+        if (lockProxy == null) {
+            lockProxy = SpringUtil.getBean(LockProxy.class);
+        }
+        return lockProxy;
+    }
+
 
     private static ILogger logger;
     private ILock lock;
@@ -85,17 +96,27 @@ public class LockProxy implements IProxy {
         if (null != additional) {
             lockId = additional.getInfoAs(String.class, addtionalLockIdKey);
         }
+        logger.trace("{} begin to lock", lockId);
         boolean isLocked = false;
         try {
             isLocked = this.getLock().tryLock(this.lockTimeOut, this.lockTimeUnit, lockId);
             if (isLocked) {
+                logger.trace("{} locked", lockId);
                 result = Optional.ofNullable(function.apply(param));
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }
         } finally {
             this.getLock().unlock(lockId);
+            logger.trace("{}  unlocked", lockId);
         }
         return result;
+    }
+
+    public void quickLock(Runnable task, String lockId) {
+        safeProxy((p) -> {
+            task.run();
+            return null;
+        }, null, new SimpleLockAddtionalInfo(lockId));
     }
 }

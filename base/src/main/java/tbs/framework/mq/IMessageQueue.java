@@ -5,5 +5,7 @@ public interface IMessageQueue {
 
     boolean isEmpty();
 
+    long size();
+
     void insert(IMessage message);
 }

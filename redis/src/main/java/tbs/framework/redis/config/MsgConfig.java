@@ -8,6 +8,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import tbs.framework.mq.AbstractMessageCenter;
+import tbs.framework.mq.IMessageConsumerManager;
+import tbs.framework.mq.impls.consumer.manager.MappedConsumerManager;
+import tbs.framework.redis.properties.RedisProperty;
 
 import java.util.List;
 
@@ -18,7 +21,7 @@ public class MsgConfig {
             @Override
             public void run(ApplicationArguments args) throws Exception {
                 for (AbstractMessageCenter abstractMessageCenter : abstractMessageCenters) {
-                    abstractMessageCenter.centerStartToWork();
+                    abstractMessageCenter.afterPropertiesSet();
                 }
             }
         };
@@ -43,6 +46,14 @@ public class MsgConfig {
         template.setDefaultSerializer(new JdkSerializationRedisSerializer());
         template.afterPropertiesSet();
         return template;
+    }
+
+    @Bean
+    IMessageConsumerManager consumerManager(RedisProperty redisProperty) throws Exception {
+        if (redisProperty.getConsumerManager() == null) {
+            return new MappedConsumerManager();
+        }
+        return redisProperty.getConsumerManager().getConstructor().newInstance();
     }
 
     @Bean

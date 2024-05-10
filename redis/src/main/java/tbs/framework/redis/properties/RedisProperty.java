@@ -5,6 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tbs.framework.mq.IMessageConsumerManager;
+import tbs.framework.mq.impls.consumer.manager.MappedConsumerManager;
 
 /**
  * @author abstergo
@@ -42,4 +44,10 @@ public class RedisProperty {
      * 消息中心仅允许消费一次
      */
     private boolean messageHandleOnce = true;
+
+    /**
+     * 消费者管理器的实现¬
+     */
+    private Class<? extends IMessageConsumerManager> consumerManager = MappedConsumerManager.class;
+
 }
