@@ -1,7 +1,5 @@
 package tbs.framework.redis.config;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,26 +8,11 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import tbs.framework.mq.AbstractMessageCenter;
 import tbs.framework.mq.IMessageConsumerManager;
 import tbs.framework.mq.IMessageQueueEvents;
-import tbs.framework.mq.impls.consumer.manager.MappedConsumerManager;
-import tbs.framework.redis.impls.RedisTaksBlockLock;
 import tbs.framework.redis.impls.RedisMessageCenter;
+import tbs.framework.redis.impls.RedisTaksBlockLock;
 import tbs.framework.redis.properties.RedisProperty;
 
-import java.util.List;
-
 public class MsgConfig {
-    @Bean
-    ApplicationRunner initMessageCenter(List<AbstractMessageCenter> abstractMessageCenters) {
-        return new ApplicationRunner() {
-            @Override
-            public void run(ApplicationArguments args) throws Exception {
-                for (AbstractMessageCenter abstractMessageCenter : abstractMessageCenters) {
-                    abstractMessageCenter.afterPropertiesSet();
-                }
-            }
-        };
-    }
-
     @Bean("REDIS_MSG")
     RedisTemplate<String, Object> redisMsg(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -49,14 +32,6 @@ public class MsgConfig {
         template.setDefaultSerializer(new JdkSerializationRedisSerializer());
         template.afterPropertiesSet();
         return template;
-    }
-
-    @Bean
-    IMessageConsumerManager consumerManager(RedisProperty redisProperty) throws Exception {
-        if (redisProperty.getConsumerManager() == null) {
-            return new MappedConsumerManager();
-        }
-        return redisProperty.getConsumerManager().getConstructor().newInstance();
     }
 
     @Bean

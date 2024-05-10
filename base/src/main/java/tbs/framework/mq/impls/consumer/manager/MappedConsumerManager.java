@@ -26,6 +26,17 @@ public class MappedConsumerManager implements IMessageConsumerManager {
     }
 
     @Override
+    public List<IMessageConsumer> getConsumers() {
+        List<IMessageConsumer> c = new LinkedList<>();
+        consumers.values().stream().map((v) -> {
+            return v.values();
+        }).forEach((p) -> {
+            c.addAll(p);
+        });
+        return c.stream().filter(p -> p != null).collect(Collectors.toList());
+    }
+
+    @Override
     public IMessageConsumerManager setMessageConsumer(IMessageConsumer messageConsumer) {
         checkInputConsumer(messageConsumer);
         Set<String> keys = messageConsumer.avaliableTopics();

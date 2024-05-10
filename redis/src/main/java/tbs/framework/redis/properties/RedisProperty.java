@@ -45,9 +45,6 @@ public class RedisProperty {
      */
     private boolean messageHandleOnce = true;
 
-    /**
-     * 消费者管理器的实现¬
-     */
-    private Class<? extends IMessageConsumerManager> consumerManager = MappedConsumerManager.class;
+
 
 }

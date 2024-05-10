@@ -6,6 +6,14 @@ import java.util.List;
  * @author abstergo
  */
 public interface IMessageConsumerManager {
+
+    /**
+     * 获取全部消费者
+     *
+     * @return
+     */
+    List<IMessageConsumer> getConsumers();
+
     /**
      * 导入消息消费器
      *
