@@ -16,23 +16,10 @@ public abstract class BaseMessageQueueEvent implements IMessageQueueEvents {
     protected abstract IMessageConsumerManager getConsumerManager();
 
     @Override
-    public boolean onMessageReceived(IMessage message) {
+    public void onMessageReceived(IMessage message) {
         List<IMessageConsumer> consumers = getConsumerManager().selectMessageConsumer(message);
         if (CollUtil.isEmpty(consumers)) {
             throw new UnsupportedOperationException("none consumer found");
         }
-        for (IMessageConsumer consumer : consumers) {
-            int r = 0;
-            try {
-                if (!consumer.consume(message)) {
-                    throw new RuntimeException("consumer not consumed");
-                }
-            } catch (Exception e) {
-                if (!onMessageFailed(message, r++, MessageHandleType.Consume, e, consumer)) {
-                    break;
-                }
-            }
-        }
-        return true;
     }
 }

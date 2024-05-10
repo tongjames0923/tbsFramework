@@ -31,7 +31,7 @@ public class RedisMessageCenter extends AbstractMessageCenter {
         IMessageQueueEvents qe, RedisProperty property, RedisTaksBlockLock blockLock) {
         messageConsumerManager = cm;
         messageQueueEvents = qe;
-        this.receiver = new RedisMessageReceiver(messageListenerContainer, this, property, blockLock);
+        this.receiver = new RedisMessageReceiver(messageListenerContainer, this, property, blockLock, cm);
     }
 
     @Override

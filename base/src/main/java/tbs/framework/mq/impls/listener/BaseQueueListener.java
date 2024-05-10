@@ -47,9 +47,8 @@ public abstract class BaseQueueListener implements IMessageListener {
             Thread.yield();
             return;
         }
-        if (!messageCenter.messageArrived(message)) {
-            messageCenter.publish(message);
-        }
+        messageCenter.messageArrived(message);
+        messageCenter.consumeMessage(message);
 
     }
 }

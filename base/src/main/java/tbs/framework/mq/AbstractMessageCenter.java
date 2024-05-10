@@ -99,13 +99,48 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
     }
 
     /**
-     * 消息抵达并进行消费
+     * 针对一个消费者批量消息消息
+     *
+     * @param consumer 消费者
+     * @param message  消息
+     */
+    public void consumeMessages(IMessageConsumer consumer, IMessage... message) {
+        IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
+            return new UnsupportedOperationException("none consumer manager");
+        });
+        for (IMessage msg : message) {
+            if (msg == null) {
+                continue;
+            }
+            manager.consumeOnce(this, consumer, msg);
+        }
+    }
+
+    /**
+     * 针对一个消息采用默认的{@link IMessageConsumerManager#selectMessageConsumer(IMessage)}选择消费者并进行批量消费
+     *
+     * @param message
+     */
+    public void consumeMessage(IMessage message) {
+        IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
+            return new UnsupportedOperationException("none consumer manager");
+        });
+        List<IMessageConsumer> consumers = manager.selectMessageConsumer(message);
+        if (CollUtil.isEmpty(consumers)) {
+            return;
+        }
+        for (IMessageConsumer consumer : consumers) {
+            consumeMessages(consumer, message);
+        }
+    }
+
+    /**
+     * 消息抵达触发
      *
      * @param msg
-     * @return 是否成功被消费
      */
-    public boolean messageArrived(IMessage msg) {
-        return getMessageQueueEvents().orElseThrow(() -> {
+    public void messageArrived(IMessage msg) {
+        getMessageQueueEvents().orElseThrow(() -> {
             return new UnsupportedOperationException("none events avaliable");
         }).onMessageReceived(msg);
     }

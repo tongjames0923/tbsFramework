@@ -15,6 +15,27 @@ public interface IMessageConsumerManager {
     List<IMessageConsumer> getConsumers();
 
     /**
+     * 消费消息
+     *
+     * @param center   消费的消息中心
+     * @param consumer 消费者
+     * @param message  消息
+     */
+    default void consumeOnce(AbstractMessageCenter center, IMessageConsumer consumer, IMessage message) {
+        while (true) {
+            int r = 0;
+            try {
+                consumer.consume(message);
+                break;
+            } catch (Exception e) {
+                if (!center.errorOnConsume(message, r++, e, consumer)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * 导入消息消费器
      *
      * @param messageConsumer

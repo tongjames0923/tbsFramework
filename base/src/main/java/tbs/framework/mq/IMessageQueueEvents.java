@@ -5,9 +5,8 @@ public interface IMessageQueueEvents {
      * 当成功获取消息时
      *
      * @param message 接收到的消息
-     * @return 是否成功被消费
      */
-    boolean onMessageReceived(IMessage message);
+    void onMessageReceived(IMessage message);
 
     /**
      * 当消息成功发送

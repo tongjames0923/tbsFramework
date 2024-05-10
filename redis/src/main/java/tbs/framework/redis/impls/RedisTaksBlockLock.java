@@ -2,12 +2,14 @@ package tbs.framework.redis.impls;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import tbs.framework.base.lock.ILock;
 import tbs.framework.base.lock.expections.ObtainLockFailException;
 
 import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 使用redis实现的分布式任务阻拦锁，一个锁id在规定时限a内有效或解锁后在规定时间b内持续有效
@@ -17,7 +19,7 @@ public class RedisTaksBlockLock implements ILock {
 
     private Duration maxLockAliveTime = Duration.ofMinutes(5);
 
-    private Duration unLockDelayTime = Duration.ofSeconds(10);
+    private Duration unLockDelayTime = Duration.ofSeconds(30);
 
     public RedisTaksBlockLock(Duration maxLockAliveTime, Duration unLockDelayTime) {
         this.maxLockAliveTime = maxLockAliveTime;
@@ -30,6 +32,15 @@ public class RedisTaksBlockLock implements ILock {
     @Resource
     @Lazy
     RedisTemplate<String, Object> redisTemplate;
+
+    private ValueOperations<String, Object> valueOperations;
+
+    private ValueOperations<String, Object> getValueOperations() {
+        if (valueOperations == null) {
+            valueOperations = redisTemplate.opsForValue();
+        }
+        return valueOperations;
+    }
 
     private String key(String l) {
         return "BLOCK_KEY_REDIS_LOCK:" + l;
