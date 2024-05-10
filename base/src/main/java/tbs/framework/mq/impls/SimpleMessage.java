@@ -14,7 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class SimpleMessage implements IMessage {
 
-    private static final long serialVersionUID = 3955380416103910707L;
+    private static final long serialVersionUID = -1918194218518995261L;
     private String topic;
     private String tag;
     private Map<String, Object> headers;

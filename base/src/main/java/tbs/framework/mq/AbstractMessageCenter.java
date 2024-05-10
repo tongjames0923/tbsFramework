@@ -13,7 +13,7 @@ public abstract class AbstractMessageCenter implements IMessageQueueEvents, IMes
 
     private AtomicBoolean started = new AtomicBoolean(false);
 
-    protected void checkInputConsumer(IMessageConsumer messageConsumer) {
+    public static void checkInputConsumer(IMessageConsumer messageConsumer) {
         if (messageConsumer == null || StrUtil.isEmpty(messageConsumer.consumerId())) {
             throw new NullPointerException("消费者为空或消息者id为空");
         }

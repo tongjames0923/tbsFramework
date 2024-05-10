@@ -3,10 +3,7 @@ package tbs.framework.mq.impls;
 import cn.hutool.core.collection.CollUtil;
 import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.base.proxy.impls.LockProxy;
-import tbs.framework.mq.AbstractMessageCenter;
-import tbs.framework.mq.IMessage;
-import tbs.framework.mq.IMessageConsumer;
-import tbs.framework.mq.IMessageQueueEvents;
+import tbs.framework.mq.*;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -34,7 +31,7 @@ public abstract class AbstractMsgQueueCenter extends AbstractMessageCenter {
     protected abstract QueueListener getQueueListener();
 
     @Override
-    public AbstractMessageCenter setMessageConsumer(IMessageConsumer messageConsumer) {
+    public IMessageConsumerManager setMessageConsumer(IMessageConsumer messageConsumer) {
         checkInputConsumer(messageConsumer);
         Set<String> keys = messageConsumer.avaliableTopics();
         if (CollUtil.isEmpty(keys)) {
@@ -100,11 +97,6 @@ public abstract class AbstractMsgQueueCenter extends AbstractMessageCenter {
         List<IMessageConsumer> c = new LinkedList<>();
         return consumers.getOrDefault(message.getTopic(), new HashMap<>()).values().stream()
             .collect(Collectors.toList());
-    }
-
-    public AbstractMsgQueueCenter init() {
-        centerStartToWork();
-        return this;
     }
 
     @Override

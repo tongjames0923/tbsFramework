@@ -1,34 +1,54 @@
 package tbs.framework.redis.impls;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.mq.AbstractMessageCenter;
 import tbs.framework.mq.IMessage;
-import tbs.framework.mq.IMessageConsumer;
+import tbs.framework.mq.IMessageQueue;
+import tbs.framework.mq.impls.AbstractMsgQueueCenter;
+import tbs.framework.mq.impls.QueueListener;
 
 import javax.annotation.Resource;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author abstergo
  */
-public abstract class AbstractRedisMessageCenter extends AbstractMessageCenter {
+public abstract class AbstractRedisMessageCenter extends AbstractMsgQueueCenter {
 
-    private RedisMessageListenerContainer listenerContainer;
+    private RedisMessageReceiver receiver;
 
+    private QueueListener queueListener;
     private ILogger logger = null;
 
     @Resource(name = "REDIS_MSG")
     private RedisTemplate<String, Object> redisTemplate;
 
-    public AbstractRedisMessageCenter(RedisMessageListenerContainer listenerContainer) {
-        this.listenerContainer = listenerContainer;
+    public AbstractRedisMessageCenter(RedisMessageReceiver receiver) {
+        this.receiver = receiver;
+        this.queueListener = new QueueListener() {
+            @Override
+            protected IMessageQueue getQueue() {
+                return receiver.messageQueue();
+            }
+        };
+    }
+
+    @Override
+    public void centerStopToWork() {
+        receiver.end();
+        super.centerStopToWork();
+
+    }
+
+    @Override
+    public void centerStartToWork() {
+        receiver.begin();
+        super.centerStartToWork();
+    }
+
+    @Override
+    protected void sendMessage(IMessage message) {
+        redisTemplate.convertAndSend(RedisMessageReceiver.TOPIC_PREFIX + message.getTopic(), message);
     }
 
     private ILogger getLogger() {
@@ -39,53 +59,7 @@ public abstract class AbstractRedisMessageCenter extends AbstractMessageCenter {
     }
 
     @Override
-    public AbstractMessageCenter setMessageConsumer(IMessageConsumer messageConsumer) {
-        checkInputConsumer(messageConsumer);
-        List<ChannelTopic> list = new LinkedList<>();
-        MessageListenerAdapter adapter = new MessageListenerAdapter(messageConsumer, "consume");
-        adapter.setSerializer(new JdkSerializationRedisSerializer());
-        adapter.afterPropertiesSet();
-        for (String k : messageConsumer.avaliableTopics()) {
-            list.add(new ChannelTopic(k));
-        }
-        listenerContainer.addMessageListener(adapter, list);
-
-        return this;
+    protected QueueListener getQueueListener() {
+        return queueListener;
     }
-
-    @Override
-    @Deprecated
-    public boolean removeMessageConsumer(IMessageConsumer messageConsumer) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    @Deprecated
-    public List<IMessageConsumer> selectMessageConsumer(IMessage message) {
-        return List.of();
-    }
-
-    @Override
-    protected void sendMessage(IMessage message) {
-        redisTemplate.convertAndSend(message.getTopic(), message);
-    }
-
-    @Override
-    public void centerStartToWork() {
-        setStarted(true);
-        this.listenerContainer.start();
-    }
-
-    @Override
-    public void centerStopToWork() {
-        this.listenerContainer.stop();
-        setStarted(false);
-    }
-
-    @Override
-    @Deprecated
-    public boolean onMessageReceived(IMessage message) {
-        return false;
-    }
-
 }

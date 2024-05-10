@@ -12,7 +12,7 @@ public interface IMessageConsumerManager {
      * @param messageConsumer
      * @return
      */
-    AbstractMessageCenter setMessageConsumer(IMessageConsumer messageConsumer);
+    IMessageConsumerManager setMessageConsumer(IMessageConsumer messageConsumer);
 
     /**
      * 移除消息消费器
