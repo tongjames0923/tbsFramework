@@ -1,8 +1,8 @@
 package tbs.framework.mq.event;
 
-import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
+import tbs.framework.mq.message.IMessage;
 
 import javax.annotation.Resource;
 
@@ -15,7 +15,6 @@ public class EmptySentAndErrorEventImpl extends BaseMessageQueueEvent {
 
     @Override
     public void onMessageSent(IMessage message) {
-
     }
 
     @Override

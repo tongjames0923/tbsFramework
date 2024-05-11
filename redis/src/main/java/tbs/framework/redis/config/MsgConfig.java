@@ -9,8 +9,9 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
-import tbs.framework.redis.impls.mq.RedisMessageCenter;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
+import tbs.framework.redis.impls.mq.RedisMessageCenter;
+import tbs.framework.redis.impls.mq.receiver.RedisMessageConnector;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisMqProperty;
 import tbs.framework.redis.properties.RedisProperty;
@@ -58,10 +59,16 @@ public class MsgConfig {
     }
 
     @Bean
+    RedisMessageConnector redisMessageConnector(RedisMessageListenerContainer container, RedisTaksBlockLock blockLock) {
+        return new RedisMessageConnector(container, redisMqProperty.isMessageHandleOnce(), blockLock);
+    }
+
+    @Bean
     AbstractMessageCenter abstractMessageCenter(RedisMessageListenerContainer redisMessageListenerContainer,
         RedisTaksBlockLock lock, RedisProperty redisProperty, RedisSender sender,
         IMessageConsumerManager consumerManager, IMessageQueueEvents events) {
         return new RedisMessageCenter(redisMessageListenerContainer, redisProperty, lock, sender, events,
             consumerManager);
     }
+
 }

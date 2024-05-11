@@ -3,15 +3,14 @@ package tbs.framework.redis.impls.mq;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.mq.IMessageConnector;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
-import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
-import tbs.framework.redis.impls.mq.receiver.RedisMessageReceiver;
+import tbs.framework.redis.impls.mq.receiver.RedisMessageConnector;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisProperty;
 
@@ -23,11 +22,9 @@ import java.util.Optional;
  */
 public class RedisMessageCenter extends AbstractMessageCenter {
 
-    private RedisMessageReceiver receiver;
     private ILogger logger = null;
 
     private IMessagePublisher publisher;
-
 
     private IMessageQueueEvents messageQueueEvents;
     private IMessageConsumerManager messageConsumerManager;
@@ -35,7 +32,6 @@ public class RedisMessageCenter extends AbstractMessageCenter {
     public RedisMessageCenter(RedisMessageListenerContainer container, RedisProperty redisProperty,
         RedisTaksBlockLock blockLock, RedisSender sender, IMessageQueueEvents queueEvents,
         IMessageConsumerManager consumerManager) {
-        this.receiver = new RedisMessageReceiver(this, container, redisProperty, blockLock);
         this.publisher = sender;
         this.messageConsumerManager = consumerManager;
         this.messageQueueEvents = queueEvents;
@@ -43,11 +39,7 @@ public class RedisMessageCenter extends AbstractMessageCenter {
 
     @Override
     protected void centerStopToWork() {
-        try {
-            receiver.destroy();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
     @Override
@@ -57,15 +49,17 @@ public class RedisMessageCenter extends AbstractMessageCenter {
             appendConsumer(consumer);
         }
         try {
-            receiver.afterPropertiesSet();
+            getConnector().orElseThrow(() -> {
+                return new UnsupportedOperationException("none connector");
+            }).afterPropertiesSet();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    protected Optional<IMessageReceiver> getMessageReceiver() {
-        return Optional.ofNullable(receiver);
+    protected Optional<IMessageConnector> getConnector() {
+        return Optional.ofNullable(SpringUtil.getBean(RedisMessageConnector.class));
     }
 
     @Override
@@ -83,11 +77,4 @@ public class RedisMessageCenter extends AbstractMessageCenter {
         return Optional.ofNullable(messageConsumerManager);
     }
 
-
-    private ILogger getLogger() {
-        if (logger == null) {
-            logger = LogUtil.getInstance().getLogger(this.getClass().getName());
-        }
-        return logger;
-    }
 }

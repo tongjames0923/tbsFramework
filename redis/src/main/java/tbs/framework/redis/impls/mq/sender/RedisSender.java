@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.sender.IMessagePublisher;
-import tbs.framework.redis.impls.mq.receiver.RedisMessageReceiver;
+import tbs.framework.redis.impls.mq.receiver.RedisMessageConnector;
 
 /**
  * @author abstergo
@@ -25,7 +25,8 @@ public class RedisSender implements IMessagePublisher {
     public void publishAll(IMessage... message) {
         for (IMessage m : message) {
             if (m != null && !StrUtil.isEmpty(m.getTopic())) {
-                redisTemplate.convertAndSend(RedisMessageReceiver.TOPIC_PREFIX + m.getTopic(), m);
+                String topic = RedisMessageConnector.TOPIC_PREFIX + m.getTopic();
+                redisTemplate.convertAndSend(topic, m);
             }
         }
     }

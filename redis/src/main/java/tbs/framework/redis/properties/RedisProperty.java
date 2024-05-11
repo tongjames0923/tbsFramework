@@ -38,10 +38,7 @@ public class RedisProperty {
      */
     private boolean allowNullValues = false;
 
-    /**
-     * 消息中心仅允许消费一次
-     */
-    private boolean messageHandleOnce = true;
+
 
 
 

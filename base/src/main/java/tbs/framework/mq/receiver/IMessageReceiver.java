@@ -4,6 +4,10 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import tbs.framework.mq.message.IMessage;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author abstergo
  */
@@ -21,6 +25,10 @@ public interface IMessageReceiver extends InitializingBean, DisposableBean {
      * @param message 信息
      */
     void pull(IMessage message);
+
+    default Set<String> acceptTopics() {
+        return new HashSet<>(Arrays.asList(".*"));
+    }
 
     /**
      * 查看以下方法是否可用

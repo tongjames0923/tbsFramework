@@ -1,15 +1,19 @@
 package tbs.framework.mq.event;
 
+import tbs.framework.mq.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.message.IMessage;
+import tbs.framework.mq.receiver.IMessageReceiver;
 
 public interface IMessageQueueEvents {
     /**
      * 当成功获取消息时
      *
-     * @param message 接收到的消息
+     * @param message   接收到的消息
+     * @param connector
+     * @param receiver
      */
-    void onMessageReceived(IMessage message);
+    void onMessageReceived(IMessage message, IMessageConnector connector, IMessageReceiver receiver);
 
     /**
      * 当消息成功发送
