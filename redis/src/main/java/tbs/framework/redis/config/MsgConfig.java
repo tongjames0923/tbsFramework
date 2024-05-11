@@ -1,15 +1,17 @@
 package tbs.framework.redis.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
-import tbs.framework.mq.AbstractMessageCenter;
-import tbs.framework.mq.IMessageConsumerManager;
-import tbs.framework.mq.IMessageQueueEvents;
-import tbs.framework.redis.impls.RedisMessageCenter;
-import tbs.framework.redis.impls.RedisTaksBlockLock;
+import tbs.framework.mq.center.AbstractMessageCenter;
+import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
+import tbs.framework.mq.event.IMessageQueueEvents;
+import tbs.framework.redis.impls.mq.RedisMessageCenter;
+import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
+import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisMqProperty;
 import tbs.framework.redis.properties.RedisProperty;
 
@@ -51,9 +53,15 @@ public class MsgConfig {
     }
 
     @Bean
-    AbstractMessageCenter abstractMessageCenter(RedisMessageListenerContainer container,
-        IMessageQueueEvents queueEvents, RedisProperty property, IMessageConsumerManager consumerManager,
-        RedisTaksBlockLock blockLock) {
-        return new RedisMessageCenter(container, consumerManager, queueEvents, property, blockLock);
+    RedisSender redisSender(@Qualifier("REDIS_MSG") RedisTemplate<String, Object> redisTemplate) {
+        return new RedisSender(redisTemplate);
+    }
+
+    @Bean
+    AbstractMessageCenter abstractMessageCenter(RedisMessageListenerContainer redisMessageListenerContainer,
+        RedisTaksBlockLock lock, RedisProperty redisProperty, RedisSender sender,
+        IMessageConsumerManager consumerManager, IMessageQueueEvents events) {
+        return new RedisMessageCenter(redisMessageListenerContainer, redisProperty, lock, sender, events,
+            consumerManager);
     }
 }

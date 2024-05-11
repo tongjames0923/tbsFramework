@@ -19,9 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.redis.impls.RedisTaksBlockLock;
+import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 import tbs.framework.redis.impls.RedisCacheService;
-import tbs.framework.redis.impls.RedissonLockImpl;
+import tbs.framework.redis.impls.lock.RedissonLockImpl;
 import tbs.framework.redis.properties.RedisProperty;
 
 import java.time.Duration;

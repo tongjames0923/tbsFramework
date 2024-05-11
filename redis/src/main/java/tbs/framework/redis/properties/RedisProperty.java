@@ -5,8 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import tbs.framework.mq.IMessageConsumerManager;
-import tbs.framework.mq.impls.consumer.manager.MappedConsumerManager;
 
 /**
  * @author abstergo

@@ -2,12 +2,12 @@ package tbs.framework.base.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.mq.IMessageConsumerManager;
-import tbs.framework.mq.IMessageQueue;
-import tbs.framework.mq.impls.consumer.manager.MappedConsumerManager;
-import tbs.framework.mq.impls.event.BaseMessageQueueEvent;
-import tbs.framework.mq.impls.event.EmptySentAndErrorEventImpl;
-import tbs.framework.mq.impls.queue.SimpleMessageQueue;
+import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
+import tbs.framework.mq.queue.IMessageQueue;
+import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
+import tbs.framework.mq.event.BaseMessageQueueEvent;
+import tbs.framework.mq.event.EmptySentAndErrorEventImpl;
+import tbs.framework.mq.queue.impls.SimpleMessageQueue;
 
 @Data
 @ConfigurationProperties(prefix = "tbs.framework.mq")
