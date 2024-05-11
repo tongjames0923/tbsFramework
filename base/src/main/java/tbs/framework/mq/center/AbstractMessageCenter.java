@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import org.springframework.beans.factory.DisposableBean;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.mq.IMessageConnector;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
@@ -57,7 +57,7 @@ public abstract class AbstractMessageCenter implements DisposableBean {
     /**
      * @return 实现的消息接收连接器
      */
-    protected abstract Optional<IMessageConnector> getConnector();
+    public abstract Optional<IMessageConnector> getConnector();
 
     /**
      * @return 实现的消息发布器

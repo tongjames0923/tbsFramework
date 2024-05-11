@@ -6,7 +6,7 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
-import tbs.framework.mq.IMessageConnector;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.receiver.IMessageReceiver;

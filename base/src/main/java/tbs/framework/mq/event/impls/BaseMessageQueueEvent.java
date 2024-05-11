@@ -1,7 +1,8 @@
-package tbs.framework.mq.event;
+package tbs.framework.mq.event.impls;
 
 import cn.hutool.core.collection.CollUtil;
-import tbs.framework.mq.IMessageConnector;
+import tbs.framework.mq.connector.IMessageConnector;
+import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;

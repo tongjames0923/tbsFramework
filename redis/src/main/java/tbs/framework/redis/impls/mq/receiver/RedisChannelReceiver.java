@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.base.lock.expections.ObtainLockFailException;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.mq.IMessageConnector;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.message.IMessage;
@@ -61,16 +61,6 @@ public class RedisChannelReceiver implements IMessageReceiver {
         } finally {
             taksBlockLock.unlock(lockId(message));
         }
-    }
-
-    @Override
-    public boolean avaliablePull() {
-        return true;
-    }
-
-    @Override
-    public boolean avaliableReceive() {
-        return false;
     }
 
     @Override

@@ -3,7 +3,7 @@ package tbs.framework.redis.impls.mq;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.mq.IMessageConnector;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
@@ -58,7 +58,7 @@ public class RedisMessageCenter extends AbstractMessageCenter {
     }
 
     @Override
-    protected Optional<IMessageConnector> getConnector() {
+    public Optional<IMessageConnector> getConnector() {
         return Optional.ofNullable(SpringUtil.getBean(RedisMessageConnector.class));
     }
 

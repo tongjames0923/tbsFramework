@@ -1,6 +1,6 @@
 package tbs.framework.mq.event;
 
-import tbs.framework.mq.IMessageConnector;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.IMessageReceiver;

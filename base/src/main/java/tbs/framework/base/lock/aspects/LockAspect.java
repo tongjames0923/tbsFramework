@@ -11,6 +11,7 @@ import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.base.proxy.impls.LockProxy;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Aspect
 public class LockAspect {
@@ -30,8 +31,10 @@ public class LockAspect {
         final String lockName = lockIt.proxyImpl();
         final String lockId = lockIt.lockId();
         final LockProxy proxy = SpringUtil.getBean(lockName);
-        return proxy.safeProxy((o -> {
+        Optional v = proxy.safeProxy((o -> {
             return joinPoint.proceed();
         }), null, new SimpleLockAddtionalInfo(lockId));
+
+        return v.isPresent() ? v.get() : null;
     }
 }

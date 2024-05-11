@@ -30,20 +30,4 @@ public interface IMessageReceiver extends InitializingBean, DisposableBean {
         return new HashSet<>(Arrays.asList(".*"));
     }
 
-    /**
-     * 查看以下方法是否可用
-     *
-     * @return
-     * @see #pull(IMessage)
-     */
-    boolean avaliablePull();
-
-    /**
-     * 查看以下方法是否可用
-     *
-     * @return
-     * @see #receive()
-     */
-    boolean avaliableReceive();
-
 }

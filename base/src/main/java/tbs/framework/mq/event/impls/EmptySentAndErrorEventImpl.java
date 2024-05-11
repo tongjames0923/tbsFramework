@@ -1,4 +1,4 @@
-package tbs.framework.mq.event;
+package tbs.framework.mq.event.impls;
 
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
