@@ -21,14 +21,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author abstergo
  */
 public abstract class AbstractMessageCenter implements InitializingBean, DisposableBean {
-
+    
     private AtomicBoolean started = new AtomicBoolean(false);
 
     private AtomicBoolean listening = new AtomicBoolean(false);
 
-    private boolean isReceiver = false;
-    private boolean isSender = false;
-
+    /**
+     * 检查消息消费器是否合法
+     */
     public static void checkInputConsumer(IMessageConsumer messageConsumer) {
         if (messageConsumer == null || StrUtil.isEmpty(messageConsumer.consumerId())) {
             throw new NullPointerException("消费者为空或消息者id为空");
@@ -39,36 +39,30 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
     }
 
     /**
-     * @return
+     *@return 实现的消息接收器
      */
     protected abstract Optional<IMessageReceiver> getMessageReceiver();
 
     /**
-     * @return
+     *@return 实现的消息发布器
      */
     protected abstract Optional<IMessagePublisher> getMessagePublisher();
 
     /**
      * 消息中心事件
-     *
-     * @return 如果返回的Optional为空（即Optional.empty()），则表明没有可用的事件处理器,以下方法会失效
-     *     {@link AbstractMessageCenter#messageArrived(IMessage)} {@link AbstractMessageCenter#messageSent(IMessage)}
-     *     {@link AbstractMessageCenter#handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType,
-     *     Throwable, IMessageConsumer)} {@link AbstractMessageCenter#errorOnRecive(int, Throwable)}
-     *     {@link AbstractMessageCenter#errorOnSend(IMessage, int, Throwable)}
-     *     {@link AbstractMessageCenter#errorOnConsume(IMessage, int, Throwable, IMessageConsumer)}
+     * @return 实现的事件器
      */
     protected abstract Optional<IMessageQueueEvents> getMessageQueueEvents();
 
     /**
      * 为消费准备的消费管理器
-     *
-     * @return 如果返回的Optional为空（即Optional.empty()），则表明没有可用的消费处理器,以下方法会失效
-     *     {@link AbstractMessageCenter#appendConsumer(IMessageConsumer)}
-     *     {@link AbstractMessageCenter#remove(IMessageConsumer)}
+     * @return 实现的消费者管理器
      */
     protected abstract Optional<IMessageConsumerManager> getMessageConsumerManager();
 
+    /**
+     *
+     */
     public List<IMessageConsumer> allConsumersInCenter() {
         return getMessageConsumerManager().map(IMessageConsumerManager::getConsumers).orElseThrow(() -> {
             return new UnsupportedOperationException("consumer manager is not avaliable");
@@ -87,8 +81,6 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
 
     /**
      * 消息中心是否启动
-     *
-     * @return
      */
     public boolean isStart() {
         return started.get();
@@ -98,9 +90,7 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
      * 新增消息消费者
      *
      * @param messageConsumer
-     * @return
      */
-
     public AbstractMessageCenter appendConsumer(IMessageConsumer messageConsumer) {
         getMessageConsumerManager().orElseThrow(() -> {
             return new UnsupportedOperationException("none consumer manager");
@@ -112,9 +102,7 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
      * 移除消息消费者
      *
      * @param consumer
-     * @return
      */
-
     public AbstractMessageCenter remove(IMessageConsumer consumer) {
         getMessageConsumerManager().orElseThrow(() -> {
             return new UnsupportedOperationException("none consumer manager");
@@ -126,7 +114,7 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
      * 针对一个消费者批量消息消息
      *
      * @param consumer 消费者
-     * @param message  消息
+     * @param message 消息
      */
     public void consumeMessages(IMessageConsumer consumer, IMessage... message) {
         IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
@@ -141,9 +129,11 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
     }
 
     /**
-     * 针对一个消息采用默认的{@link IMessageConsumerManager#selectMessageConsumer(IMessage)}选择消费者并进行批量消费
+     * 针对一个消息采用默认的
+     * {@link IMessageConsumerManager#selectMessageConsumer(IMessage)}
+     * 选择消费者并进行批量消费
      *
-     * @param message
+     * @param message 信息
      */
     public void consumeMessage(IMessage message) {
         IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
@@ -183,10 +173,10 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
     /**
      * 消息异常处理回调
      *
-     * @param msg      异常消息
-     * @param r        重试次数
-     * @param type     操作类型
-     * @param e        异常
+     * @param msg 异常消息
+     * @param r 重试次数
+     * @param type 操作类型
+     * @param e 异常
      * @param consumer 异常消费者
      * @return 是否重试
      */
@@ -204,8 +194,8 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
      * @param r 重试次数
      * @param e 异常
      * @param c 异常消费者
-     * @return 是否重试
      * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
+     * @return 是否重试
      */
     public boolean errorOnConsume(IMessage m, int r, Throwable e, IMessageConsumer c) {
         return handleMessageError(m, r, IMessageQueueEvents.MessageHandleType.Consume, e, c);
@@ -216,8 +206,8 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
      *
      * @param r 重试次数
      * @param e 异常
-     * @return 是否重试
      * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
+     * @return 是否重试
      */
     public boolean errorOnRecive(int r, Throwable e) {
         return handleMessageError(null, r, IMessageQueueEvents.MessageHandleType.Receive, e, null);
@@ -229,8 +219,8 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
      * @param m 异常的消息
      * @param r 重试次数
      * @param e 异常
-     * @return 是否重试
      * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
+     * @return 是否重试
      */
     public boolean errorOnSend(IMessage m, int r, Throwable e) {
         return handleMessageError(m, r, IMessageQueueEvents.MessageHandleType.Send, e, null);
@@ -238,8 +228,8 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
 
     /**
      * 发布消息
-     *核心业务实现自{@link #sendMessage(IMessage)}
-     * @param message
+     *由publisher实现 {@link #getMessagePublisher()}
+     * @param message 信息
      */
     public void publish(IMessage message) {
         if (message == null) {
@@ -266,10 +256,19 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
         });
     }
 
+    /**
+     * 是否在监听
+     */
     public boolean isListen() {
         return listening.get();
     }
 
+    /**
+     * 启动监听（即启动消息接收器）由{@link #getMessageReceiver()}实现
+     *
+     * @param thread          线程数
+     * @param executorService 异步服务
+     */
     public void listen(ExecutorService executorService, int thread) {
         if (!isStart()) {
             throw new RuntimeException("center is not started");
@@ -300,6 +299,9 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
         }
     }
 
+    /**
+     * 停止监听消息
+     */
     public void stopListen() {
         listening.set(false);
     }
@@ -316,10 +318,6 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
 
     /**
      * 初始化时自动调用以下方法
-     *
-     * @throws Exception
-     * @see #setStarted(boolean)
-     * @see #centerStartToWork()
      */
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -328,9 +326,7 @@ public abstract class AbstractMessageCenter implements InitializingBean, Disposa
     }
 
     /**
-     * @throws Exception
-     * @see #setStarted(boolean)
-     * @see #centerStopToWork()
+     *
      */
     @Override
     public void destroy() throws Exception {
