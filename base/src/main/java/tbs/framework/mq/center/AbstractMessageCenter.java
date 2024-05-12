@@ -2,6 +2,7 @@ package tbs.framework.mq.center;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
@@ -15,12 +16,15 @@ import tbs.framework.mq.sender.IMessagePublisher;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
 /**
  * @author abstergo
@@ -287,6 +291,45 @@ public abstract class AbstractMessageCenter implements DisposableBean {
      * @param executorService 异步服务
      */
     public void listen(ExecutorService executorService, int thread) {
+        PreCheckResult pre = preCheckResult();
+        this.listening.set(true);
+        toListen(executorService, thread, pre);
+    }
+
+    private void toListen(ExecutorService executorService, int thread, PreCheckResult pre) {
+        for (int i = 0; i < thread; i++) {
+            executorService.execute(() -> {
+                while (isStart() && isListen()) {
+                    mainListenTask(pre);
+                }
+            });
+        }
+    }
+
+    private void mainListenTask(PreCheckResult pre) {
+        try {
+            BigDecimal index = pre.currentRec.getAndAccumulate(BigDecimal.ONE, new BinaryOperator<BigDecimal>() {
+                @Override
+                public BigDecimal apply(BigDecimal bigDecimal, BigDecimal bigDecimal2) {
+                    return bigDecimal.add(bigDecimal2);
+                }
+            }).divideAndRemainder(BigDecimal.valueOf(pre.cnt.get()))[1];
+            IMessageReceiver receiver = pre.receivers.getOrDefault(index.intValue(), null);
+            if (receiver == null) {
+                throw new NoSuchElementException("receiver index[" + index.intValue() + "] is not in map");
+            }
+            IMessage msg = receiver.receive();
+            if (msg == null) {
+                return;
+            }
+            messageArrived(msg, pre.connector, receiver);
+            consumeMessage(msg);
+        } catch (Exception e) {
+            getLogger().error(e, "error occurred on listen");
+        }
+    }
+
+    private @NotNull PreCheckResult preCheckResult() {
         if (!isStart()) {
             throw new RuntimeException("center is not started");
         }
@@ -297,37 +340,52 @@ public abstract class AbstractMessageCenter implements DisposableBean {
         if (isListen()) {
             throw new RuntimeException("center is already listen");
         }
-        this.listening.set(true);
+        ReceiverPreHandle receiverHandle = receiverHandleTask(connector);
+        PreCheckResult pre =
+            new PreCheckResult(connector, receiverHandle.currentRec, receiverHandle.cnt, receiverHandle.receivers);
+        return pre;
+    }
+
+    private static @NotNull ReceiverPreHandle receiverHandleTask(IMessageConnector connector) {
         AtomicReference<BigDecimal> currentRec = new AtomicReference<>(BigDecimal.ZERO);
-        List<IMessageReceiver> receivers = connector.getReceivers();
-        long reSize = receivers.size();
+        AtomicInteger cnt = new AtomicInteger(0);
+        Map<Integer, IMessageReceiver> receivers = connector.getReceivers().stream().collect(Collectors.toMap((p) -> {
+            return cnt.getAndIncrement();
+        }, (p) -> {
+            return p;
+        }));
         if (CollUtil.isEmpty(receivers)) {
             throw new NoSuchElementException("receivers is empty");
         }
-        for (int i = 0; i < thread; i++) {
-            executorService.execute(() -> {
-                while (isStart() && isListen()) {
-                    try {
-                        BigDecimal index =
-                            currentRec.getAndAccumulate(BigDecimal.ONE, new BinaryOperator<BigDecimal>() {
-                                @Override
-                                public BigDecimal apply(BigDecimal bigDecimal, BigDecimal bigDecimal2) {
-                                    return bigDecimal.add(bigDecimal2);
-                                }
-                            }).divideAndRemainder(BigDecimal.valueOf(receivers.size()))[1];
-                        IMessageReceiver receiver = receivers.get(index.intValue());
-                        IMessage msg = receiver.receive();
-                        if (msg == null) {
-                            continue;
-                        }
-                        messageArrived(msg, connector, receiver);
-                        consumeMessage(msg);
-                    } catch (Exception e) {
-                        getLogger().error(e, "error occurred on listen");
-                    }
+        ReceiverPreHandle receiverHandle = new ReceiverPreHandle(currentRec, cnt, receivers);
+        return receiverHandle;
+    }
 
-                }
-            });
+    private static class ReceiverPreHandle {
+        public final AtomicReference<BigDecimal> currentRec;
+        public final AtomicInteger cnt;
+        public final Map<Integer, IMessageReceiver> receivers;
+
+        public ReceiverPreHandle(AtomicReference<BigDecimal> currentRec, AtomicInteger cnt,
+            Map<Integer, IMessageReceiver> receivers) {
+            this.currentRec = currentRec;
+            this.cnt = cnt;
+            this.receivers = receivers;
+        }
+    }
+
+    private static class PreCheckResult {
+        public final IMessageConnector connector;
+        public final AtomicReference<BigDecimal> currentRec;
+        public final AtomicInteger cnt;
+        public final Map<Integer, IMessageReceiver> receivers;
+
+        public PreCheckResult(IMessageConnector connector, AtomicReference<BigDecimal> currentRec, AtomicInteger cnt,
+            Map<Integer, IMessageReceiver> receivers) {
+            this.connector = connector;
+            this.currentRec = currentRec;
+            this.cnt = cnt;
+            this.receivers = receivers;
         }
     }
 
