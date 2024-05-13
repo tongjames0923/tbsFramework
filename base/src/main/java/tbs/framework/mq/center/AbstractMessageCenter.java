@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
 import tbs.framework.base.log.ILogger;
+import tbs.framework.base.utils.IStartup;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * @author abstergo
  */
-public abstract class AbstractMessageCenter implements DisposableBean {
+public abstract class AbstractMessageCenter implements IStartup, DisposableBean {
 
     private AtomicBoolean started = new AtomicBoolean(false);
 
@@ -406,11 +407,8 @@ public abstract class AbstractMessageCenter implements DisposableBean {
      */
     protected abstract void centerStopToWork();
 
-    /**
-     * 初始化时自动调用以下方法
-     */
-
-    public void beginCenter() throws Exception {
+    @Override
+    public void startUp() throws RuntimeException {
         setStarted(true);
         centerStartToWork();
     }

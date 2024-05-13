@@ -49,7 +49,7 @@ public class MessageQueueCenter extends AbstractMessageCenter {
         }
         getConnector().map((p) -> {
             try {
-                p.afterPropertiesSet();
+                p.startUp();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

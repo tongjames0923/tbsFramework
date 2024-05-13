@@ -51,7 +51,7 @@ public class RedisMessageCenter extends AbstractMessageCenter {
         try {
             getConnector().orElseThrow(() -> {
                 return new UnsupportedOperationException("none connector");
-            }).afterPropertiesSet();
+            }).startUp();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

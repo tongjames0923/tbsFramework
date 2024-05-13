@@ -57,7 +57,7 @@ public class SwaggerConfig {
         return new ApplicationRunner() {
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                SwaggerConfig.this.logger.debug(String.format("visit: http://127.0.0.1:%s%s/doc.html",
+                SwaggerConfig.this.logger.info(String.format("visit: http://127.0.0.1:%s%s/doc.html",
                     SpringUtil.getApplicationContext().getEnvironment().getProperty("server.port"), finalContext));
             }
         };

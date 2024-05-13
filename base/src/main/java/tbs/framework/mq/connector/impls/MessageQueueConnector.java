@@ -45,7 +45,7 @@ public class MessageQueueConnector implements IMessageConnector {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void startUp() throws RuntimeException {
         getReceivers().forEach((p) -> {
             if (p instanceof QueueReceiver) {
                 QueueReceiver queueReceiver = (QueueReceiver)p;

@@ -1,15 +1,19 @@
 package tbs.framework.base.config;
 
+import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.lock.ILock;
 import tbs.framework.base.lock.aspects.LockAspect;
 import tbs.framework.base.lock.impls.JdkLock;
+import tbs.framework.base.log.ILogger;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.proxy.impls.LockProxy;
 import tbs.framework.base.proxy.impls.LogExceptionProxy;
+import tbs.framework.base.utils.IStartup;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.base.utils.UuidUtil;
 import tbs.framework.base.utils.impls.SimpleUuidUtil;
@@ -33,6 +37,28 @@ public class BaseConfig {
 
     @Resource
     LockProperty lockProperty;
+
+    ILogger logger;
+
+    public ILogger logger() {
+        if (logger == null) {
+            logger = LogUtil.getInstance().getLogger(BaseConfig.class.getName());
+        }
+        return logger;
+    }
+
+    @Bean
+    ApplicationRunner startUp() {
+        return args -> {
+            for (IStartup startup : SpringUtil.getBeansOfType(IStartup.class).values()) {
+                if (startup != null) {
+                    logger().info("{} instance[{}] started", startup.getClass().getSimpleName(), startup);
+                    startup.startUp();
+                }
+            }
+        };
+    }
+
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
     public LogUtil getLogger()
