@@ -4,11 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.base.lock.expections.ObtainLockFailException;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
-import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.center.AbstractMessageCenter;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.message.IMessage;
-import tbs.framework.mq.receiver.IMessageReceiver;
+import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 
 import java.util.Set;
@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author Abstergo
  */
-public class RedisChannelReceiver implements IMessageReceiver {
+public class RedisChannelReceiver extends AbstractIdentityReceiver {
     private ILogger logger = null;
     private AbstractMessageCenter center;
     private IMessageConsumer bindConsumer;
@@ -40,7 +40,13 @@ public class RedisChannelReceiver implements IMessageReceiver {
     @Override
     @Deprecated
     public IMessage receive() {
-        return null;
+        throw new UnsupportedOperationException(
+            "redis channel receiver is not supported for receive(),use pull(IMessage message) instead)");
+    }
+
+    @Override
+    public IMessageConnector builder() {
+        return builder;
     }
 
     @Override
@@ -50,6 +56,9 @@ public class RedisChannelReceiver implements IMessageReceiver {
 
     @Override
     public void pull(IMessage message) {
+        if (!avaliable()) {
+            return;
+        }
         center.messageArrived(message, builder, this);
         try {
             if (isMessageHandleOnce) {

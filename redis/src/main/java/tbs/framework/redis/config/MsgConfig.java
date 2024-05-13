@@ -6,6 +6,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
@@ -23,23 +24,35 @@ public class MsgConfig {
     @Resource
     RedisMqProperty redisMqProperty;
 
+
+
+    @Bean("REDIS_MSG_SERI")
+    RedisSerializer redisMqSerializer() throws Exception {
+        if (redisMqProperty.getMessageSerializerClass() == null) {
+            return new JdkSerializationRedisSerializer();
+        } else {
+            return redisMqProperty.getMessageSerializerClass().getConstructor().newInstance();
+        }
+    }
+
     @Bean("REDIS_MSG")
-    RedisTemplate<String, Object> redisMsg(RedisConnectionFactory connectionFactory) {
+    RedisTemplate<String, Object> redisMsg(RedisConnectionFactory connectionFactory,
+        @Qualifier("REDIS_MSG_SERI") RedisSerializer serializer) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
         template.setConnectionFactory(connectionFactory);
 
         // key采用String的序列化方式
-        template.setKeySerializer(new JdkSerializationRedisSerializer());
+        template.setKeySerializer(serializer);
 
         // hash的key也采用String的序列化方式
-        template.setHashKeySerializer(new JdkSerializationRedisSerializer());
+        template.setHashKeySerializer(serializer);
 
         // value序列化方式采用jackson
-        template.setValueSerializer(new JdkSerializationRedisSerializer());
+        template.setValueSerializer(serializer);
 
         // hash的value序列化方式采用jackson
-        template.setHashValueSerializer(new JdkSerializationRedisSerializer());
-        template.setDefaultSerializer(new JdkSerializationRedisSerializer());
+        template.setHashValueSerializer(serializer);
+        template.setDefaultSerializer(serializer);
         template.afterPropertiesSet();
         return template;
     }

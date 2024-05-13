@@ -17,8 +17,8 @@ public class SimpleMessage implements IMessage {
     private static final long serialVersionUID = -1918194218518995261L;
     private String topic;
     private String tag;
-    private Map<String, Object> headers;
-    private String id;
+    private Map<String, Object> parmamterMap;
+    private String messageId;
     private int priority = 0;
 
     private static final String CONSUMED = "CONSUMED_KEY";
@@ -26,8 +26,8 @@ public class SimpleMessage implements IMessage {
     public SimpleMessage(String topic, String tag, Map<String, Object> headers, int priority) {
         this.topic = StrUtil.isEmpty(topic) ? "core" : topic;
         this.tag = tag;
-        this.headers = headers == null ? new HashMap<>() : headers;
-        this.id = UuidUtil.getUuid();
+        this.parmamterMap = headers == null ? new HashMap<>() : headers;
+        this.messageId = UuidUtil.getUuid();
         this.priority = priority;
     }
 
@@ -43,7 +43,7 @@ public class SimpleMessage implements IMessage {
 
     @Override
     public String getMessageId() {
-        return id;
+        return messageId;
     }
 
     @Override
@@ -52,8 +52,8 @@ public class SimpleMessage implements IMessage {
     }
 
     @Override
-    public Map<String, Object> parmamterMap() {
-        return headers;
+    public Map<String, Object> getParmamterMap() {
+        return parmamterMap;
     }
 
     @Override
@@ -64,11 +64,7 @@ public class SimpleMessage implements IMessage {
             '\'' +
             ", tag='" +
             tag +
-            '\'' +
-            ", headers=" +
-            headers +
-            ", id='" +
-            id +
+            '\'' + ", parmamterMap=" + parmamterMap + ", messageId='" + messageId +
             '\'' +
             ", priority=" +
             priority +

@@ -12,9 +12,7 @@ import tbs.framework.mq.receiver.impls.QueueReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.mq.sender.impls.MessageQueueSender;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -25,13 +23,14 @@ public class MessageQueueCenter extends AbstractMessageCenter {
 
     private IMessagePublisher publisher = new MessageQueueSender(this);
 
+    List<IMessageReceiver> receivers = null;
+
     @Override
     public Optional<IMessageConnector> getConnector() {
         return Optional.of(SpringUtil.getBean(MessageQueueConnector.class));
     }
 
     public MessageQueueCenter() {
-        int a=10;
     }
 
     @Override
@@ -41,7 +40,43 @@ public class MessageQueueCenter extends AbstractMessageCenter {
 
     @Override
     public List<IMessageReceiver> getReceivers() {
-        return SpringUtil.getBeansOfType(QueueReceiver.class).values().stream().collect(Collectors.toList());
+        if (receivers == null) {
+            receivers = SpringUtil.getBeansOfType(QueueReceiver.class).values().stream().collect(Collectors.toList());
+        }
+        return receivers;
+    }
+
+    @Override
+    public void addReceivers(IMessageReceiver... receiver) {
+        List<IMessageReceiver> okReceivers = new LinkedList<>();
+        for (IMessageReceiver receiverI : receiver) {
+            if (receiverI instanceof QueueReceiver) {
+                receivers.add(receiverI);
+                okReceivers.add(receiverI);
+            }
+        }
+        factoryReceivers(okReceivers);
+    }
+
+    private void factoryReceivers(List<IMessageReceiver> receivers) {
+        getConnector().ifPresent((c) -> {
+            c.factoryMessageReceivers(receivers);
+        });
+    }
+
+    private void unfactoryReceivers(IMessageReceiver receiver) {
+        getConnector().ifPresent((c) -> {
+            c.invalidateReceivers(Arrays.asList(receiver));
+        });
+    }
+
+    @Override
+    public void removeReceivers(IMessageReceiver... receiver) {
+        for (IMessageReceiver receiverI : receiver) {
+            if (receiverI instanceof QueueReceiver) {
+                unfactoryReceivers(receiverI);
+            }
+        }
     }
 
     @Override
@@ -60,9 +95,7 @@ public class MessageQueueCenter extends AbstractMessageCenter {
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
         }
-        getConnector().ifPresent((c) -> {
-            c.factoryMessageReceivers(getReceivers());
-        });
+        factoryReceivers(getReceivers());
         listen(Executors.newFixedThreadPool(3), 3);
     }
 

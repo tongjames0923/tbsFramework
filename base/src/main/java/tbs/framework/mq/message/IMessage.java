@@ -43,6 +43,6 @@ public interface IMessage extends Serializable {
      * @return
      */
 
-    Map<String, Object> parmamterMap();
+    Map<String, Object> getParmamterMap();
     
 }

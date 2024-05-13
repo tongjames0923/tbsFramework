@@ -3,8 +3,8 @@ package tbs.framework.mq.receiver.impls;
 import tbs.framework.base.lock.annotations.LockIt;
 import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.base.proxy.impls.LockProxy;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
-import tbs.framework.mq.receiver.IMessageReceiver;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -13,14 +13,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Abstergo
  */
-public class QueueReceiver implements IMessageReceiver {
+public class QueueReceiver extends AbstractIdentityReceiver {
 
     private Queue<IMessage> queue;
     AtomicBoolean hasValue = new AtomicBoolean(false);
+    IMessageConnector connector;
 
-
-    public QueueReceiver setQueue(Queue<IMessage> queue) {
+    public QueueReceiver setQueue(Queue<IMessage> queue, IMessageConnector connector) {
         this.queue = queue;
+        this.connector = connector;
         return this;
     }
 
@@ -41,8 +42,16 @@ public class QueueReceiver implements IMessageReceiver {
     }
 
     @Override
+    public IMessageConnector builder() {
+        return connector;
+    }
+
+    @Override
     @LockIt(lockId = "QUEUE_LOCK")
     public void pull(IMessage message) {
+        if (!avaliable()) {
+            return;
+        }
         queue.add(message);
         hasValue.set(true);
     }

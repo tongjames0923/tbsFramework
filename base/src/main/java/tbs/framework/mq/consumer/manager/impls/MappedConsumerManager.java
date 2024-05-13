@@ -1,9 +1,9 @@
 package tbs.framework.mq.consumer.manager.impls;
 
 import cn.hutool.core.collection.CollUtil;
-import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
+import tbs.framework.mq.message.IMessage;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +23,11 @@ public class MappedConsumerManager implements IMessageConsumerManager {
         List<IMessageConsumer> c = new LinkedList<>();
         return consumers.getOrDefault(message.getTopic(), new HashMap<>()).values().stream()
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean match(String topic, Set<String> acceptTopics) {
+        return acceptTopics.contains(topic);
     }
 
     @Override

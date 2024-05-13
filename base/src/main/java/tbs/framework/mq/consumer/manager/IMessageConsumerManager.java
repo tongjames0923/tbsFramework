@@ -5,11 +5,14 @@ import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.message.IMessage;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author abstergo
  */
 public interface IMessageConsumerManager {
+
+    boolean match(String topic, Set<String> acceptTopics);
 
     /**
      * 获取全部消费者

@@ -24,7 +24,18 @@ public class MessageQueueConnector implements IMessageConnector {
         receivers.forEach((p) -> {
             if (p instanceof QueueReceiver) {
                 QueueReceiver queueReceiver = (QueueReceiver)p;
-                queueReceiver.setQueue(messageQueue);
+                queueReceiver.setQueue(messageQueue, this);
+            }
+        });
+    }
+
+    @Override
+    public void invalidateReceivers(List<IMessageReceiver> receivers) {
+        receivers.forEach((p) -> {
+            if (p instanceof QueueReceiver) {
+                QueueReceiver queueReceiver = (QueueReceiver)p;
+                queueReceiver.setAvaliable(false);
+                queueReceiver.setQueue(null, this);
             }
         });
     }

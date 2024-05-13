@@ -13,6 +13,7 @@ import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.IMessageReceiver;
+import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 
 import java.math.BigDecimal;
@@ -71,6 +72,9 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
 
     public abstract List<IMessageReceiver> getReceivers();
 
+    public abstract void addReceivers(IMessageReceiver... receiver);
+
+    public abstract void removeReceivers(IMessageReceiver... receiver);
 
     /**
      * 消息中心事件
@@ -321,6 +325,12 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
             IMessageReceiver receiver = pre.receivers.getOrDefault(index.intValue(), null);
             if (receiver == null) {
                 throw new NoSuchElementException("receiver index[" + index.intValue() + "] is not in map");
+            }
+            if (receiver instanceof AbstractIdentityReceiver) {
+                AbstractIdentityReceiver identityReceiver = (AbstractIdentityReceiver)receiver;
+                if (!identityReceiver.avaliable()) {
+                    return;
+                }
             }
             IMessage msg = receiver.receive();
             if (msg == null) {

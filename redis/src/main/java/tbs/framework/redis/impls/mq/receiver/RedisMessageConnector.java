@@ -1,23 +1,26 @@
 package tbs.framework.redis.impls.mq.receiver;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import tbs.framework.base.utils.IStartup;
 import tbs.framework.mq.connector.IMessageConnector;
-import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.receiver.IMessageReceiver;
+import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 import tbs.framework.redis.impls.mq.RedisMessageCenter;
+import tbs.framework.redis.properties.RedisMqProperty;
 
 import javax.annotation.Resource;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Abstergo
@@ -28,6 +31,8 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
      */
     public static final String TOPIC_PREFIX = "MESSAGE_CENTER.";
 
+    private Map<String, MessageListenerAdapter> listeners = new ConcurrentHashMap<>();
+
     @Override
     public int getOrder() {
         return 1;
@@ -37,6 +42,10 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
 
     private boolean isHandleOnce;
     private RedisTaksBlockLock taksBlockLock;
+
+    @Resource
+    @Lazy
+    RedisMqProperty redisMqProperty;
 
     @Resource
     @Lazy
@@ -54,25 +63,42 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
         if (receivers == null) {
             throw new NullPointerException("receivers is null");
         }
-        for (IMessageConsumer consumer : center.allConsumersInCenter()) {
-            receivers.add(new RedisChannelReceiver(center, consumer, isHandleOnce, taksBlockLock, this));
+        setUpListenners(receivers);
+    }
+
+    @Override
+    public void invalidateReceivers(List<IMessageReceiver> receivers) {
+        for (IMessageReceiver receiver : receivers) {
+            if (receiver instanceof AbstractIdentityReceiver) {
+                ((AbstractIdentityReceiver)receiver).setAvaliable(false);
+                MessageListenerAdapter adapter = listeners.get(((AbstractIdentityReceiver)receiver).receiverId());
+                container.removeMessageListener(adapter);
+            }
         }
     }
 
-    private void setup() {
-
-        for (IMessageReceiver messageReceiver : center.getReceivers()) {
+    private void setUpListenners(List<IMessageReceiver> receivers) {
+        for (IMessageReceiver messageReceiver : receivers) {
             if (messageReceiver == null) {
                 continue;
             }
             MessageListenerAdapter adapter = new MessageListenerAdapter(messageReceiver, "pull");
-            adapter.setSerializer(new JdkSerializationRedisSerializer());
+            adapter.setSerializer(SpringUtil.getBean(redisMqProperty.getMessageSerializerClass()));
 
             List<PatternTopic> topics = getTopic(messageReceiver.acceptTopics());
             container.addMessageListener(adapter, topics);
             adapter.afterPropertiesSet();
+            if (messageReceiver instanceof AbstractIdentityReceiver) {
+                AbstractIdentityReceiver abstractIdentityReceiver = (AbstractIdentityReceiver)messageReceiver;
+                listeners.putIfAbsent(abstractIdentityReceiver.receiverId(), adapter);
+            }
         }
-        container.start();
+    }
+
+    private void setup() {
+        if (!container.isRunning()) {
+            container.start();
+        }
     }
 
     private static List<PatternTopic> getTopic(Set<String> inputs) {

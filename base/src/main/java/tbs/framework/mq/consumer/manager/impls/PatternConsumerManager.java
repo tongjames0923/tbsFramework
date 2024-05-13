@@ -4,12 +4,14 @@ import cn.hutool.core.util.StrUtil;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.utils.LogUtil;
 import tbs.framework.mq.center.AbstractMessageCenter;
-import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
+import tbs.framework.mq.message.IMessage;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,18 @@ public class PatternConsumerManager implements IMessageConsumerManager {
             logger = LogUtil.getInstance().getLogger(PatternConsumerManager.class.getName());
         }
         return logger;
+    }
+
+    @Override
+    public boolean match(String topic, Set<String> acceptTopics) {
+        for (String key : acceptTopics) {
+            Pattern pattern = Pattern.compile(key);
+            Matcher matcher = pattern.matcher(topic);
+            if (matcher.matches()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package tbs.framework.mq.receiver;
 
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
 
 import java.util.Arrays;
@@ -10,12 +11,15 @@ import java.util.Set;
  * @author abstergo
  */
 public interface IMessageReceiver {
+
     /**
      * 提供消息
      *
      * @return 接收到的消息¬
      */
     IMessage receive();
+
+    IMessageConnector builder();
 
     /**
      * 获取到消息的调用 可能消息来自外部
