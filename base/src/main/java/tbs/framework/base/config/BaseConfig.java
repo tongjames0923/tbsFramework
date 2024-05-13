@@ -10,6 +10,7 @@ import tbs.framework.base.lock.impls.JdkLock;
 import tbs.framework.base.log.ILogger;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
+import tbs.framework.base.properties.MqProperty;
 import tbs.framework.base.proxy.IProxy;
 import tbs.framework.base.proxy.impls.LockProxy;
 import tbs.framework.base.proxy.impls.LogExceptionProxy;
@@ -18,6 +19,10 @@ import tbs.framework.base.utils.LogUtil;
 import tbs.framework.base.utils.UuidUtil;
 import tbs.framework.base.utils.impls.SimpleUuidUtil;
 import tbs.framework.base.utils.impls.Slf4jLoggerUtil;
+import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
+import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
+import tbs.framework.mq.event.IMessageQueueEvents;
+import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -26,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Abstergo
@@ -37,6 +43,9 @@ public class BaseConfig {
 
     @Resource
     LockProperty lockProperty;
+
+    @Resource
+    MqProperty mqProperty;
 
     ILogger logger;
 
@@ -50,7 +59,9 @@ public class BaseConfig {
     @Bean
     ApplicationRunner startUp() {
         return args -> {
-            for (IStartup startup : SpringUtil.getBeansOfType(IStartup.class).values()) {
+            for (IStartup startup : SpringUtil.getBeansOfType(IStartup.class).values().stream().sorted((a1, a2) -> {
+                return a1.getOrder() - a2.getOrder();
+            }).collect(Collectors.toList())) {
                 if (startup != null) {
                     logger().info("{} instance[{}] started", startup.getClass().getSimpleName(), startup);
                     startup.startUp();
@@ -107,5 +118,21 @@ public class BaseConfig {
     @Bean
     LockAspect lockAspect() {
         return new LockAspect();
+    }
+
+    @Bean
+    IMessageQueueEvents baseMessageQueueEvent(IMessageConsumerManager manager) throws Exception {
+        if (mqProperty.getEventImpl() == null) {
+            return new EmptySentAndErrorEventImpl();
+        }
+        return mqProperty.getEventImpl().getConstructor().newInstance();
+    }
+
+    @Bean
+    IMessageConsumerManager consumerManager() throws Exception {
+        if (mqProperty.getConsumerManager() == null) {
+            return new MappedConsumerManager();
+        }
+        return mqProperty.getConsumerManager().getConstructor().newInstance();
     }
 }

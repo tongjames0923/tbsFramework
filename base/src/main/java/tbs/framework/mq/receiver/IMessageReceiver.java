@@ -1,7 +1,5 @@
 package tbs.framework.mq.receiver;
 
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import tbs.framework.mq.message.IMessage;
 
 import java.util.Arrays;
@@ -11,7 +9,7 @@ import java.util.Set;
 /**
  * @author abstergo
  */
-public interface IMessageReceiver extends InitializingBean, DisposableBean {
+public interface IMessageReceiver {
     /**
      * 提供消息
      *

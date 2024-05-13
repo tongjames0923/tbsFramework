@@ -4,6 +4,8 @@ import tbs.framework.mq.center.impls.MessageQueueCenter;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.sender.IMessagePublisher;
 
+import java.util.regex.Pattern;
+
 /**
  * @author Abstergo
  */
@@ -17,13 +19,17 @@ public class MessageQueueSender implements IMessagePublisher {
 
     @Override
     public void publishAll(IMessage... message) {
-        center.getConnector().map((t) -> {
-            t.getReceivers().forEach(r -> {
-                for (IMessage m : message) {
-                    r.pull(m);
+        center.getReceivers().forEach(r -> {
+            for (IMessage m : message) {
+                for (String t : r.acceptTopics()) {
+                    Pattern pattern = Pattern.compile(t);
+                    if (pattern.matcher(m.getTopic()).matches()) {
+                        r.pull(m);
+                        break;
+                    }
+
                 }
-            });
-            return t;
+            }
         });
     }
 }

@@ -69,6 +69,9 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      */
     protected abstract Optional<IMessagePublisher> getMessagePublisher();
 
+    public abstract List<IMessageReceiver> getReceivers();
+
+
     /**
      * 消息中心事件
      *
@@ -347,10 +350,11 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
         return pre;
     }
 
-    private static @NotNull ReceiverPreHandle receiverHandleTask(IMessageConnector connector) {
+    private @NotNull ReceiverPreHandle receiverHandleTask(IMessageConnector connector) {
         AtomicReference<BigDecimal> currentRec = new AtomicReference<>(BigDecimal.ZERO);
+
         AtomicInteger cnt = new AtomicInteger(0);
-        Map<Integer, IMessageReceiver> receivers = connector.getReceivers().stream().collect(Collectors.toMap((p) -> {
+        Map<Integer, IMessageReceiver> receivers = getReceivers().stream().collect(Collectors.toMap((p) -> {
             return cnt.getAndIncrement();
         }, (p) -> {
             return p;
@@ -419,9 +423,6 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     @Override
     public void destroy() throws Exception {
         setStarted(false);
-        getConnector().orElseThrow(() -> {
-            return new UnsupportedOperationException("none connector");
-        }).destroy();
         centerStopToWork();
     }
 }

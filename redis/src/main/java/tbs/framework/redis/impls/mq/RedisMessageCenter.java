@@ -3,11 +3,12 @@ package tbs.framework.redis.impls.mq;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import tbs.framework.base.log.ILogger;
-import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.center.AbstractMessageCenter;
+import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
+import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 import tbs.framework.redis.impls.mq.receiver.RedisMessageConnector;
@@ -15,6 +16,8 @@ import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisProperty;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -28,6 +31,8 @@ public class RedisMessageCenter extends AbstractMessageCenter {
 
     private IMessageQueueEvents messageQueueEvents;
     private IMessageConsumerManager messageConsumerManager;
+
+    private List<IMessageReceiver> messageReceivers = null;
 
     public RedisMessageCenter(RedisMessageListenerContainer container, RedisProperty redisProperty,
         RedisTaksBlockLock blockLock, RedisSender sender, IMessageQueueEvents queueEvents,
@@ -48,13 +53,7 @@ public class RedisMessageCenter extends AbstractMessageCenter {
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
         }
-        try {
-            getConnector().orElseThrow(() -> {
-                return new UnsupportedOperationException("none connector");
-            }).startUp();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
     @Override
@@ -77,4 +76,19 @@ public class RedisMessageCenter extends AbstractMessageCenter {
         return Optional.ofNullable(messageConsumerManager);
     }
 
+    @Override
+    public List<IMessageReceiver> getReceivers() {
+        if (null == messageReceivers) {
+            messageReceivers = new LinkedList<>();
+            getConnector().orElseThrow(() -> {
+                return new UnsupportedOperationException("none connector");
+            }).factoryMessageReceivers(messageReceivers);
+        }
+        return messageReceivers;
+    }
+
+    @Override
+    public int getOrder() {
+        return 0;
+    }
 }

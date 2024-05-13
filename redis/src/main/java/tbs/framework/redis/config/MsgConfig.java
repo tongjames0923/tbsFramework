@@ -6,7 +6,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
-import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
@@ -64,7 +63,7 @@ public class MsgConfig {
     }
 
     @Bean
-    AbstractMessageCenter abstractMessageCenter(RedisMessageListenerContainer redisMessageListenerContainer,
+    RedisMessageCenter abstractMessageCenter(RedisMessageListenerContainer redisMessageListenerContainer,
         RedisTaksBlockLock lock, RedisProperty redisProperty, RedisSender sender,
         IMessageConsumerManager consumerManager, IMessageQueueEvents events) {
         return new RedisMessageCenter(redisMessageListenerContainer, redisProperty, lock, sender, events,

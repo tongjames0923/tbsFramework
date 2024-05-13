@@ -7,28 +7,41 @@ import tbs.framework.mq.connector.impls.MessageQueueConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
+import tbs.framework.mq.receiver.IMessageReceiver;
+import tbs.framework.mq.receiver.impls.QueueReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.mq.sender.impls.MessageQueueSender;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * @author Abstergo
  */
 public class MessageQueueCenter extends AbstractMessageCenter {
 
-    private IMessageConnector connector = new MessageQueueConnector(this);
     private IMessagePublisher publisher = new MessageQueueSender(this);
 
     @Override
     public Optional<IMessageConnector> getConnector() {
-        return Optional.of(connector);
+        return Optional.of(SpringUtil.getBean(MessageQueueConnector.class));
+    }
+
+    public MessageQueueCenter() {
+        int a=10;
     }
 
     @Override
     protected Optional<IMessagePublisher> getMessagePublisher() {
         return Optional.of(publisher);
+    }
+
+    @Override
+    public List<IMessageReceiver> getReceivers() {
+        return SpringUtil.getBeansOfType(QueueReceiver.class).values().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -47,25 +60,14 @@ public class MessageQueueCenter extends AbstractMessageCenter {
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
         }
-        getConnector().map((p) -> {
-            try {
-                p.startUp();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            return p;
+        getConnector().ifPresent((c) -> {
+            c.factoryMessageReceivers(getReceivers());
         });
+        listen(Executors.newFixedThreadPool(3), 3);
     }
 
     @Override
     protected void centerStopToWork() {
-        getConnector().map((p) -> {
-            try {
-                p.destroy();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            return p;
-        });
+
     }
 }

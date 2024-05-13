@@ -63,14 +63,6 @@ public class RedisChannelReceiver implements IMessageReceiver {
         }
     }
 
-    @Override
-    public void destroy() throws Exception {
-
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-    }
 
     private static final String LOCK_KEY = "MESSAGE_CENTER_BLOCK_KEY";
 

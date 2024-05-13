@@ -14,7 +14,6 @@ import java.lang.annotation.RetentionPolicy;
  * @author abstergo
  */
 @EnableTbsRedis
-@EnableMessageQueue
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(MsgConfig.class)
