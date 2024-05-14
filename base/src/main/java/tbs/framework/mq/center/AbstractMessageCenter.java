@@ -5,8 +5,6 @@ import cn.hutool.core.util.StrUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.IStartup;
-import tbs.framework.utils.LogUtil;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
@@ -15,6 +13,8 @@ import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
+import tbs.framework.utils.IStartup;
+import tbs.framework.utils.LogUtil;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -63,12 +63,14 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     /**
      * @return 实现的消息接收连接器
      */
-    public abstract Optional<IMessageConnector> getConnector();
+    public abstract IMessageConnector getConnector();
 
     /**
      * @return 实现的消息发布器
      */
-    protected abstract Optional<IMessagePublisher> getMessagePublisher();
+    public abstract IMessagePublisher getMessagePublisher();
+
+    public abstract void setMessagePublisher(IMessagePublisher messagePublisher);
 
     public abstract List<IMessageReceiver> getReceivers();
 
@@ -264,9 +266,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
         if (message == null) {
             throw new NullPointerException("message is null");
         }
-        IMessagePublisher publisher = getMessagePublisher().orElseThrow(() -> {
-            return new UnsupportedOperationException("none publisher");
-        });
+        IMessagePublisher publisher = getMessagePublisher();
         int tryTimes = 0;
         while (true) {
             try {
@@ -347,9 +347,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
         if (!isStart()) {
             throw new RuntimeException("center is not started");
         }
-        IMessageConnector connector = getConnector().orElseThrow(() -> {
-            return new UnsupportedOperationException("none connector");
-        });
+        IMessageConnector connector = getConnector();
 
         if (isListen()) {
             throw new RuntimeException("center is already listen");
@@ -425,6 +423,9 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     public void startUp() throws RuntimeException {
         setStarted(true);
         centerStartToWork();
+        getConnector().createPublishers(this);
+        getConnector().createReceivers(this);
+
     }
 
     /**

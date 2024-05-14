@@ -71,8 +71,8 @@ public class MsgConfig {
     }
 
     @Bean
-    RedisMessageConnector redisMessageConnector(RedisMessageListenerContainer container, RedisTaksBlockLock blockLock) {
-        return new RedisMessageConnector(container, redisMqProperty.isMessageHandleOnce(), blockLock);
+    RedisMessageConnector redisMessageConnector() {
+        return new RedisMessageConnector();
     }
 
     @Bean

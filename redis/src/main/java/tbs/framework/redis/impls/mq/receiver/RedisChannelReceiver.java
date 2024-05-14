@@ -13,7 +13,6 @@ import tbs.framework.redis.properties.RedisMqProperty;
 import tbs.framework.utils.LogUtil;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,11 +24,10 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
     @Resource
     private AbstractMessageCenter center;
 
-    @Resource
-    private List<IMessageConsumer> bindConsumers;
+    private IMessageConsumer consumer;
 
     private IMessageConsumer getConsumer() {
-        return bindConsumers.get(index);
+        return consumer;
     }
 
     private int index = 0;
@@ -42,6 +40,10 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
     private RedisTaksBlockLock taksBlockLock;
     @Resource
     private IMessageConnector builder;
+
+    public RedisChannelReceiver(IMessageConsumer consumer) {
+        this.consumer = consumer;
+    }
 
     public RedisChannelReceiver() {
         this.index = aIndex.getAndIncrement();

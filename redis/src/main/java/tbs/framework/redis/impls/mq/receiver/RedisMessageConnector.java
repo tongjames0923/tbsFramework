@@ -7,13 +7,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import tbs.framework.utils.IStartup;
+import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
-import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
-import tbs.framework.redis.impls.mq.RedisMessageCenter;
+import tbs.framework.mq.sender.IMessagePublisher;
+import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisMqProperty;
+import tbs.framework.utils.BeanUtil;
+import tbs.framework.utils.IStartup;
 
 import javax.annotation.Resource;
 import java.util.LinkedList;
@@ -38,43 +40,18 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
         return 1;
     }
 
+    @Resource
     private RedisMessageListenerContainer container;
 
-    private boolean isHandleOnce;
-    private RedisTaksBlockLock taksBlockLock;
 
     @Resource
     @Lazy
     RedisMqProperty redisMqProperty;
 
     @Resource
-    @Lazy
-    RedisMessageCenter center;
+    RedisSender sender;
 
-    public RedisMessageConnector(RedisMessageListenerContainer container, boolean isHandleOnce,
-        RedisTaksBlockLock taksBlockLock) {
-        this.container = container;
-        this.isHandleOnce = isHandleOnce;
-        this.taksBlockLock = taksBlockLock;
-    }
-
-    @Override
-    public void factoryMessageReceivers(List<IMessageReceiver> receivers) {
-        if (receivers == null) {
-            throw new NullPointerException("receivers is null");
-        }
-        setUpListenners(receivers);
-    }
-
-    @Override
-    public void invalidateReceivers(List<IMessageReceiver> receivers) {
-        for (IMessageReceiver receiver : receivers) {
-            if (receiver instanceof AbstractIdentityReceiver) {
-                ((AbstractIdentityReceiver)receiver).setAvaliable(false);
-                MessageListenerAdapter adapter = listeners.get(((AbstractIdentityReceiver)receiver).receiverId());
-                container.removeMessageListener(adapter);
-            }
-        }
+    public RedisMessageConnector() {
     }
 
     private void setUpListenners(List<IMessageReceiver> receivers) {
@@ -120,5 +97,42 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
     @Override
     public void startUp() throws RuntimeException {
         setup();
+    }
+
+    @Override
+    public void createPublishers(AbstractMessageCenter center) {
+        center.setMessagePublisher(this.sender);
+    }
+
+    @Override
+    public void createReceivers(AbstractMessageCenter center) {
+        List<IMessageReceiver> receivers = new LinkedList<>();
+        center.allConsumersInCenter().forEach((c) -> {
+            RedisChannelReceiver receiver = new RedisChannelReceiver(c);
+            if (SpringUtil.getApplicationContext().containsBean(receiver.receiverId() + c.consumerId())) {
+                return;
+            }
+            BeanUtil.registerBean(receiver, receiver.receiverId() + c.consumerId());
+            center.addReceivers(receiver);
+            receivers.add(receiver);
+        });
+        setUpListenners(receivers);
+    }
+
+    @Override
+    public void destoryPublishers(AbstractMessageCenter center, List<IMessagePublisher> publishers) {
+
+    }
+
+    @Override
+    public void destoryReceivers(AbstractMessageCenter center, List<IMessageReceiver> receivers) {
+        for (IMessageReceiver receiver : receivers) {
+            if (receiver instanceof AbstractIdentityReceiver) {
+                AbstractIdentityReceiver abstractIdentityReceiver = (AbstractIdentityReceiver)receiver;
+                abstractIdentityReceiver.setAvaliable(false);
+                MessageListenerAdapter adapter = listeners.get(((AbstractIdentityReceiver)receiver).receiverId());
+                container.removeMessageListener(adapter);
+            }
+        }
     }
 }
