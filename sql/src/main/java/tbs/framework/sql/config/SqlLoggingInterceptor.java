@@ -8,7 +8,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.context.annotation.Lazy;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.model.SqlRuntimeStatus;
 
@@ -22,14 +22,14 @@ import java.util.Properties;
     @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
 public class SqlLoggingInterceptor implements Interceptor {
 
+    @AutoLogger
     ILogger logger;
 
     @Resource
     @Lazy
     private Map<String, ISqlLogger> sqlLoggers;
 
-    public SqlLoggingInterceptor(LogUtil logUtil) {
-        this.logger = logUtil.getLogger(SqlLoggingInterceptor.class.getName());
+    public SqlLoggingInterceptor() {
     }
 
     @Override

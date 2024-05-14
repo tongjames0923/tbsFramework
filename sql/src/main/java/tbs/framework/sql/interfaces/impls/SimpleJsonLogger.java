@@ -2,16 +2,16 @@ package tbs.framework.sql.interfaces.impls;
 
 import com.alibaba.fastjson2.JSON;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.model.SqlRuntimeStatus;
 
 
 public class SimpleJsonLogger implements ISqlLogger {
+    @AutoLogger
     ILogger logger;
 
-    public SimpleJsonLogger(LogUtil logUtil) {
-        logger = logUtil.getLogger(this.getClass().getName());
+    public SimpleJsonLogger() {
     }
 
     @Override

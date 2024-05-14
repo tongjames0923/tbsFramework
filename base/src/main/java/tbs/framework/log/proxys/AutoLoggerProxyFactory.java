@@ -18,7 +18,7 @@ import java.lang.reflect.Proxy;
 public class AutoLoggerProxyFactory implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        for (Field f : bean.getClass().getFields()) {
+        for (Field f : bean.getClass().getDeclaredFields()) {
             AutoLogger annotation = f.getDeclaredAnnotation(AutoLogger.class);
             if (annotation != null && f.getType().equals(ILogger.class)) {
                 f.setAccessible(true);

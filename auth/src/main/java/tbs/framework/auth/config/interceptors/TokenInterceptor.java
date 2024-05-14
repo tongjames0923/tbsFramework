@@ -6,7 +6,6 @@ import tbs.framework.auth.exceptions.TokenNotFoundException;
 import tbs.framework.auth.interfaces.IRequestTokenPicker;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,9 +20,8 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     ILogger logger;
 
-    public TokenInterceptor(final IRequestTokenPicker tokenPicker, final LogUtil logUtil) {
+    public TokenInterceptor(final IRequestTokenPicker tokenPicker) {
         this.tokenPicker = tokenPicker;
-        this.logger = logUtil.getLogger(TokenInterceptor.class.getName());
     }
 
     @Override

@@ -1,13 +1,14 @@
 package tbs.framework.cache.impls;
 
 import org.springframework.scheduling.annotation.Scheduled;
+import tbs.framework.cache.ICacheService;
+import tbs.framework.cache.IkeyMixer;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.LogUtil;
-import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.IkeyMixer;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -33,8 +34,8 @@ public class SimpleCacheServiceImpl implements ICacheService, IkeyMixer {
 
     private final ConcurrentHashMap<String, CacheEntry> delayedCache = new ConcurrentHashMap<>();
 
-
-    private final ILogger logger;
+    @AutoLogger
+    private ILogger logger;
 
     private IProxy.IProxyAdditionalInfo getLockId() {
         return new SimpleLockAddtionalInfo(this.toString());
@@ -137,8 +138,8 @@ public class SimpleCacheServiceImpl implements ICacheService, IkeyMixer {
      *
      * @param logUtil a {@link LogUtil} object
      */
-    public SimpleCacheServiceImpl(final LogUtil logUtil) {
-        logger = logUtil.getLogger(SimpleCacheServiceImpl.class.getName());
+    public SimpleCacheServiceImpl() {
+
     }
 
     @Override

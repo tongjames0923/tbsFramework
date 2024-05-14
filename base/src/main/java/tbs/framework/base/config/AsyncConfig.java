@@ -3,9 +3,9 @@ package tbs.framework.base.config;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.log.ILogger;
 import tbs.framework.base.properties.ExecutorProperty;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.utils.ThreadUtil;
 import tbs.framework.utils.impls.SimpleThreadUtil;
 
@@ -24,11 +24,10 @@ public class AsyncConfig {
     @Resource
     ExecutorProperty executorProperty;
 
-    private final ILogger logger;
+    @AutoLogger
+    private ILogger logger;
 
-    AsyncConfig(final LogUtil util) {
-        this.logger = util.getLogger(AsyncConfig.class.getName());
-        this.logger.trace("Async config initialized");
+    AsyncConfig() {
     }
 
 

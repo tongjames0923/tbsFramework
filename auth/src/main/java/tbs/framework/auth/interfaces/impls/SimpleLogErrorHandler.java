@@ -2,7 +2,7 @@ package tbs.framework.auth.interfaces.impls;
 
 import tbs.framework.auth.interfaces.IErrorHandler;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 
 /**
  * 基础异常处理
@@ -11,10 +11,11 @@ import tbs.framework.utils.LogUtil;
  */
 public class SimpleLogErrorHandler implements IErrorHandler {
 
-    private final ILogger logger;
+    @AutoLogger
+    private ILogger logger;
 
-    public SimpleLogErrorHandler(final LogUtil logUtil) {
-        this.logger = logUtil.getLogger(SimpleLogErrorHandler.class.getName());
+    public SimpleLogErrorHandler() {
+
     }
 
     @Override

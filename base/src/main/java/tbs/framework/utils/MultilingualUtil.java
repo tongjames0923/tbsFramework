@@ -4,6 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.multilingual.ILocal;
 import tbs.framework.multilingual.annotations.TranslateField;
 
@@ -14,11 +15,11 @@ import java.util.Locale;
 public class MultilingualUtil {
     @Resource
     private MessageSource messageSource;
+    @AutoLogger
+    private ILogger log;
 
-    private final ILogger log;
+    public MultilingualUtil() {
 
-    public MultilingualUtil(final LogUtil logUtil) {
-        this.log = logUtil.getLogger(MultilingualUtil.class.getName());
     }
 
     /**

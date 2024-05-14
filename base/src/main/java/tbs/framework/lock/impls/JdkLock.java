@@ -2,7 +2,7 @@ package tbs.framework.lock.impls;
 
 import tbs.framework.lock.ILock;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -14,16 +14,17 @@ import java.util.function.Function;
  */
 public class JdkLock implements ILock {
 
-    private final ILogger logger;
+    @AutoLogger
+    private ILogger logger;
+
     Function<String, Lock> lockProvider;
     private ConcurrentHashMap<String, Boolean> lockMap = new ConcurrentHashMap<>();
 
-    public JdkLock(final Function<String, Lock> lock, final LogUtil util) {
+    public JdkLock(final Function<String, Lock> lock) {
         if (lock == null) {
             throw new NullPointerException("lock provider is null");
         }
         this.lockProvider = lock;
-        this.logger = util.getLogger(JdkLock.class.getName());
     }
 
     private Lock getLock(String l) {

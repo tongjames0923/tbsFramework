@@ -6,21 +6,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.xxl.interfaces.IXXLJobsConfig;
 import tbs.framework.xxl.interfaces.impl.DefaultXxlJobExecutor;
 
 public class XxlJobConfig {
 
-    private final ILogger logger;
+    @AutoLogger
+    private ILogger logger;
 
-    public XxlJobConfig(final LogUtil logUtil) {
-        this.logger = logUtil.getLogger(XxlJobConfig.class.getName());
+    public XxlJobConfig() {
+
     }
 
     @Bean
-    DefaultXxlJobExecutor executor(final ApplicationContext application, final LogUtil logUtil) {
-        return new DefaultXxlJobExecutor(application, logUtil);
+    DefaultXxlJobExecutor executor(final ApplicationContext application) {
+        return new DefaultXxlJobExecutor(application);
     }
 
     @Bean

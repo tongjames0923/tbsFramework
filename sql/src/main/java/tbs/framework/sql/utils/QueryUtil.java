@@ -6,13 +6,13 @@ import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import tbs.framework.base.intefaces.IChain;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.ChainUtil;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.sql.annotations.*;
 import tbs.framework.sql.enums.QueryConnectorEnum;
 import tbs.framework.sql.enums.QueryContrastEnum;
 import tbs.framework.sql.enums.QueryOrderEnum;
 import tbs.framework.sql.interfaces.IQuery;
+import tbs.framework.utils.ChainUtil;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  */
 public class QueryUtil {
 
+    @AutoLogger
     ILogger logger;
 
-    public QueryUtil(final LogUtil logUtil) {
-        this.logger = logUtil.getLogger(QueryUtil.class.getName());
+    public QueryUtil() {
     }
 
     public String getQuery(final IQuery queryObject) {

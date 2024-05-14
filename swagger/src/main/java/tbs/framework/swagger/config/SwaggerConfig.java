@@ -14,7 +14,7 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spring.web.plugins.Docket;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.swagger.properties.SwaggerProperty;
 
 import javax.annotation.Resource;
@@ -27,11 +27,6 @@ public class SwaggerConfig {
     @Resource
     private SwaggerProperty swaggerProperty;
 
-    ILogger logger;
-
-    public SwaggerConfig(LogUtil logUtil) {
-        logger = logUtil.getLogger(this.getClass().getName());
-    }
 
     @Bean
     WebMvcConfigurer swaggerConfigurer() {
@@ -55,9 +50,11 @@ public class SwaggerConfig {
 
         String finalContext = context;
         return new ApplicationRunner() {
+            @AutoLogger
+            ILogger logger;
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                SwaggerConfig.this.logger.info(String.format("visit: http://127.0.0.1:%s%s/doc.html",
+                logger.info(String.format("visit: http://127.0.0.1:%s%s/doc.html",
                     SpringUtil.getApplicationContext().getEnvironment().getProperty("server.port"), finalContext));
             }
         };

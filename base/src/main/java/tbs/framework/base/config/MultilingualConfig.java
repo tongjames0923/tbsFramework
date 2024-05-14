@@ -11,13 +11,13 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.log.ILogger;
 import tbs.framework.base.properties.LocalProperty;
-import tbs.framework.utils.LogUtil;
-import tbs.framework.utils.MultilingualUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.multilingual.ILocal;
 import tbs.framework.multilingual.aspects.MultilingualAspect;
 import tbs.framework.multilingual.impls.LocalStringTranslateImpl;
+import tbs.framework.utils.MultilingualUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,12 +27,11 @@ import java.util.Locale;
  * @author abstergo
  */
 public class MultilingualConfig {
+    @AutoLogger
     private static ILogger log;
 
-    public MultilingualConfig(final LogUtil logUtil) {
-        if (null == log) {
-            MultilingualConfig.log = logUtil.getLogger(MultilingualConfig.class.getName());
-        }
+    public MultilingualConfig() {
+
     }
 
     @Bean
@@ -50,8 +49,8 @@ public class MultilingualConfig {
 
     @Bean
     @ConditionalOnMissingBean(ILocal.class)
-    public ILocal defaultLocal(final LogUtil logUtil, final MultilingualUtil multilingualUtil) {
-        return new LocalStringTranslateImpl(logUtil, multilingualUtil);
+    public ILocal defaultLocal(final MultilingualUtil multilingualUtil) {
+        return new LocalStringTranslateImpl(multilingualUtil);
     }
 
     @Bean(BeanNameConstant.LOCALE_CHANGE_INTERCEPTOR)
@@ -121,7 +120,7 @@ public class MultilingualConfig {
     }
 
     @Bean
-    public MultilingualUtil multilingualUtil(final LogUtil logUtil) {
-        return new MultilingualUtil(logUtil);
+    public MultilingualUtil multilingualUtil() {
+        return new MultilingualUtil();
     }
 }

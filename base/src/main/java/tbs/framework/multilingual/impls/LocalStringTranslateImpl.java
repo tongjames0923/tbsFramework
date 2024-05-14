@@ -1,10 +1,11 @@
 package tbs.framework.multilingual.impls;
 
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
-import tbs.framework.utils.MultilingualUtil;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.multilingual.ILocal;
 import tbs.framework.multilingual.ITranslationParameters;
+import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.MultilingualUtil;
 
 import java.util.Locale;
 
@@ -16,7 +17,8 @@ import java.util.Locale;
  */
 public class LocalStringTranslateImpl implements ILocal {
 
-    private final ILogger log;
+    @AutoLogger
+    private ILogger log;
 
     private final MultilingualUtil multilingualUtil;
 
@@ -26,8 +28,7 @@ public class LocalStringTranslateImpl implements ILocal {
      * @param logUtil a {@link LogUtil} object
      * @param util a {@link MultilingualUtil} object
      */
-    public LocalStringTranslateImpl(final LogUtil logUtil, final MultilingualUtil util) {
-        this.log = logUtil.getLogger(LocalStringTranslateImpl.class.getName());
+    public LocalStringTranslateImpl(final MultilingualUtil util) {
         this.multilingualUtil = util;
     }
 

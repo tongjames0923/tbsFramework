@@ -5,7 +5,6 @@ import tbs.framework.auth.exceptions.UserModelNotFoundException;
 import tbs.framework.auth.interfaces.IUserModelPicker;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,9 +18,8 @@ public class UserModelInterceptor implements HandlerInterceptor {
     IUserModelPicker userModelPicker;
     ILogger logger;
 
-    public UserModelInterceptor(final IUserModelPicker userModelPicker, final LogUtil logUtil) {
+    public UserModelInterceptor(final IUserModelPicker userModelPicker) {
         this.userModelPicker = userModelPicker;
-        this.logger = logUtil.getLogger(UserModelInterceptor.class.getName());
     }
 
     @Override

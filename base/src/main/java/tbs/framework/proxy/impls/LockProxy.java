@@ -6,6 +6,7 @@ import tbs.framework.lock.ILock;
 import tbs.framework.lock.expections.ObtainLockFailException;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
 import tbs.framework.utils.LogUtil;
 
@@ -30,8 +31,9 @@ public class LockProxy implements IProxy {
         return lockProxy;
     }
 
-
+    @AutoLogger
     private static ILogger logger;
+
     private ILock lock;
     private Class<? extends ILock> lockClass;
 
@@ -58,9 +60,6 @@ public class LockProxy implements IProxy {
      */
     public LockProxy(Class<? extends ILock> lock, final LogUtil util, final long lockTimeOut,
         final TimeUnit lockTimeUnit) {
-        if (null == logger) {
-            LockProxy.logger = util.getLogger(LockProxy.class.getName());
-        }
         this.lockClass = lock;
         this.lockTimeOut = lockTimeOut;
         this.lockTimeUnit = lockTimeUnit;

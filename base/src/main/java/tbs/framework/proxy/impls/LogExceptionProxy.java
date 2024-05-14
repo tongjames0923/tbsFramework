@@ -2,6 +2,7 @@ package tbs.framework.proxy.impls;
 
 import tbs.framework.base.intefaces.FunctionWithThrows;
 import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
 import tbs.framework.utils.LogUtil;
 
@@ -15,15 +16,15 @@ import java.util.Optional;
  */
 public class LogExceptionProxy implements IProxy {
 
-    private final ILogger logger;
+    @AutoLogger
+    private ILogger logger;
 
     /**
      * <p>Constructor for LogExceptionProxy.</p>
      *
      * @param util a {@link LogUtil} object
      */
-    public LogExceptionProxy(final LogUtil util) {
-        this.logger = util.getLogger(LogExceptionProxy.class.getName());
+    public LogExceptionProxy() {
     }
 
     @Override

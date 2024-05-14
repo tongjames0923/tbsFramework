@@ -133,6 +133,7 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
                 MessageListenerAdapter adapter = listeners.get(((AbstractIdentityReceiver)receiver).receiverId());
                 container.removeMessageListener(adapter);
             }
+            SpringUtil.getApplicationContext().getAutowireCapableBeanFactory().destroyBean(receiver);
         }
     }
 }

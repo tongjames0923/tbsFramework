@@ -1,26 +1,27 @@
 package tbs.framework.utils.impls;
 
+import cn.hutool.extra.spring.SpringUtil;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.impls.Slf4jLogger;
+import tbs.framework.utils.BeanUtil;
 import tbs.framework.utils.LogUtil;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Abstergo
  */
 public class Slf4jLoggerUtil extends LogUtil {
 
-    private static final ConcurrentMap<String, ILogger> loggers = new ConcurrentHashMap<>(10);
+    private String loggerName(String n) {
+        return "LOGGER-" + n;
+    }
 
     @Override
     public ILogger getLogger(final String name) {
-        if (Slf4jLoggerUtil.loggers.containsKey(name)) {
-            return Slf4jLoggerUtil.loggers.get(name);
+        if (SpringUtil.getApplicationContext().containsBean(name)) {
+            return SpringUtil.getBean(loggerName(name), ILogger.class);
         } else {
             final ILogger logger = new Slf4jLogger(name);
-            Slf4jLoggerUtil.loggers.put(name, logger);
+            BeanUtil.registerBean(logger, loggerName(name));
             return logger;
         }
     }

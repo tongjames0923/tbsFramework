@@ -1,6 +1,7 @@
 package tbs.framework.base.config;
 
 import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
@@ -11,6 +12,7 @@ import tbs.framework.lock.ILock;
 import tbs.framework.lock.aspects.LockAspect;
 import tbs.framework.lock.impls.JdkLock;
 import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.log.proxys.AutoLoggerProxyFactory;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
@@ -48,24 +50,22 @@ public class BaseConfig {
     @Resource
     MqProperty mqProperty;
 
-    ILogger logger;
-
-    public ILogger logger() {
-        if (logger == null) {
-            logger = LogUtil.getInstance().getLogger(BaseConfig.class.getName());
-        }
-        return logger;
-    }
 
     @Bean
     ApplicationRunner startUp() {
-        return args -> {
-            for (IStartup startup : SpringUtil.getBeansOfType(IStartup.class).values().stream().sorted((a1, a2) -> {
-                return a1.getOrder() - a2.getOrder();
-            }).collect(Collectors.toList())) {
-                if (startup != null) {
-                    logger().info("{} instance[{}] started", startup.getClass().getSimpleName(), startup);
-                    startup.startUp();
+        return new ApplicationRunner() {
+            @AutoLogger
+            ILogger logger;
+
+            @Override
+            public void run(ApplicationArguments args) throws Exception {
+                for (IStartup startup : SpringUtil.getBeansOfType(IStartup.class).values().stream().sorted((a1, a2) -> {
+                    return a1.getOrder() - a2.getOrder();
+                }).collect(Collectors.toList())) {
+                    if (startup != null) {
+                        logger.info("{} instance[{}] started", startup.getClass().getSimpleName(), startup);
+                        startup.startUp();
+                    }
                 }
             }
         };
@@ -86,12 +86,12 @@ public class BaseConfig {
     }
 
     @Bean(BeanNameConstant.ERROR_LOG_PROXY)
-    public IProxy logErrorProxy(final LogUtil util) {
-        return new LogExceptionProxy(util);
+    public IProxy logErrorProxy() {
+        return new LogExceptionProxy();
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK)
-    public ILock builtinJdkLock(final LogUtil util)
+    public ILock builtinJdkLock()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return new JdkLock(new Function<String, Lock>() {
             private Map<String, Lock> lockMap = new HashMap<>();
@@ -102,7 +102,7 @@ public class BaseConfig {
                 lockMap.put(s, l);
                 return l;
             }
-        }, util);
+        });
     }
 
     @Bean

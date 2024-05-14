@@ -19,7 +19,6 @@ import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
 import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;
-import tbs.framework.utils.LogUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -50,14 +49,14 @@ public class AuthConfig {
     }
 
     @Bean
-    WebMvcConfigurer authWebMvcConfigurer(final IRequestTokenPicker requestTokenPicker, final IUserModelPicker userModelPicker,
-        final LogUtil util) {
+    WebMvcConfigurer authWebMvcConfigurer(final IRequestTokenPicker requestTokenPicker,
+        final IUserModelPicker userModelPicker) {
         return new WebMvcConfigurer() {
             @Override
             public void addInterceptors(final InterceptorRegistry registry) {
-                registry.addInterceptor(new TokenInterceptor(requestTokenPicker, util))
+                registry.addInterceptor(new TokenInterceptor(requestTokenPicker))
                     .addPathPatterns(AuthConfig.this.authProperty.getAuthPathPattern()).order(0);
-                registry.addInterceptor(new UserModelInterceptor(userModelPicker, util))
+                registry.addInterceptor(new UserModelInterceptor(userModelPicker))
                     .addPathPatterns(AuthConfig.this.authProperty.getAuthPathPattern()).order(1);
                 WebMvcConfigurer.super.addInterceptors(registry);
             }
@@ -71,14 +70,14 @@ public class AuthConfig {
     }
 
     @Bean
-    public ControllerAspect controllerAspect(final LogUtil logUtil, final Map<String, IPermissionValidator> map) {
-        return new ControllerAspect(logUtil,map);
+    public ControllerAspect controllerAspect(final Map<String, IPermissionValidator> map) {
+        return new ControllerAspect(map);
     }
 
     @Bean
     @ConditionalOnMissingBean(IErrorHandler.class)
-    IErrorHandler errorHandler(final LogUtil logUtil) {
-        return new SimpleLogErrorHandler(logUtil);
+    IErrorHandler errorHandler() {
+        return new SimpleLogErrorHandler();
     }
 
     @Bean

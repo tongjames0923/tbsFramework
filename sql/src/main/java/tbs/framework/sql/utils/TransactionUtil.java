@@ -5,6 +5,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.utils.LogUtil;
 
 /**
@@ -15,7 +16,8 @@ public class TransactionUtil {
 
     private final PlatformTransactionManager transactionManager;
 
-    private final ILogger logger;
+    @AutoLogger
+    private  ILogger logger;
 
     private static TransactionUtil transactionUtil;
 
@@ -26,9 +28,8 @@ public class TransactionUtil {
     /**
      * 通过构造器注入事务管理器
      */
-    public TransactionUtil(PlatformTransactionManager transactionManager, LogUtil l) {
+    public TransactionUtil(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
-        logger = l.getLogger(TransactionUtil.class.getName());
         if (null == transactionUtil) {
             transactionUtil = this;
         }

@@ -22,7 +22,7 @@ import tbs.framework.auth.interfaces.IRuntimeDataExchanger;
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -36,15 +36,15 @@ import java.util.Set;
 @Aspect
 public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
-    private final ILogger logger;
+    @AutoLogger
+    private ILogger logger;
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
     public void requestMapping() {
 
     }
 
-    public ControllerAspect(final LogUtil logUtil, final Map<String, IPermissionValidator> permissionValidators) {
-        this.logger = logUtil.getLogger(ControllerAspect.class.getName());
+    public ControllerAspect(final Map<String, IPermissionValidator> permissionValidators) {
         this.permissionValidators = permissionValidators;
     }
 

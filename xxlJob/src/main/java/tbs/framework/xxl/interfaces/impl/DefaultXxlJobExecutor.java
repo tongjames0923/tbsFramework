@@ -5,7 +5,7 @@ import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import org.springframework.context.ApplicationContext;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.xxl.interfaces.IJsonJobHandler;
 import tbs.framework.xxl.model.ExecuteInfo;
 
@@ -17,17 +17,15 @@ import java.util.Map;
 
 public class DefaultXxlJobExecutor {
 
-    private static ILogger log;
+    @AutoLogger
+    private ILogger log;
 
 
 
     Map<String, IJsonJobHandler> jsonJobHandlerMap = new HashMap<>();
 
-    public DefaultXxlJobExecutor(final ApplicationContext applicationContext, final LogUtil logUtil) {
+    public DefaultXxlJobExecutor(final ApplicationContext applicationContext) {
         this.jsonJobHandlerMap = applicationContext.getBeansOfType(IJsonJobHandler.class);
-        if (null == log) {
-            DefaultXxlJobExecutor.log = logUtil.getLogger(DefaultXxlJobExecutor.class.getName());
-        }
     }
 
     @XxlJob("jsonJobHandler")
@@ -46,7 +44,7 @@ public class DefaultXxlJobExecutor {
             }
 
         } catch (final Exception e) {
-            DefaultXxlJobExecutor.log.error(e, "xxl-job error");
+            log.error(e, "xxl-job error");
             XxlJobHelper.handleFail("error:" + e.getMessage());
         }
     }
