@@ -1,6 +1,7 @@
 package tbs.framework.redis.impls.mq;
 
 import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import tbs.framework.log.ILogger;
 import tbs.framework.mq.center.AbstractMessageCenter;
@@ -15,8 +16,14 @@ import tbs.framework.redis.impls.mq.receiver.RedisChannelReceiver;
 import tbs.framework.redis.impls.mq.receiver.RedisMessageConnector;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisProperty;
+import tbs.framework.utils.BeanUtil;
 
-import java.util.*;
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author abstergo
@@ -30,7 +37,7 @@ public class RedisMessageCenter extends AbstractMessageCenter {
     private IMessageQueueEvents messageQueueEvents;
     private IMessageConsumerManager messageConsumerManager;
 
-    private List<IMessageReceiver> messageReceivers = new LinkedList<>();
+    private List<IMessageReceiver> messageReceivers;
 
     private RedisTaksBlockLock taksBlockLock;
 
@@ -48,6 +55,9 @@ public class RedisMessageCenter extends AbstractMessageCenter {
 
     }
 
+    @Resource
+    AutowireCapableBeanFactory autowireCapableBeanFactory;
+
     @Override
     protected void centerStartToWork() {
         Collection<IMessageConsumer> consumers = SpringUtil.getBeansOfType(IMessageConsumer.class).values();
@@ -56,9 +66,12 @@ public class RedisMessageCenter extends AbstractMessageCenter {
         });
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
-            addReceivers(new RedisChannelReceiver(this, consumer, true, taksBlockLock, connector));
+            RedisChannelReceiver receiver = new RedisChannelReceiver();
+            BeanUtil.registerBean(receiver, receiver.receiverId());
         }
-
+        for (IMessageReceiver receiver : getReceivers()) {
+            addReceivers(receiver);
+        }
     }
 
     @Override
@@ -83,13 +96,16 @@ public class RedisMessageCenter extends AbstractMessageCenter {
 
     @Override
     public List<IMessageReceiver> getReceivers() {
+        if (messageReceivers == null) {
+            messageReceivers =
+                SpringUtil.getBeansOfType(RedisChannelReceiver.class).values().stream().collect(Collectors.toList());
+        }
         return messageReceivers;
     }
 
     @Override
     public void addReceivers(IMessageReceiver... receiver) {
         List<IMessageReceiver> messageReceivers1 = Arrays.asList(receiver);
-        messageReceivers.addAll(messageReceivers1);
         getConnector().orElseThrow(() -> {
             return new UnsupportedOperationException("none connector");
         }).factoryMessageReceivers(messageReceivers1);

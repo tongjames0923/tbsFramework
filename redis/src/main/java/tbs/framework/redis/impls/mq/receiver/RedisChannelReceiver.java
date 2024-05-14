@@ -3,38 +3,52 @@ package tbs.framework.redis.impls.mq.receiver;
 import org.jetbrains.annotations.NotNull;
 import tbs.framework.lock.expections.ObtainLockFailException;
 import tbs.framework.log.ILogger;
-import tbs.framework.utils.LogUtil;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
+import tbs.framework.redis.properties.RedisMqProperty;
+import tbs.framework.utils.LogUtil;
 
+import javax.annotation.Resource;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Abstergo
  */
 public class RedisChannelReceiver extends AbstractIdentityReceiver {
     private ILogger logger = null;
+    @Resource
     private AbstractMessageCenter center;
-    private IMessageConsumer bindConsumer;
-    private boolean isMessageHandleOnce = false;
+
+    @Resource
+    private List<IMessageConsumer> bindConsumers;
+
+    private IMessageConsumer getConsumer() {
+        return bindConsumers.get(index);
+    }
+
+    private int index = 0;
+    private static AtomicInteger aIndex = new AtomicInteger(0);
+
+    @Resource
+    RedisMqProperty mqProperty;
+
+    @Resource
     private RedisTaksBlockLock taksBlockLock;
+    @Resource
     private IMessageConnector builder;
 
-    public RedisChannelReceiver(AbstractMessageCenter center, IMessageConsumer bindConsumer,
-        boolean isMessageHandleOnce, RedisTaksBlockLock taksBlockLock, IMessageConnector builder) {
-        this.center = center;
-        this.bindConsumer = bindConsumer;
-        this.isMessageHandleOnce = isMessageHandleOnce;
-        this.taksBlockLock = taksBlockLock;
-        this.builder = builder;
+    public RedisChannelReceiver() {
+        this.index = aIndex.getAndIncrement();
     }
 
     public Set<String> channelSet() {
-        return bindConsumer.avaliableTopics();
+        return getConsumer().avaliableTopics();
     }
 
     @Override
@@ -51,7 +65,7 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
 
     @Override
     public Set<String> acceptTopics() {
-        return bindConsumer.avaliableTopics();
+        return channelSet();
     }
 
     @Override
@@ -61,10 +75,10 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
         }
         center.messageArrived(message, builder, this);
         try {
-            if (isMessageHandleOnce) {
+            if (mqProperty.isMessageHandleOnce()) {
                 taksBlockLock.lock(lockId(message));
             }
-            center.consumeMessages(bindConsumer, message);
+            center.consumeMessages(getConsumer(), message);
         } catch (ObtainLockFailException r) {
             getLogger().warn("get lock to fail:{}", r.getMessage());
         } finally {
@@ -79,7 +93,7 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
      * @param message 信息
      */
     private @NotNull String lockId(IMessage message) {
-        return LOCK_KEY + message.getMessageId() + bindConsumer.consumerId();
+        return LOCK_KEY + message.getMessageId() + getConsumer().consumerId();
     }
 
     /**
