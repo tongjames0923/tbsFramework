@@ -1,8 +1,8 @@
 package tbs.framework.mq.consumer.manager.impls;
 
 import cn.hutool.core.util.StrUtil;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;

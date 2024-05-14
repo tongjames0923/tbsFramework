@@ -1,11 +1,11 @@
 package tbs.framework.cache.impls;
 
 import org.springframework.scheduling.annotation.Scheduled;
-import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.proxy.IProxy;
-import tbs.framework.base.proxy.impls.LockProxy;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
+import tbs.framework.log.ILogger;
+import tbs.framework.proxy.IProxy;
+import tbs.framework.proxy.impls.LockProxy;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IkeyMixer;
 
@@ -135,7 +135,7 @@ public class SimpleCacheServiceImpl implements ICacheService, IkeyMixer {
     /**
      * <p>Constructor for SimpleCacheServiceImpl.</p>
      *
-     * @param logUtil a {@link tbs.framework.base.utils.LogUtil} object
+     * @param logUtil a {@link LogUtil} object
      */
     public SimpleCacheServiceImpl(final LogUtil logUtil) {
         logger = logUtil.getLogger(SimpleCacheServiceImpl.class.getName());

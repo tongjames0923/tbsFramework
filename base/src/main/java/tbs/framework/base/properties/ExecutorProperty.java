@@ -3,8 +3,8 @@ package tbs.framework.base.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import tbs.framework.base.intefaces.impls.threads.handlers.LogExceptionHandler;
-import tbs.framework.base.utils.ThreadUtil;
-import tbs.framework.base.utils.impls.SimpleThreadUtil;
+import tbs.framework.utils.ThreadUtil;
+import tbs.framework.utils.impls.SimpleThreadUtil;
 
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;

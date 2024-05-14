@@ -1,8 +1,8 @@
 package tbs.framework.auth.interfaces.impls;
 
 import tbs.framework.auth.interfaces.IErrorHandler;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 
 /**
  * 基础异常处理

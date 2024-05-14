@@ -4,8 +4,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 
 /**
  * 事务工具

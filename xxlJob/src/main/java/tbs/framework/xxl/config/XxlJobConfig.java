@@ -5,8 +5,8 @@ import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.xxl.interfaces.IXXLJobsConfig;
 import tbs.framework.xxl.interfaces.impl.DefaultXxlJobExecutor;
 

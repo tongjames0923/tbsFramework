@@ -1,8 +1,8 @@
 package tbs.framework.sql.interfaces.impls;
 
 import com.alibaba.fastjson2.JSON;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.model.SqlRuntimeStatus;
 

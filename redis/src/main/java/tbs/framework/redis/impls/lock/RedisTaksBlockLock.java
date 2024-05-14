@@ -3,8 +3,8 @@ package tbs.framework.redis.impls.lock;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import tbs.framework.base.lock.ILock;
-import tbs.framework.base.lock.expections.ObtainLockFailException;
+import tbs.framework.lock.ILock;
+import tbs.framework.lock.expections.ObtainLockFailException;
 
 import javax.annotation.Resource;
 import java.time.Duration;

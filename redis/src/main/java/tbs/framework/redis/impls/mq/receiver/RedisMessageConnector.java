@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import tbs.framework.base.utils.IStartup;
+import tbs.framework.utils.IStartup;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;

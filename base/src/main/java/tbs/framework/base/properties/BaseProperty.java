@@ -2,9 +2,9 @@ package tbs.framework.base.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.base.proxy.IProxy;
-import tbs.framework.base.utils.LogUtil;
-import tbs.framework.base.utils.UuidUtil;
+import tbs.framework.proxy.IProxy;
+import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.UuidUtil;
 
 /**
  * @author Abstergo

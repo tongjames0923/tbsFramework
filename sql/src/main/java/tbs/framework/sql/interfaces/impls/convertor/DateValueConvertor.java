@@ -1,7 +1,7 @@
 package tbs.framework.sql.interfaces.impls.convertor;
 
 import tbs.framework.base.intefaces.impls.chain.AbstractChain;
-import tbs.framework.base.utils.TimeUtil;
+import tbs.framework.utils.TimeUtil;
 
 import java.time.temporal.Temporal;
 import java.util.Date;

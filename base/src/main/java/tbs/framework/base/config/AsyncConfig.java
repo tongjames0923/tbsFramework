@@ -3,11 +3,11 @@ package tbs.framework.base.config;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.base.log.ILogger;
+import tbs.framework.log.ILogger;
 import tbs.framework.base.properties.ExecutorProperty;
-import tbs.framework.base.utils.LogUtil;
-import tbs.framework.base.utils.ThreadUtil;
-import tbs.framework.base.utils.impls.SimpleThreadUtil;
+import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.ThreadUtil;
+import tbs.framework.utils.impls.SimpleThreadUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;

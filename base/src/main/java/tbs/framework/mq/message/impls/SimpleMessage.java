@@ -2,7 +2,7 @@ package tbs.framework.mq.message.impls;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.NoArgsConstructor;
-import tbs.framework.base.utils.UuidUtil;
+import tbs.framework.utils.UuidUtil;
 import tbs.framework.mq.message.IMessage;
 
 import java.util.HashMap;

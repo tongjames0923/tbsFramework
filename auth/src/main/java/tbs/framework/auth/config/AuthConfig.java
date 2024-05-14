@@ -19,7 +19,7 @@ import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
 import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.utils.LogUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;

@@ -1,7 +1,7 @@
 package tbs.framework.base.intefaces.impls.threads.handlers;
 
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 
 /**
  * @author abstergo

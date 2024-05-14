@@ -2,8 +2,8 @@ package tbs.framework.base.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.base.lock.ILock;
-import tbs.framework.base.lock.impls.JdkLock;
+import tbs.framework.lock.ILock;
+import tbs.framework.lock.impls.JdkLock;
 
 import java.util.concurrent.TimeUnit;
 

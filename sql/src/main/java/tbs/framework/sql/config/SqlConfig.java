@@ -5,17 +5,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.PlatformTransactionManager;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.base.intefaces.IChainProvider;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.interfaces.impls.NoSqlLogger;
 import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
-import tbs.framework.sql.properties.SqlProperty;
 import tbs.framework.sql.utils.QueryUtil;
 import tbs.framework.sql.utils.TransactionUtil;
-
-import javax.annotation.Resource;
 
 public class SqlConfig {
 

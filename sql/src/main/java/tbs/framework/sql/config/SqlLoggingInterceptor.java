@@ -7,8 +7,8 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.context.annotation.Lazy;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.model.SqlRuntimeStatus;
 

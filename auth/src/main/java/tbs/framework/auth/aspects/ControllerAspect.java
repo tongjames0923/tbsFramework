@@ -21,8 +21,8 @@ import tbs.framework.auth.interfaces.IPermissionValidator;
 import tbs.framework.auth.interfaces.IRuntimeDataExchanger;
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.RuntimeData;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;

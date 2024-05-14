@@ -1,9 +1,9 @@
 package tbs.framework.redis.impls.mq.receiver;
 
 import org.jetbrains.annotations.NotNull;
-import tbs.framework.base.lock.expections.ObtainLockFailException;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.lock.expections.ObtainLockFailException;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;

@@ -1,6 +1,6 @@
 package tbs.framework.timer;
 
-import tbs.framework.base.utils.UuidUtil;
+import tbs.framework.utils.UuidUtil;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

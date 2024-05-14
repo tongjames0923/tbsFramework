@@ -2,7 +2,7 @@ package tbs.framework.redis.impls.lock;
 
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import tbs.framework.base.lock.ILock;
+import tbs.framework.lock.ILock;
 
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;

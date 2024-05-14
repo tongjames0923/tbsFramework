@@ -4,8 +4,8 @@ import com.alibaba.fastjson2.JSON;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import org.springframework.context.ApplicationContext;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 import tbs.framework.xxl.interfaces.IJsonJobHandler;
 import tbs.framework.xxl.model.ExecuteInfo;
 

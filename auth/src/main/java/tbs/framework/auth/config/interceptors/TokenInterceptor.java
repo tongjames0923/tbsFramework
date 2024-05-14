@@ -5,8 +5,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import tbs.framework.auth.exceptions.TokenNotFoundException;
 import tbs.framework.auth.interfaces.IRequestTokenPicker;
 import tbs.framework.auth.model.RuntimeData;
-import tbs.framework.base.log.ILogger;
-import tbs.framework.base.utils.LogUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.utils.LogUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

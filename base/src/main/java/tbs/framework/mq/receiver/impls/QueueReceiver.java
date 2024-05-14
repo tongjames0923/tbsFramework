@@ -1,8 +1,8 @@
 package tbs.framework.mq.receiver.impls;
 
-import tbs.framework.base.lock.annotations.LockIt;
-import tbs.framework.base.lock.impls.SimpleLockAddtionalInfo;
-import tbs.framework.base.proxy.impls.LockProxy;
+import tbs.framework.lock.annotations.LockIt;
+import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
+import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
 

@@ -1,7 +1,7 @@
 package tbs.framework.mq.receiver.impls;
 
 import cn.hutool.core.util.StrUtil;
-import tbs.framework.base.utils.UuidUtil;
+import tbs.framework.utils.UuidUtil;
 import tbs.framework.mq.receiver.IMessageReceiver;
 
 /**
