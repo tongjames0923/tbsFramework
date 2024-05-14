@@ -2,9 +2,9 @@ package tbs.framework.mq.receiver.impls;
 
 import tbs.framework.lock.annotations.LockIt;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
-import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
+import tbs.framework.proxy.impls.LockProxy;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -29,6 +29,9 @@ public class QueueReceiver extends AbstractIdentityReceiver {
     @Override
     public IMessage receive() {
         while (!hasValue.get()) {
+            if (!avaliable()) {
+                return null;
+            }
             Thread.yield();
         }
         Optional<IMessage> msg = LockProxy.getInstance().safeProxy((p) -> {
