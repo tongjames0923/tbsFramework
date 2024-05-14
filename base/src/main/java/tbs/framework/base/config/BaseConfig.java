@@ -4,13 +4,18 @@ import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
+import tbs.framework.base.properties.BaseProperty;
+import tbs.framework.base.properties.LockProperty;
+import tbs.framework.base.properties.MqProperty;
 import tbs.framework.lock.ILock;
 import tbs.framework.lock.aspects.LockAspect;
 import tbs.framework.lock.impls.JdkLock;
 import tbs.framework.log.ILogger;
-import tbs.framework.base.properties.BaseProperty;
-import tbs.framework.base.properties.LockProperty;
-import tbs.framework.base.properties.MqProperty;
+import tbs.framework.log.proxys.AutoLoggerProxyFactory;
+import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
+import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
+import tbs.framework.mq.event.IMessageQueueEvents;
+import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
 import tbs.framework.proxy.IProxy;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.proxy.impls.LogExceptionProxy;
@@ -19,10 +24,6 @@ import tbs.framework.utils.LogUtil;
 import tbs.framework.utils.UuidUtil;
 import tbs.framework.utils.impls.SimpleUuidUtil;
 import tbs.framework.utils.impls.Slf4jLoggerUtil;
-import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
-import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
-import tbs.framework.mq.event.IMessageQueueEvents;
-import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -70,6 +71,10 @@ public class BaseConfig {
         };
     }
 
+    @Bean
+    AutoLoggerProxyFactory autoLoggerAspect() {
+        return new AutoLoggerProxyFactory();
+    }
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
     public LogUtil getLogger()
