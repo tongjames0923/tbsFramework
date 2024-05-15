@@ -70,6 +70,5 @@ public class ChainLogger implements ILogger {
     public void error(Throwable ex, String message, Object... args) {
         ChainUtil.processForChain(loggerChainProvider.beginChain(),
             new LogArg(getName(), message, args, LogArg.Level.ERROR));
-
     }
 }

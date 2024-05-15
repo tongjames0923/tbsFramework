@@ -17,6 +17,11 @@ public abstract class AbstractChain<P, R> implements IChain<P, R> {
     private boolean isAvailable;
     private R result;
 
+    @Override
+    public boolean hasNext() {
+        return this.next != null;
+    }
+
     /**
      * 当结果改变时触发
      *

@@ -14,6 +14,8 @@ public interface IChain<P, R> {
      */
     IChain<P, R> next();
 
+    boolean hasNext();
+
     /**
      * 当前责任链是否已产生结果，若产生结果则不继续执行责任链
      *
