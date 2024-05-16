@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author abstergo
  */
-public class RedisCacheService implements ICacheService, IkeyMixer {
+public class RedisCacheServiceImpl implements ICacheService, IkeyMixer {
     @Override
     public String mixKey(String key) {
         return "Cache-" + key;

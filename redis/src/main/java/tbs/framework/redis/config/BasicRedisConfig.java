@@ -20,12 +20,15 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
-import tbs.framework.redis.impls.RedisCacheService;
+import tbs.framework.redis.impls.RedisCacheServiceImpl;
 import tbs.framework.redis.impls.lock.RedissonLockImpl;
 import tbs.framework.redis.properties.RedisProperty;
 
 import java.time.Duration;
 
+/**
+ * @author abstergo
+ */
 public class BasicRedisConfig {
 
     @Value("${spring.redis.host:localhost}")
@@ -117,7 +120,7 @@ public class BasicRedisConfig {
 
     @Bean
     ICacheService redisCacheService() {
-        return new RedisCacheService();
+        return new RedisCacheServiceImpl();
     }
 
     @Bean

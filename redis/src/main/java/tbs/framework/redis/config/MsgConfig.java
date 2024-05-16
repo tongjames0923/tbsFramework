@@ -9,24 +9,22 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
-import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 import tbs.framework.redis.impls.mq.RedisMessageCenter;
 import tbs.framework.redis.impls.mq.receiver.RedisMessageConnector;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisMqProperty;
-import tbs.framework.redis.properties.RedisProperty;
 
 import javax.annotation.Resource;
 import java.util.concurrent.Executors;
 
 public class MsgConfig {
 
+    public static final String REDIS_MESSAGE_SERIALIZER = "REDIS_MSG_SERI";
+    public static final String REDIS_MESSAGE_PUBILISH_TEMPLATE = "REDIS_MSG";
     @Resource
     RedisMqProperty redisMqProperty;
 
-
-
-    @Bean("REDIS_MSG_SERI")
+    @Bean(REDIS_MESSAGE_SERIALIZER)
     RedisSerializer redisMqSerializer() throws Exception {
         if (redisMqProperty.getMessageSerializerClass() == null) {
             return new JdkSerializationRedisSerializer();
@@ -35,7 +33,7 @@ public class MsgConfig {
         }
     }
 
-    @Bean("REDIS_MSG")
+    @Bean(REDIS_MESSAGE_PUBILISH_TEMPLATE)
     RedisTemplate<String, Object> redisMsg(RedisConnectionFactory connectionFactory,
         @Qualifier("REDIS_MSG_SERI") RedisSerializer serializer) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -76,10 +74,9 @@ public class MsgConfig {
     }
 
     @Bean
-    RedisMessageCenter abstractMessageCenter(RedisMessageListenerContainer redisMessageListenerContainer,
-        RedisTaksBlockLock lock, RedisProperty redisProperty, RedisSender sender,
+    RedisMessageCenter abstractMessageCenter(
         IMessageConsumerManager consumerManager, IMessageQueueEvents events) {
-        return new RedisMessageCenter(redisMessageListenerContainer, redisProperty, lock, sender, events,
+        return new RedisMessageCenter(events,
             consumerManager);
     }
 
