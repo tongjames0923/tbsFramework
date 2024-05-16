@@ -11,7 +11,6 @@ import tbs.framework.utils.ChainUtil;
  */
 public class ChainLogger implements ILogger {
 
-
     IChainProvider loggerChainProvider;
 
     private String name;
@@ -32,6 +31,7 @@ public class ChainLogger implements ILogger {
 
     public ChainLogger(IChainProvider loggerChainProvider, String name) {
         this.loggerChainProvider = loggerChainProvider;
+        this.name = name;
     }
 
     @Override

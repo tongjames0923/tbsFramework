@@ -6,6 +6,9 @@ import tbs.framework.utils.UuidUtil;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * @author Abstergo
+ */
 public class SimpleUuidUtil extends UuidUtil {
 
     /**

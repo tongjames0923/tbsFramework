@@ -14,8 +14,14 @@ import java.util.concurrent.TimeUnit;
  * @author abstergo
  */
 public abstract class ThreadUtil {
+    /**
+     *
+     */
     private static ThreadUtil threadUtil;
 
+    /**
+     *
+     */
     public static ThreadUtil getInstance() {
         if (threadUtil == null) {
             threadUtil = SpringUtil.getBean(ThreadUtil.class);
@@ -26,20 +32,29 @@ public abstract class ThreadUtil {
     /**
      * 获取执行器
      *
-     * @return
+     * @return 执行器
      */
     protected abstract ExecutorService getExecutorService();
 
+    /**
+     * @see #runCollectionInBackground(Collection)
+     */
     public void runCollectionInBackground(Runnable... runnables) {
         runCollectionInBackground(Arrays.asList(runnables));
     }
 
+    /**
+     * 异步批量运行
+     */
     public void runCollectionInBackground(Collection<Runnable> runnables) {
         for (Runnable r : runnables) {
             getExecutorService().execute(r);
         }
     }
 
+    /**
+     * 运行异步future
+     */
     public <T> List<Future<T>> callAndAwait(List<Callable<T>> tasks, long timeout, TimeUnit unit)
         throws InterruptedException {
         return getExecutorService().invokeAll(tasks, timeout, unit);

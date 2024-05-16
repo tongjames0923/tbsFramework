@@ -17,6 +17,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * @author Abstergo
+ */
 @Intercepts({@Signature(type = Executor.class, method = "query",
     args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
     @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
@@ -40,21 +43,16 @@ public class SqlLoggingInterceptor implements Interceptor {
         Date date1 = new Date();
         long costTime = date1.getTime() - date.getTime();
 
-        try {
-            MappedStatement mappedStatement = (MappedStatement)invocation.getArgs()[0];
-            String sql = mappedStatement.getBoundSql(invocation.getArgs()[1]).getSql();
-            SqlCommandType commandType = mappedStatement.getSqlCommandType();
+        MappedStatement mappedStatement = (MappedStatement)invocation.getArgs()[0];
+        String sql = mappedStatement.getBoundSql(invocation.getArgs()[1]).getSql();
+        SqlCommandType commandType = mappedStatement.getSqlCommandType();
 
-            for (ISqlLogger sqlLogger : sqlLoggers.values()) {
-                if (null == sqlLogger) {
-                    continue;
-                }
-                sqlLogger.log(new SqlRuntimeStatus(commandType, sql, costTime, invocation.getArgs()[1], result));
+        for (ISqlLogger sqlLogger : sqlLoggers.values()) {
+            if (null == sqlLogger) {
+                continue;
             }
-        } catch (Exception e) {
-            logger.error(e, e.getMessage());
+            sqlLogger.log(new SqlRuntimeStatus(commandType, sql, costTime, invocation.getArgs()[1], result));
         }
-
 
         return result;
     }

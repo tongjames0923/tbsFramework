@@ -14,6 +14,11 @@ public interface IChain<P, R> {
      */
     IChain<P, R> next();
 
+    /**
+     * 是否还有下一个
+     *
+     * @return
+     */
     boolean hasNext();
 
     /**

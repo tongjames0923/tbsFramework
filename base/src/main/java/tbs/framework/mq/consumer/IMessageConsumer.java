@@ -4,6 +4,9 @@ import tbs.framework.mq.message.IMessage;
 
 import java.util.Set;
 
+/**
+ * @author Abstergo
+ */
 public interface IMessageConsumer {
 
     /**

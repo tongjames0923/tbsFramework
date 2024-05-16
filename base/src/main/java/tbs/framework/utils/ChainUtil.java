@@ -2,6 +2,12 @@ package tbs.framework.utils;
 
 import tbs.framework.base.intefaces.IChain;
 
+/**
+ * 链式调用工具
+ *
+ * @author Abstergo
+ */
+
 public enum ChainUtil {
     ;
 
@@ -22,7 +28,12 @@ public enum ChainUtil {
                 r = chain.getResult();
                 break;
             }
-            chain = chain.next();
+            if (chain.hasNext()) {
+                chain = chain.next();
+            } else {
+                break;
+            }
+
         }
         if (null == chain) {
             throw new NullPointerException("chain node is null");

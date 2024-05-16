@@ -8,16 +8,25 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * The interface Message consumer manager.
+ *
  * @author abstergo
  */
 public interface IMessageConsumerManager {
 
+    /**
+     * 根据管理器的匹配机制进行匹配
+     *
+     * @param topic        the topic
+     * @param acceptTopics the accept topics
+     * @return true 匹配，false 不匹配
+     */
     boolean match(String topic, Set<String> acceptTopics);
 
     /**
      * 获取全部消费者
      *
-     * @return
+     * @return consumers
      */
     List<IMessageConsumer> getConsumers();
 
@@ -45,8 +54,8 @@ public interface IMessageConsumerManager {
     /**
      * 导入消息消费器
      *
-     * @param messageConsumer
-     * @return
+     * @param messageConsumer the message consumer
+     * @return 当前实体
      */
     IMessageConsumerManager setMessageConsumer(IMessageConsumer messageConsumer);
 
@@ -59,10 +68,10 @@ public interface IMessageConsumerManager {
     boolean removeMessageConsumer(IMessageConsumer messageConsumer);
 
     /**
-     * 根据消息选择消息消费者
+     * 根据消息进行匹配，选择消息消费者
      *
-     * @param messageConsumer
-     * @return
+     * @param message the message
+     * @return list
      */
     List<IMessageConsumer> selectMessageConsumer(IMessage message);
 }

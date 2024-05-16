@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import static tbs.framework.mq.center.AbstractMessageCenter.checkInputConsumer;
 
 /**
+ * 完全匹配管理器
+ *
  * @author abstergo
  */
 public class MappedConsumerManager implements IMessageConsumerManager {

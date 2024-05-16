@@ -8,6 +8,8 @@ import tbs.framework.mq.sender.IMessagePublisher;
 import javax.annotation.Resource;
 
 /**
+ * 本地消息发布器
+ *
  * @author Abstergo
  */
 public class MessageQueueSender implements IMessagePublisher {

@@ -2,6 +2,7 @@ package tbs.framework.cache;
 
 /**
  * 缓存淘汰策略
+ * @author Abstergo
  */
 public interface IEliminationStrategy {
     /**

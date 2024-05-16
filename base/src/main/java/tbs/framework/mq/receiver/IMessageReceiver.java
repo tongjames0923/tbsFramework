@@ -19,6 +19,11 @@ public interface IMessageReceiver {
      */
     IMessage receive();
 
+    /**
+     * 来自的消息连接器
+     *
+     * @return
+     */
     IMessageConnector builder();
 
     /**
@@ -28,6 +33,11 @@ public interface IMessageReceiver {
      */
     void pull(IMessage message);
 
+    /**
+     * 消息接收器的接受Topic
+     *
+     * @return
+     */
     default Set<String> acceptTopics() {
         return new HashSet<>(Arrays.asList(".*"));
     }

@@ -7,5 +7,10 @@ import tbs.framework.mq.message.IMessage;
  */
 public interface IMessagePublisher {
 
+
+    /**
+     * 消息批量发布
+     * @param message 信息
+     */
     void publishAll(IMessage... message);
 }
