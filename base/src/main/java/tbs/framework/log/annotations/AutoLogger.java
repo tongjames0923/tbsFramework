@@ -17,4 +17,11 @@ public @interface AutoLogger {
      * @return
      */
     String value() default "";
+
+    /**
+     * 日志工厂bean 名称，若为空则使用默认日志工厂
+     *
+     * @return
+     */
+    String factory() default "";
 }

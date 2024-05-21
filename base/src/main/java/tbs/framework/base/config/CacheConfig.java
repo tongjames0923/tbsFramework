@@ -2,7 +2,6 @@ package tbs.framework.base.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import tbs.framework.utils.LogUtil;
 import tbs.framework.cache.ICacheBroker;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.aspects.CacheAspect;

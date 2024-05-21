@@ -4,14 +4,14 @@ import cn.hutool.extra.spring.SpringUtil;
 import tbs.framework.cache.IkeyMixer;
 import tbs.framework.log.ILogger;
 import tbs.framework.utils.BeanUtil;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 
 /**
  * 通过SpringBean管理的日志
  *
  * @author Abstergo
  */
-public abstract class AbstractBeanLogUtil extends LogUtil implements IkeyMixer {
+public abstract class AbstractBeanLogFactory extends LogFactory implements IkeyMixer {
 
     /**
      * 生成新的日志器

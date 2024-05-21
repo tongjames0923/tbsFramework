@@ -4,7 +4,7 @@ import tbs.framework.base.intefaces.FunctionWithThrows;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ public class LogExceptionProxy implements IProxy {
     /**
      * <p>Constructor for LogExceptionProxy.</p>
      *
-     * @param util a {@link LogUtil} object
+     * @param util a {@link LogFactory} object
      */
     public LogExceptionProxy() {
     }

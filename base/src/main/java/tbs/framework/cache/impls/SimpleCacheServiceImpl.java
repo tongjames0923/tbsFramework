@@ -8,7 +8,7 @@ import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
 import tbs.framework.proxy.impls.LockProxy;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -136,7 +136,7 @@ public class SimpleCacheServiceImpl implements ICacheService, IkeyMixer {
     /**
      * <p>Constructor for SimpleCacheServiceImpl.</p>
      *
-     * @param logUtil a {@link LogUtil} object
+     * @param logUtil a {@link LogFactory} object
      */
     public SimpleCacheServiceImpl() {
 

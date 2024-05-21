@@ -4,6 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
@@ -22,10 +23,10 @@ import tbs.framework.proxy.IProxy;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.proxy.impls.LogExceptionProxy;
 import tbs.framework.utils.IStartup;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 import tbs.framework.utils.UuidUtil;
 import tbs.framework.utils.impls.SimpleUuidUtil;
-import tbs.framework.utils.impls.Slf4jLoggerUtil;
+import tbs.framework.utils.impls.Slf4JLoggerFactory;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -77,12 +78,16 @@ public class BaseConfig {
     }
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
-    public LogUtil getLogger()
+    @Primary
+    public LogFactory getLogger()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        LogFactory factory = null;
         if (null == this.baseProperty.getLoggerProvider()) {
-            return new Slf4jLoggerUtil();
+            factory = new Slf4JLoggerFactory();
         }
-        return this.baseProperty.getLoggerProvider().getConstructor().newInstance();
+        factory = this.baseProperty.getLoggerProvider().getConstructor().newInstance();
+        LogFactory.setLogFactory(factory);
+        return factory;
     }
 
     @Bean(BeanNameConstant.ERROR_LOG_PROXY)
@@ -115,7 +120,7 @@ public class BaseConfig {
 
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
-    public LockProxy lockProxy(final LogUtil util) {
+    public LockProxy lockProxy(final LogFactory util) {
         return new LockProxy(this.lockProperty.getProxyLockType(), util, this.lockProperty.getProxyLockTimeout(),
             this.lockProperty.getProxyLockTimeUnit());
     }

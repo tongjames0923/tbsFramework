@@ -4,7 +4,7 @@ import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.multilingual.ILocal;
 import tbs.framework.multilingual.ITranslationParameters;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 import tbs.framework.utils.MultilingualUtil;
 
 import java.util.Locale;
@@ -25,7 +25,7 @@ public class LocalStringTranslateImpl implements ILocal {
     /**
      * <p>Constructor for LocalStringTranslateImpl.</p>
      *
-     * @param logUtil a {@link LogUtil} object
+     * @param logUtil a {@link LogFactory} object
      * @param util a {@link MultilingualUtil} object
      */
     public LocalStringTranslateImpl(final MultilingualUtil util) {

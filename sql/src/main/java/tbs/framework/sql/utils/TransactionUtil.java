@@ -6,7 +6,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
-import tbs.framework.utils.LogUtil;
 
 /**
  * 事务工具

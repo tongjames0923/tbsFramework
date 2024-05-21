@@ -3,7 +3,7 @@ package tbs.framework.base.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import tbs.framework.proxy.IProxy;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 import tbs.framework.utils.UuidUtil;
 
 /**
@@ -15,7 +15,7 @@ public class BaseProperty {
     /**
      * 日志工具
      */
-    private Class<? extends LogUtil> loggerProvider;
+    private Class<? extends LogFactory> loggerProvider;
 
     /**
      * uuid工具

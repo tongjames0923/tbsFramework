@@ -11,8 +11,12 @@ import tbs.framework.sql.interfaces.impls.NoSqlLogger;
 import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
 import tbs.framework.sql.utils.QueryUtil;
 import tbs.framework.sql.utils.TransactionUtil;
+import tbs.framework.utils.LogFactory;
+import tbs.framework.utils.impls.Slf4JLoggerFactory;
 
 public class SqlConfig {
+
+    public static final String SQL_LOG_FACTORY_BEAN_NAME = "sqlLogFactory";
 
     @Bean
     public QueryUtil sqlUtil() {
@@ -27,6 +31,11 @@ public class SqlConfig {
     @Bean
     public TransactionUtil transactionUtil(PlatformTransactionManager transactionManager) {
         return new TransactionUtil(transactionManager);
+    }
+
+    @Bean(SQL_LOG_FACTORY_BEAN_NAME)
+    public LogFactory sqlLogFactory() {
+        return new Slf4JLoggerFactory();
     }
 
     @Bean

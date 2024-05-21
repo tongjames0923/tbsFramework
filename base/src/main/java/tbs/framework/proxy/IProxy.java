@@ -1,7 +1,7 @@
 package tbs.framework.proxy;
 
 import tbs.framework.base.intefaces.FunctionWithThrows;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 
 import java.util.Optional;
 
@@ -56,7 +56,7 @@ public interface IProxy {
         try {
             return this.proxy(function, param, addtional);
         } catch (final Throwable e) {
-            LogUtil.getInstance().getLogger(this.getClass().getName()).error(e, e.getMessage());
+            LogFactory.getInstance().getLogger(this.getClass().getName()).error(e, e.getMessage());
             return Optional.empty();
         }
     }

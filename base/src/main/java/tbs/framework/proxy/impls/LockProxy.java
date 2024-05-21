@@ -8,7 +8,7 @@ import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -54,11 +54,11 @@ public class LockProxy implements IProxy {
     /**
      * <p>Constructor for LockProxy.</p>
      *
-     * @param util         a {@link LogUtil} object
+     * @param util         a {@link LogFactory} object
      * @param lockTimeOut  a long
      * @param lockTimeUnit a {@link java.util.concurrent.TimeUnit} object
      */
-    public LockProxy(Class<? extends ILock> lock, final LogUtil util, final long lockTimeOut,
+    public LockProxy(Class<? extends ILock> lock, final LogFactory util, final long lockTimeOut,
         final TimeUnit lockTimeUnit) {
         this.lockClass = lock;
         this.lockTimeOut = lockTimeOut;

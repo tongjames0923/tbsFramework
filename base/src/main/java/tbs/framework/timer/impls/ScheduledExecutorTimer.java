@@ -3,7 +3,7 @@ package tbs.framework.timer.impls;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.timer.AbstractTimer;
-import tbs.framework.utils.LogUtil;
+import tbs.framework.utils.LogFactory;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +25,7 @@ public class ScheduledExecutorTimer extends AbstractTimer {
      * <p>Constructor for ScheduledExecutorTimer.</p>
      *
      * @param scheduledExecutorService a {@link java.util.concurrent.ScheduledExecutorService} object
-     * @param logUtil a {@link LogUtil} object
+     * @param logUtil a {@link LogFactory} object
      */
     public ScheduledExecutorTimer(final ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;

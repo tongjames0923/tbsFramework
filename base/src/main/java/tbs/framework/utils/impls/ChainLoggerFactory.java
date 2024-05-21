@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 /**
  * @author abstergo
  */
-public class ChainLoggerUtil extends AbstractBeanLogUtil {
+public class ChainLoggerFactory extends AbstractBeanLogFactory {
 
     public static final String LOGGER_CHAIN = "LOGGER_CHAIN";
 

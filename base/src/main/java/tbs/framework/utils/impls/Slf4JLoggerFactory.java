@@ -6,7 +6,7 @@ import tbs.framework.log.impls.Slf4jLogger;
 /**
  * @author Abstergo
  */
-public class Slf4jLoggerUtil extends AbstractBeanLogUtil {
+public class Slf4JLoggerFactory extends AbstractBeanLogFactory {
     @Override
     protected ILogger newLogger(String name) {
         return new Slf4jLogger(name);
