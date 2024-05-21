@@ -12,6 +12,7 @@ public interface IPermissionValidator {
      * 获取权限信息
      *
      * @param url
+     * @param method
      * @return
      */
     Set<PermissionModel> pullPermission(String url, Method method);

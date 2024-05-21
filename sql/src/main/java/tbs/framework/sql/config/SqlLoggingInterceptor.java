@@ -25,9 +25,6 @@ import java.util.Properties;
     @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
 public class SqlLoggingInterceptor implements Interceptor {
 
-    @AutoLogger
-    ILogger logger;
-
     @Resource
     @Lazy
     private Map<String, ISqlLogger> sqlLoggers;

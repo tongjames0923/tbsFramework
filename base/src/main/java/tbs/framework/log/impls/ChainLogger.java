@@ -2,7 +2,7 @@ package tbs.framework.log.impls;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import tbs.framework.base.intefaces.IChainProvider;
+import tbs.framework.log.AbstractLogChainProvider;
 import tbs.framework.log.ILogger;
 import tbs.framework.utils.ChainUtil;
 
@@ -16,7 +16,7 @@ public class ChainLogger implements ILogger {
     /**
      * 记录日志工作链提供器
      */
-    IChainProvider<LogArg, Void> loggerChainProvider;
+    AbstractLogChainProvider loggerChainProvider;
 
     private String name;
 
@@ -87,7 +87,7 @@ public class ChainLogger implements ILogger {
      * @param loggerChainProvider the logger chain provider
      * @param name                the name
      */
-    public ChainLogger(IChainProvider loggerChainProvider, String name) {
+    public ChainLogger(AbstractLogChainProvider loggerChainProvider, String name) {
         this.loggerChainProvider = loggerChainProvider;
         this.name = name;
     }

@@ -3,6 +3,9 @@ package tbs.framework.sql.interfaces.impls;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.model.SqlRuntimeStatus;
 
+/**
+ * @author abstergo
+ */
 public class NoSqlLogger implements ISqlLogger {
     private boolean hasShow;
 

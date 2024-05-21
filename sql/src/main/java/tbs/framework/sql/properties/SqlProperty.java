@@ -6,6 +6,9 @@ import tbs.framework.sql.interfaces.ISqlLogger;
 
 import java.util.List;
 
+/**
+ * @author abstergo
+ */
 @Data
 @ConfigurationProperties("tbs.framework.sql")
 public class SqlProperty {
