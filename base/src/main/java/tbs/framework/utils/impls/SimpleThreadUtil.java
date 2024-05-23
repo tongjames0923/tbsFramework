@@ -1,6 +1,7 @@
 package tbs.framework.utils.impls;
 
 import org.springframework.beans.factory.DisposableBean;
+import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.utils.ThreadUtil;
 
 import javax.annotation.Resource;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SimpleThreadUtil extends ThreadUtil implements DisposableBean {
 
-    @Resource
+    @Resource(name = BeanNameConstant.ASYNC_EXECUTOR)
     private ExecutorService executorService;
 
     @Override

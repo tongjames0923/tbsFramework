@@ -4,6 +4,7 @@ import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.model.SqlRuntimeStatus;
 
 /**
+ * 空SQL日志器
  * @author abstergo
  */
 public class NoSqlLogger implements ISqlLogger {

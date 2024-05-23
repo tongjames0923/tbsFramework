@@ -8,6 +8,11 @@ import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvi
 
 import java.lang.annotation.*;
 
+/**
+ * The interface Query field.
+ *
+ * @author abstergo
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Documented
@@ -18,53 +23,50 @@ public @interface QueryField {
     /**
      * 映射字段
      *
-     * @return
+     * @return string
      */
     String map() default "";
 
     /**
-     * 运行顺序
+     * 同一字段查询顺序，升序
      *
-     * @return
+     * @return int
      */
-
     int index() default -1;
 
     /**
      * 关系运算
      *
-     * @return
+     * @return query connector enum
      */
     QueryConnectorEnum connector() default QueryConnectorEnum.AND;
 
     /**
      * 比较运算
      *
-     * @return
+     * @return query contrast enum
      */
     QueryContrastEnum contrast() default QueryContrastEnum.EQUAL;
 
     /**
      * 是否忽略大小写
      *
-     * @return
+     * @return boolean
      */
-
     boolean ignoreCase() default false;
 
     /**
      * 是否忽略空值
      *
-     * @return
+     * @return boolean
      */
     boolean ignoreNull() default true;
 
     /**
      * 责任链模式进行值转化，通过spring bean获取
      *
-     * @return
+     * @return class
      */
-
     Class<? extends IChainProvider> valueMapper() default BuiltInValueConvertChainProvider.class;
 
 }

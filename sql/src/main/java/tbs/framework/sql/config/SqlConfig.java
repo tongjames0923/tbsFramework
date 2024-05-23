@@ -14,6 +14,9 @@ import tbs.framework.sql.utils.TransactionUtil;
 import tbs.framework.utils.LogFactory;
 import tbs.framework.utils.impls.Slf4JLoggerFactory;
 
+/**
+ * @author abstergo
+ */
 public class SqlConfig {
 
     public static final String SQL_LOG_FACTORY_BEAN_NAME = "sqlLogFactory";

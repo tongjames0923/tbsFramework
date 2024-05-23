@@ -2,6 +2,7 @@ package tbs.framework.utils;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import tbs.framework.base.intefaces.FunctionWithThrows;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -45,5 +46,20 @@ public class BeanUtil {
                 SpringUtil.getApplicationContext().getAutowireCapableBeanFactory().destroyBean(entry.getValue());
             }
         }
+    }
+
+    public static <T> T buildBeanFromProperties(T defaultBean, Class<? extends T> property,
+        FunctionWithThrows<Class<? extends T>, T, Exception> func) throws Exception {
+        if (property == null) {
+            return defaultBean;
+        }
+        if (func == null) {
+            func = BeanUtil::useEmptyArgs;
+        }
+        return func.apply(property);
+    }
+
+    public static <T> T useEmptyArgs(Class<? extends T> p) throws Exception {
+        return p.getConstructor().newInstance();
     }
 }

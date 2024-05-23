@@ -1,5 +1,8 @@
 package tbs.framework.sql.interfaces;
 
+/**
+ * @author abstergo
+ */
 public interface IPage {
     /**
      * 偏移量

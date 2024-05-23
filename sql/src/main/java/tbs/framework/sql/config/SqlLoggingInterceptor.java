@@ -7,8 +7,6 @@ import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.context.annotation.Lazy;
-import tbs.framework.log.ILogger;
-import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.model.SqlRuntimeStatus;
 
@@ -18,6 +16,8 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
+ * The type Sql logging interceptor.
+ *
  * @author Abstergo
  */
 @Intercepts({@Signature(type = Executor.class, method = "query",
@@ -29,6 +29,9 @@ public class SqlLoggingInterceptor implements Interceptor {
     @Lazy
     private Map<String, ISqlLogger> sqlLoggers;
 
+    /**
+     * Instantiates a new Sql logging interceptor.
+     */
     public SqlLoggingInterceptor() {
     }
 

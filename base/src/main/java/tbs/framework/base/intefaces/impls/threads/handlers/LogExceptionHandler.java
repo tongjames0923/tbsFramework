@@ -1,12 +1,15 @@
 package tbs.framework.base.intefaces.impls.threads.handlers;
 
 import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.utils.LogFactory;
 
 /**
  * @author abstergo
  */
 public class LogExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+    @AutoLogger
     private ILogger logger = null;
 
     @Override

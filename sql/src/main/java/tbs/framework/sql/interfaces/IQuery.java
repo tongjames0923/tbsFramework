@@ -1,5 +1,8 @@
 package tbs.framework.sql.interfaces;
 
+/**
+ * @author abstergo
+ */
 public interface IQuery {
     /**
      * 基础查询语句
