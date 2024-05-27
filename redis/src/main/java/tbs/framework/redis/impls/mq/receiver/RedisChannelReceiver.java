@@ -10,7 +10,7 @@ import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 import tbs.framework.redis.properties.RedisMqProperty;
-import tbs.framework.utils.LogFactory;
+import tbs.framework.base.utils.LogFactory;
 
 import javax.annotation.Resource;
 import java.util.Set;

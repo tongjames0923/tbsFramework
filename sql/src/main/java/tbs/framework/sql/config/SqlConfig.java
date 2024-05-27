@@ -11,7 +11,7 @@ import tbs.framework.sql.interfaces.impls.NoSqlLogger;
 import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
 import tbs.framework.sql.utils.QueryUtil;
 import tbs.framework.sql.utils.TransactionUtil;
-import tbs.framework.utils.LogFactory;
+import tbs.framework.base.utils.LogFactory;
 import tbs.framework.utils.impls.Slf4JLoggerFactory;
 
 /**

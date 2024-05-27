@@ -1,20 +1,20 @@
-package tbs.framework.base.model;
+package tbs.framework.base.model
 
-import lombok.Data;
-
-import java.io.Serializable;
+import lombok.Data
+import java.io.Serializable
 
 /**
  * 含有Serializable和id的基础实体类
  * @author Abstergo
  */
 @Data
-public class BaseEntity<T> implements Serializable {
-
-    private static final long serialVersionUID = -6140733829665609797L;
-
+class BaseEntity<T> : Serializable {
     /**
      * 主键id
      */
-    private T id;
+    private val id: T? = null
+
+    companion object {
+        private val serialVersionUID = -6140733829665609797L
+    }
 }

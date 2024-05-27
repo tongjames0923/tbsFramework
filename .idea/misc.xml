@@ -12,6 +12,8 @@
         <option value="$PROJECT_DIR$/swagger/pom.xml" />
         <option value="$PROJECT_DIR$/redis/pom.xml" />
         <option value="$PROJECT_DIR$/../demo/SecPart/pom.xml" />
+        <option value="$PROJECT_DIR$/kotlin/pom.xml" />
+        <option value="$PROJECT_DIR$/baseParent/pom.xml" />
       </list>
     </option>
   </component>
