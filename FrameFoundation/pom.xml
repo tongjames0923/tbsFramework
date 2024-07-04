@@ -12,7 +12,7 @@
     </parent>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>baseParent</name>
+    <name>FrameFoundation</name>
     <description>一些基本的插件配置，依赖导入等（包括对kotlin的依赖插件）</description>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
