@@ -1,6 +1,6 @@
-package tbs.framework.base.intefaces;
+package tbs.framework.base.interfaces;
 
-import tbs.framework.base.intefaces.impls.chain.AbstractChain;
+import tbs.framework.base.interfaces.impls.chain.AbstractChain;
 
 /**
  * 责任链提供接口

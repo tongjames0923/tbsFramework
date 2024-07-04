@@ -1,6 +1,6 @@
 package tbs.framework.sql.interfaces.impls.convertor;
 
-import tbs.framework.base.intefaces.impls.chain.AbstractChain;
+import tbs.framework.base.interfaces.impls.chain.AbstractChain;
 
 /**
  * 空值转换 转换成null

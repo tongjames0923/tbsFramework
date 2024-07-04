@@ -1,6 +1,6 @@
 package tbs.framework.log.impls;
 
-import tbs.framework.base.intefaces.impls.chain.AbstractChain;
+import tbs.framework.base.interfaces.impls.chain.AbstractChain;
 
 /**
  * The type Abstract log chain node.

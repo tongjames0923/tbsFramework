@@ -1,6 +1,6 @@
 package tbs.framework.utils;
 
-import tbs.framework.base.intefaces.IChain;
+import tbs.framework.base.interfaces.IChain;
 
 /**
  * 链式调用工具

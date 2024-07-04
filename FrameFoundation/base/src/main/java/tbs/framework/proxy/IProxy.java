@@ -1,6 +1,6 @@
 package tbs.framework.proxy;
 
-import tbs.framework.base.intefaces.FunctionWithThrows;
+import tbs.framework.base.interfaces.FunctionWithThrows;
 import tbs.framework.base.utils.LogFactory;
 
 import java.util.Optional;

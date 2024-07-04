@@ -1,4 +1,4 @@
-package tbs.framework.base.intefaces.impls.chain;
+package tbs.framework.base.interfaces.impls.chain;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;

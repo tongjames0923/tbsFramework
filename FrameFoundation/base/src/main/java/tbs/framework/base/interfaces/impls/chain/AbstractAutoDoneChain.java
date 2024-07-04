@@ -1,4 +1,4 @@
-package tbs.framework.base.intefaces.impls.chain;
+package tbs.framework.base.interfaces.impls.chain;
 
 /**
  * @author abstergo

@@ -1,6 +1,6 @@
 package tbs.framework.log;
 
-import tbs.framework.base.intefaces.IChainProvider;
+import tbs.framework.base.interfaces.IChainProvider;
 import tbs.framework.log.impls.ChainLogger;
 
 /**

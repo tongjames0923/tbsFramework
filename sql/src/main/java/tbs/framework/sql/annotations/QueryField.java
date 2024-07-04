@@ -1,7 +1,7 @@
 package tbs.framework.sql.annotations;
 
 import org.springframework.stereotype.Component;
-import tbs.framework.base.intefaces.IChainProvider;
+import tbs.framework.base.interfaces.IChainProvider;
 import tbs.framework.sql.enums.QueryConnectorEnum;
 import tbs.framework.sql.enums.QueryContrastEnum;
 import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;

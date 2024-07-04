@@ -1,4 +1,4 @@
-package tbs.framework.base.intefaces.impls.threads.handlers;
+package tbs.framework.base.interfaces.impls.threads.handlers;
 
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;

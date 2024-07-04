@@ -1,6 +1,8 @@
 package tbs.framework.base.config;
 
 import cn.hutool.extra.spring.SpringUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +11,7 @@ import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
 import tbs.framework.base.properties.MqProperty;
+import tbs.framework.base.utils.LogFactory;
 import tbs.framework.lock.ILock;
 import tbs.framework.lock.aspects.LockAspect;
 import tbs.framework.lock.impls.JdkLock;
@@ -23,7 +26,6 @@ import tbs.framework.proxy.IProxy;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.proxy.impls.LogExceptionProxy;
 import tbs.framework.utils.IStartup;
-import tbs.framework.base.utils.LogFactory;
 import tbs.framework.utils.UuidUtil;
 import tbs.framework.utils.impls.SimpleUuidUtil;
 import tbs.framework.utils.impls.Slf4JLoggerFactory;
@@ -50,7 +52,6 @@ public class BaseConfig {
 
     @Resource
     MqProperty mqProperty;
-
 
     @Bean
     ApplicationRunner startUp() {
@@ -118,7 +119,6 @@ public class BaseConfig {
         return baseProperty.getUuidProvider().getConstructor().newInstance();
     }
 
-
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     public LockProxy lockProxy(final LogFactory util) {
         return new LockProxy(this.lockProperty.getProxyLockType(), util, this.lockProperty.getProxyLockTimeout(),
@@ -144,5 +144,13 @@ public class BaseConfig {
             return new MappedConsumerManager();
         }
         return mqProperty.getConsumerManager().getConstructor().newInstance();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        // You can add more configurations here if needed
+        return mapper;
     }
 }

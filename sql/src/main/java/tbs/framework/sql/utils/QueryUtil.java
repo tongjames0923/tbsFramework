@@ -4,7 +4,7 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import tbs.framework.base.intefaces.IChain;
+import tbs.framework.base.interfaces.IChain;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.sql.annotations.*;

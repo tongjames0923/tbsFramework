@@ -1,14 +1,14 @@
 package tbs.framework.proxy.impls;
 
 import cn.hutool.extra.spring.SpringUtil;
-import tbs.framework.base.intefaces.FunctionWithThrows;
+import tbs.framework.base.interfaces.FunctionWithThrows;
+import tbs.framework.base.utils.LogFactory;
 import tbs.framework.lock.ILock;
 import tbs.framework.lock.expections.ObtainLockFailException;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
-import tbs.framework.base.utils.LogFactory;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -101,7 +101,8 @@ public class LockProxy implements IProxy {
             isLocked = this.getLock().tryLock(this.lockTimeOut, this.lockTimeUnit, lockId);
             if (isLocked) {
                 logger.trace("{} locked", lockId);
-                result = Optional.ofNullable(function.apply(param));
+                R r = function.apply(param);
+                result = Optional.ofNullable(r);
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }

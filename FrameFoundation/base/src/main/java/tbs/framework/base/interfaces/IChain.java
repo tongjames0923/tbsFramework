@@ -1,4 +1,4 @@
-package tbs.framework.base.intefaces;
+package tbs.framework.base.interfaces;
 
 /**
  * 责任链接口

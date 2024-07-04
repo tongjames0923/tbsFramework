@@ -3,8 +3,10 @@ package tbs.framework.base.config;
 import cn.hutool.core.thread.ThreadFactoryBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import tbs.framework.async.task.aspects.AsyncTaskAop;
 import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.base.intefaces.impls.threads.handlers.LogExceptionHandler;
+import tbs.framework.base.interfaces.impls.threads.handlers.LogExceptionHandler;
+import tbs.framework.base.properties.AsyncTaskProperty;
 import tbs.framework.base.properties.ExecutorProperty;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
@@ -23,8 +25,18 @@ public class AsyncConfig {
     @Resource
     ExecutorProperty executorProperty;
 
-    @AutoLogger
-    private ILogger logger;
+    @Resource
+    AsyncTaskProperty asyncTaskProperty;
+
+    @Bean
+    AsyncTaskAop asyncTaskAop() {
+        return new AsyncTaskAop();
+    }
+
+    @Bean(BeanNameConstant.BUILTIN_ASYNC_TASK_CALLBACK)
+    ThreadUtil.IReceiptConsumer receiptConsumer() throws Exception {
+        return asyncTaskProperty.getReceiptConsumer().getConstructor().newInstance();
+    }
 
     @Bean(BeanNameConstant.ASYNC_EXECUTOR_EXCEPTION_HANDLER)
     Thread.UncaughtExceptionHandler executorServiceUncaughtExceptionHandler() throws Exception {

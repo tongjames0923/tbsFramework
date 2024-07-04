@@ -13,6 +13,9 @@ import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
 @Data
 @ConfigurationProperties(prefix = "tbs.framework.mq")
 public class MqProperty {
+    /**
+     * 消息中心自启动
+     */
     private boolean autoStartCenter = true;
 
     /**

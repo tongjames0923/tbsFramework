@@ -1,7 +1,7 @@
 package tbs.framework.sql.interfaces.impls.convertor;
 
 import com.alibaba.fastjson2.JSON;
-import tbs.framework.base.intefaces.impls.chain.AbstractChain;
+import tbs.framework.base.interfaces.impls.chain.AbstractChain;
 
 /**
  * 支持所有类型的 转化为JSON字符串

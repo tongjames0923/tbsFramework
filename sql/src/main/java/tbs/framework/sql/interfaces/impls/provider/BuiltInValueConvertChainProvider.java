@@ -1,7 +1,7 @@
 package tbs.framework.sql.interfaces.impls.provider;
 
-import tbs.framework.base.intefaces.IChainProvider;
-import tbs.framework.base.intefaces.impls.chain.AbstractChain;
+import tbs.framework.base.interfaces.IChainProvider;
+import tbs.framework.base.interfaces.impls.chain.AbstractChain;
 import tbs.framework.sql.interfaces.impls.convertor.BaseTypeConvertor;
 import tbs.framework.sql.interfaces.impls.convertor.DateValueConvertor;
 import tbs.framework.sql.interfaces.impls.convertor.IterableConvertor;

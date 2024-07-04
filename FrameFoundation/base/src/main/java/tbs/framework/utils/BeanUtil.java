@@ -2,7 +2,7 @@ package tbs.framework.utils;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import tbs.framework.base.intefaces.FunctionWithThrows;
+import tbs.framework.base.interfaces.FunctionWithThrows;
 
 import java.util.Map;
 import java.util.regex.Pattern;

@@ -1,6 +1,6 @@
 package tbs.framework.proxy.impls;
 
-import tbs.framework.base.intefaces.FunctionWithThrows;
+import tbs.framework.base.interfaces.FunctionWithThrows;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;

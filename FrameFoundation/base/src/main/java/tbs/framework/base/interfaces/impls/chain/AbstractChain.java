@@ -1,6 +1,6 @@
-package tbs.framework.base.intefaces.impls.chain;
+package tbs.framework.base.interfaces.impls.chain;
 
-import tbs.framework.base.intefaces.IChain;
+import tbs.framework.base.interfaces.IChain;
 
 import java.util.LinkedList;
 import java.util.Queue;

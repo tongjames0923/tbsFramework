@@ -2,7 +2,7 @@ package tbs.framework.base.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.base.intefaces.impls.threads.handlers.LogExceptionHandler;
+import tbs.framework.base.interfaces.impls.threads.handlers.LogExceptionHandler;
 import tbs.framework.utils.ThreadUtil;
 import tbs.framework.utils.impls.SimpleThreadUtil;
 

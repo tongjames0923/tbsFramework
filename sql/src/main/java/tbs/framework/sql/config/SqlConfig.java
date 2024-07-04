@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.PlatformTransactionManager;
-import tbs.framework.base.intefaces.IChainProvider;
+import tbs.framework.base.interfaces.IChainProvider;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.interfaces.impls.NoSqlLogger;
 import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
