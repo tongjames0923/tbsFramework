@@ -11,8 +11,8 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import tbs.framework.cache.AbstractTimeBaseCacheEliminationStrategy;
 import tbs.framework.cache.AbstractTimeBaseCacheManager;
-import tbs.framework.cache.IEliminationStrategy;
 import tbs.framework.cache.annotations.CacheLoading;
 import tbs.framework.cache.annotations.CacheUnloading;
 import tbs.framework.cache.properties.CacheProperty;
@@ -36,6 +36,8 @@ public class CacheAspect {
     @Resource
     CacheProperty cacheProperty;
 
+    private static final String CacheLockPrefix = "CacheLock.ASPECT::";
+
     @Pointcut(
         "@annotation(tbs.framework.cache.annotations.CacheLoading)||@annotation(tbs.framework.cache.annotations.CacheUnloading)")
     public void cache() {
@@ -46,22 +48,24 @@ public class CacheAspect {
         // 创建spel表达式分析器
         ExpressionParser parser = new SpelExpressionParser();
         StandardEvaluationContext context = new StandardEvaluationContext();
-        context.setVariable("method", methodSignature.getMethod());
         context.setVariable("args", args);
         // 输入表达式
         Expression exp = parser.parseExpression(k);
         // 获取表达式的输出结果，getValue入参是返回参数的类型
-        return exp.getValue(context, String.class);
+        return "CACHE_ASPECT:" +
+            methodSignature.getDeclaringTypeName() +
+            "." +
+            methodSignature.getName() +
+            ":" +
+            exp.getValue(context, String.class);
     }
 
     @Around("cache()")
     public Object cacheAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        Optional result = Optional.empty();
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
-        result = cacheLoad(joinPoint, methodSignature);
+        Object result = cacheLoad(joinPoint, methodSignature);
         unCache(joinPoint, methodSignature);
-
-        return result.isEmpty() ? null : result.get();
+        return result;
     }
 
     private void unCache(ProceedingJoinPoint pjp, MethodSignature methodSignature) throws Throwable {
@@ -70,30 +74,27 @@ public class CacheAspect {
             return;
         }
 
-        IEliminationStrategy eliminationStrategy = SpringUtil.getBean(annotation.eliminationStrategy());
+        AbstractTimeBaseCacheEliminationStrategy eliminationStrategy =
+            SpringUtil.getBean(annotation.cacheKillStrategy());
         String key = getKey(annotation.key(), methodSignature, pjp.getArgs());
         lockProxy.proxy((p) -> {
-            boolean hasKey = cacheService.exists(key);
-            if (hasKey) {
-                eliminationStrategy.eliminate(key, cacheService, annotation.stringArgs(), annotation.intArgs());
-            }
+            eliminationStrategy.judgeAndClean(cacheService, SpringUtil.getBean(cacheProperty.getCacheKillJudgeMaker())
+                .makeJudge(key, annotation.intArgs(), annotation.stringArgs()));
             return null;
-        }, null, new SimpleLockAddtionalInfo("CACHE-LOCK-" + key));
+        }, null, new SimpleLockAddtionalInfo(CacheLockPrefix + key));
 
     }
 
-    private Optional cacheLoad(ProceedingJoinPoint joinPoint, MethodSignature methodSignature) throws Throwable {
+    private Object cacheLoad(ProceedingJoinPoint joinPoint, MethodSignature methodSignature) throws Throwable {
         CacheLoading cacheLoading = methodSignature.getMethod().getDeclaredAnnotation(CacheLoading.class);
         if (cacheLoading == null) {
             return Optional.ofNullable(joinPoint.proceed());
         }
-        Optional result = Optional.empty();
         String key = getKey(cacheLoading.key(), methodSignature, joinPoint.getArgs());
-        result = lockProxy.proxy((p) -> {
+        Optional result = lockProxy.proxy((p) -> {
             boolean hasCache = cacheService.exists(key);
             if (hasCache) {
-                Optional op = Optional.ofNullable(cacheService.get(key));
-                return op.isEmpty() ? null : op.get();
+                return cacheService.get(key);
             } else {
                 Object res = joinPoint.proceed();
                 if (res == null) {
@@ -106,9 +107,9 @@ public class CacheAspect {
 
                 return res;
             }
-        }, null, new SimpleLockAddtionalInfo("CACHE-LOCK-" + key));
+        }, null, new SimpleLockAddtionalInfo(CacheLockPrefix + key));
 
-        return result;
+        return result.isEmpty() ? null : result.get();
     }
 
 }

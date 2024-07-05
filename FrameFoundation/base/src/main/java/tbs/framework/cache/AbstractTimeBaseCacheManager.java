@@ -1,5 +1,7 @@
 package tbs.framework.cache;
 
+import lombok.val;
+
 import java.time.Duration;
 
 /**
@@ -10,39 +12,32 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager<
 
     @Override
     public void addHook(ITimeBaseSupportedHook hook) {
-        if (hookCount() > 0) {
-            throw new RuntimeException("only one hook is allowed");
-        }
         super.addHook(hook);
     }
 
     @Override
     public void expire(String key, Duration time) {
-        if (hookCount() < 1) {
-            throw new RuntimeException("no hook found,can not support this function");
-        }
         foreachHook((h) -> {
             h.onSetDelay(key, time, getCacheService());
-        });
+        }, ITimeBaseSupportedHook.HOOK_OPERATE_FLAG_EXPIRE);
     }
 
     @Override
     public Duration remaining(String key) {
-        if (hookCount() < 1) {
-            throw new RuntimeException("no hook found,can not support this function");
-        }
         final Duration[] d = new Duration[1];
         foreachHook((h) -> {
-            d[0] = Duration.ofMillis(h.remainingTime(key, getCacheService()));
-        });
+            val n = h.remainingTime(key, getCacheService());
+            if (d[0] == null) {
+                d[0] = Duration.ofMillis(n);
+            } else {
+                d[0] = d[0].toMillis() > n ? Duration.ofMillis(n) : d[0];
+            }
+        }, ITimeBaseSupportedHook.HOOK_OPERATE_FLAG_REMAIN);
         return d[0];
     }
 
     @Override
     public Object getAndRemove(String key, Duration delay) {
-        if (hookCount() < 1) {
-            throw new RuntimeException("no hook found,can not support this function");
-        }
         if (delay.toMillis() <= 0) {
             return get(key);
         } else {

@@ -3,11 +3,8 @@ package tbs.framework.base.config;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.cache.AbstractTimeBaseCacheManager;
-import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.ITimeBaseSupportedHook;
+import tbs.framework.cache.*;
 import tbs.framework.cache.aspects.CacheAspect;
-import tbs.framework.cache.impls.eliminate.ExpireCacheStrategy;
 import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
 import tbs.framework.cache.impls.services.ConcurrentMapCacheServiceImpl;
 import tbs.framework.cache.properties.CacheProperty;
@@ -36,6 +33,16 @@ public class CacheConfig {
         return new CacheAspect();
     }
 
+    @Bean
+    ICacheAspectJudgeMaker judgeMaker() throws Exception {
+        return cacheProperty.getCacheKillJudgeMaker().getConstructor().newInstance();
+    }
+
+    @Bean
+    AbstractTimeBaseCacheEliminationStrategy defaultTimeBaseCacheEliminationStrategy() throws Exception {
+        return cacheProperty.getCacheKillStrategy().getConstructor().newInstance();
+    }
+
     //TODO 无法自定义Hook
     @Bean
     AbstractTimeBaseCacheManager timeBaseCacheManager(
@@ -44,8 +51,4 @@ public class CacheConfig {
         return new ImportedTimeBaseCacheManager(timeBaseCacheService, hook);
     }
 
-    @Bean
-    ExpireCacheStrategy expiredStrategy() {
-        return new ExpireCacheStrategy();
-    }
 }

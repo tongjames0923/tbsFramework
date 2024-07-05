@@ -8,8 +8,6 @@ import java.util.concurrent.Delayed
 import java.util.concurrent.TimeUnit
 
 class TimeBaseEliminateCacheHook : ITimeBaseSupportedHook {
-
-
     class CacheEntry(var key: String, var expiration: Long, val service: ICacheService) : Delayed {
         public override fun getDelay(unit: TimeUnit): Long {
             return unit.convert(
@@ -47,15 +45,20 @@ class TimeBaseEliminateCacheHook : ITimeBaseSupportedHook {
 
     }
 
-
-    override fun onSetCache(key: String?, value: Any?, override: Boolean, cacheService: ICacheService?) {
+    override fun onSetCache(key: String, value: Any?, override: Boolean, cacheService: ICacheService?) {
+        TODO("Not yet implemented")
     }
 
-    override fun onGetCache(key: String?, cacheService: ICacheService?) {
+    override fun onGetCache(
+        key: String,
+        cacheService: ICacheService?,
+        value: Any
+    ): Any? {
         cleanQueue()
+        return value
     }
 
-    override fun onRemoveCache(key: String?, cacheService: ICacheService?) {
+    override fun onRemoveCache(key: String, cacheService: ICacheService?) {
     }
 
     override fun onClearCache(cacheService: ICacheService?) {
@@ -63,7 +66,7 @@ class TimeBaseEliminateCacheHook : ITimeBaseSupportedHook {
         map.clear()
     }
 
-    override fun onTestCache(key: String?, cacheService: ICacheService) {
+    override fun onTestCache(key: String, cacheService: ICacheService) {
         cleanQueue()
     }
 
@@ -78,10 +81,8 @@ class TimeBaseEliminateCacheHook : ITimeBaseSupportedHook {
 
 
     override fun onTimeout(key: String?, service: ICacheService?) {
-
         service!!.remove(key);
         map.remove(key)
-
     }
 
     override fun remainingTime(key: String?, service: ICacheService?): Long {

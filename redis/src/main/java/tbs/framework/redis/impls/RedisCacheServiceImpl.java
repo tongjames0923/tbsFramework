@@ -1,6 +1,7 @@
 package tbs.framework.redis.impls;
 
 import cn.hutool.extra.spring.SpringUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import tbs.framework.cache.ICacheService;
@@ -86,13 +87,13 @@ public class RedisCacheServiceImpl implements ICacheService, IkeyMixer, ITimeBas
     }
 
     @Override
-    public void onSetCache(String key, Object value, boolean override, ICacheService cacheService) {
+    public void onSetCache(@NotNull String key, Object value, boolean override, ICacheService cacheService) {
 
     }
 
     @Override
-    public void onGetCache(String key, ICacheService cacheService) {
-
+    public Object onGetCache(String key, ICacheService cacheService, Object value) {
+        return value;
     }
 
     @Override
