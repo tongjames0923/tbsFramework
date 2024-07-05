@@ -11,10 +11,10 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import tbs.framework.cache.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.IEliminationStrategy;
 import tbs.framework.cache.annotations.CacheLoading;
 import tbs.framework.cache.annotations.CacheUnloading;
-import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
 import tbs.framework.cache.properties.CacheProperty;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.proxy.impls.LockProxy;
@@ -27,7 +27,7 @@ public class CacheAspect {
 
     @Resource
     @Lazy
-    ImportedTimeBaseCacheManager cacheService;
+    AbstractTimeBaseCacheManager cacheService;
 
     @Resource
     @Lazy

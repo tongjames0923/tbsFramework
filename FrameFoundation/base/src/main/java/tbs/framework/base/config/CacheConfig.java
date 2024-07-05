@@ -34,7 +34,7 @@ public class CacheConfig {
 
     //TODO 无法自定义Hook
     @Bean
-    ImportedTimeBaseCacheManager timeBaseCacheManager(
+    AbstractTimeBaseCacheManager timeBaseCacheManager(
         @Qualifier(BeanNameConstant.BUILTIN_CACHE_SERVICE) ICacheService timeBaseCacheService,
         ITimeBaseSupportedHook hook) {
         return new ImportedTimeBaseCacheManager(timeBaseCacheService, hook);
