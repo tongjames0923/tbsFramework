@@ -1,10 +1,12 @@
 package tbs.framework.multilingual.impls.parameters;
 
 import cn.hutool.extra.spring.SpringUtil;
-import tbs.framework.cache.ICacheService;
+import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
 import tbs.framework.multilingual.ITranslationParameters;
 
+import java.time.Duration;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * <p>CustomParameter class.</p>
@@ -14,7 +16,7 @@ import java.util.Locale;
  */
 public class CustomParameter implements ITranslationParameters {
 
-    private static ICacheService cacheService;
+    private static ImportedTimeBaseCacheManager cacheService;
 
     private static String keyGen(final String code) {
         return String.format(String.format("LOCALE_PARAMETER:%s", code));
@@ -23,12 +25,12 @@ public class CustomParameter implements ITranslationParameters {
     /**
      * <p>setParameter.</p>
      *
-     * @param code a {@link java.lang.String} object
+     * @param code   a {@link java.lang.String} object
      * @param values an array of {@link java.lang.Object} objects
      */
     public static void setParameter(final String code, final Object[] values) {
         if (null == cacheService) {
-            CustomParameter.cacheService = SpringUtil.getBean(ICacheService.class);
+            CustomParameter.cacheService = SpringUtil.getBean(ImportedTimeBaseCacheManager.class);
         }
         final String key = CustomParameter.keyGen(code);
         CustomParameter.cacheService.put(key, values, true);
@@ -42,10 +44,11 @@ public class CustomParameter implements ITranslationParameters {
      */
     public static Object[] getParameter(final String code) {
         if (null == cacheService) {
-            CustomParameter.cacheService = SpringUtil.getBean(ICacheService.class);
+            CustomParameter.cacheService = SpringUtil.getBean(ImportedTimeBaseCacheManager.class);
         }
         final String key = CustomParameter.keyGen(code);
-        return (Object[])CustomParameter.cacheService.get(key, true, 0).orElse(new Object[0]);
+        return (Object[])Optional.ofNullable(CustomParameter.cacheService.getAndRemove(key, Duration.ofMillis(0)))
+            .orElse(new Object[0]);
     }
 
     @Override

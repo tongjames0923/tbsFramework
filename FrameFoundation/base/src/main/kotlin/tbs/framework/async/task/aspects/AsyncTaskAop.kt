@@ -6,13 +6,11 @@ import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Pointcut
 import org.aspectj.lang.reflect.MethodSignature
-import org.springframework.core.Ordered
-import org.springframework.core.annotation.Order
 import tbs.framework.async.task.annotations.AsyncTaskId
 import tbs.framework.async.task.annotations.AsyncWithCallback
 import tbs.framework.base.model.AsyncReceipt
 import tbs.framework.utils.ThreadUtil
-import tbs.framework.utils.ThreadUtil.IReceiptConsumer
+import tbs.framework.utils.ThreadUtil.IReceiptBroker
 import java.time.LocalDateTime
 import java.util.*
 
@@ -28,7 +26,7 @@ class AsyncTaskAop {
     public fun asyncTaskCall(joinPoint: ProceedingJoinPoint): Any? {
         val j = joinPoint.signature as MethodSignature;
         val anno: AsyncWithCallback = j.method.getDeclaredAnnotation(AsyncWithCallback::class.java);
-        val callback: IReceiptConsumer = SpringUtil.getBean(anno.callbackBean)
+        val callback: IReceiptBroker = SpringUtil.getBean(anno.callbackBean)
         var index = 0;
         var flag = false
         var uid = ""
@@ -52,7 +50,7 @@ class AsyncTaskAop {
             val beg = LocalDateTime.now();
             val result: Any? = joinPoint.proceed();
             val ed = LocalDateTime.now();
-            callback.consumeReceipt(AsyncReceipt(uid, beg, ed, joinPoint.args.toList(), result, j.method));
+            callback.submitReceipt(AsyncReceipt(uid, beg, ed, joinPoint.args.toList(), result, j.method));
         })
         return null
     }

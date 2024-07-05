@@ -1,7 +1,5 @@
 package tbs.framework.cache;
 
-import java.util.Optional;
-
 /**
  * <p>ICacheService interface.</p>
  *
@@ -13,8 +11,8 @@ public interface ICacheService {
     /**
      * 设置缓存
      *
-     * @param key 键
-     * @param value 值
+     * @param key      键
+     * @param value    值
      * @param override 存在时是否覆盖
      */
     void put(String key, Object value, boolean override);
@@ -24,10 +22,9 @@ public interface ICacheService {
      *
      * @param key      键
      * @param isRemove 是否移除
-     * @param delay 移除延迟 单位秒
      * @return 获取的值
      */
-    Optional get(String key, boolean isRemove,long delay);
+    Object get(String key);
 
     boolean exists(String key);
 
@@ -43,19 +40,5 @@ public interface ICacheService {
      */
     void clear();
 
-    /**
-     * 设置超时
-     *
-     * @param key 键
-     * @param seconds 超时时间 单位秒
-     */
-    void expire(String key, long seconds);
-
-    /**
-     * 超时剩余 不存在返回Long.MIN_VALUE 单位秒
-     *
-     * @param key a {@link java.lang.String} object
-     * @return a long
-     */
-    long remain(String key);
+    long cacheSize();
 }

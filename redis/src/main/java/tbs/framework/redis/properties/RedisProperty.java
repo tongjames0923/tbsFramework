@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tbs.framework.redis.constants.RedisBeanNameConstants;
 
 /**
  * @author abstergo
@@ -13,33 +14,39 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @ConfigurationProperties("tbs.framework.redis")
 public class RedisProperty {
     /**
-     * 键序列化器
+     * redis键的序列化器
      */
     private Class<? extends RedisSerializer> KeySerializer = StringRedisSerializer.class;
     /**
-     * 值序列化器
+     * redis值的序列化器
      */
     private Class<? extends RedisSerializer> ValueSerializer = Jackson2JsonRedisSerializer.class;
     /**
-     * 哈希格式键序列化器
+     * redis哈希键的序列化器
      */
     private Class<? extends RedisSerializer> HashKeySerializer = StringRedisSerializer.class;
     /**
-     * 哈希格式值序列化器
+     * redis哈希值的序列化器
      */
     private Class<? extends RedisSerializer> HashValueSerializer = Jackson2JsonRedisSerializer.class;
     /**
-     * 缓存默认超时（springboot 默认框架的）
+     * springboot默认redisCacheing功能的缓存时间
      */
     private long cacheTimeout = 3000;
 
     /**
-     * springboot框架默认的是否允许空值
+     * springboot默认redisCacheing功能的是否接收空值
      */
     private boolean allowNullValues = false;
 
+    /**
+     * 缓存服务的前缀
+     */
+    private String cacheKeyPrefix = "REDIS-CACHE-:";
 
-
-
+    /**
+     *
+     */
+    private String cacheSource = RedisBeanNameConstants.DEFAULT_REDIS_TEMPLATE;
 
 }

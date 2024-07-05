@@ -15,6 +15,6 @@ public enum BeanNameConstant {
     public static final String BUILTIN_LOCK_PROXY = "BUILTIN_LOCK_PROXY";
     public static final String BUILTIN_LOCALE_RESOLVER = "BUILTIN_LOCALE_RESOLVER";
     public static final String LOCALE_CHANGE_INTERCEPTOR = "LOCALE_CHANGE_INTERCEPTOR";
-
+    public static final String BUILTIN_CACHE_SERVICE = "BUILTIN_CACHE_SERVICE";
     public static final String BUILTIN_ASYNC_TASK_CALLBACK = "BUILTIN_ASYNC_TASK_CALLBACK";
 }

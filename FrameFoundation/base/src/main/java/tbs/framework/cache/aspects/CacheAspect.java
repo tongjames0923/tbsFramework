@@ -11,12 +11,13 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
-import tbs.framework.proxy.impls.LockProxy;
-import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IEliminationStrategy;
 import tbs.framework.cache.annotations.CacheLoading;
 import tbs.framework.cache.annotations.CacheUnloading;
+import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
+import tbs.framework.cache.properties.CacheProperty;
+import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
+import tbs.framework.proxy.impls.LockProxy;
 
 import javax.annotation.Resource;
 import java.util.Optional;
@@ -26,11 +27,14 @@ public class CacheAspect {
 
     @Resource
     @Lazy
-    ICacheService cacheService;
+    ImportedTimeBaseCacheManager cacheService;
 
     @Resource
     @Lazy
     LockProxy lockProxy;
+
+    @Resource
+    CacheProperty cacheProperty;
 
     @Pointcut(
         "@annotation(tbs.framework.cache.annotations.CacheLoading)||@annotation(tbs.framework.cache.annotations.CacheUnloading)")
@@ -88,12 +92,17 @@ public class CacheAspect {
         result = lockProxy.proxy((p) -> {
             boolean hasCache = cacheService.exists(key);
             if (hasCache) {
-                Optional op = cacheService.get(key, false, 0);
+                Optional op = Optional.ofNullable(cacheService.get(key));
                 return op.isEmpty() ? null : op.get();
             } else {
                 Object res = joinPoint.proceed();
-                SpringUtil.getBean(cacheLoading.cacheBroker())
-                    .setCache(key, cacheService, res, cacheLoading.intArgs(), cacheLoading.stringArgs());
+                if (res == null) {
+                    if (cacheProperty.isAcceptNullValues()) {
+                        cacheService.put(key, res, true);
+                    }
+                } else {
+                    cacheService.put(key, res, true);
+                }
 
                 return res;
             }

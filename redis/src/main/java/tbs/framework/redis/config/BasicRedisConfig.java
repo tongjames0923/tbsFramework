@@ -19,8 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
+import tbs.framework.redis.constants.RedisBeanNameConstants;
 import tbs.framework.redis.impls.RedisCacheServiceImpl;
+import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 import tbs.framework.redis.impls.lock.RedissonLockImpl;
 import tbs.framework.redis.properties.RedisProperty;
 
@@ -76,7 +77,7 @@ public class BasicRedisConfig {
         return new StringRedisSerializer();
     }
 
-    @Bean
+    @Bean(RedisBeanNameConstants.DEFAULT_REDIS_TEMPLATE)
     @Primary
     RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory, RedisProperty redisProperty) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -116,11 +117,6 @@ public class BasicRedisConfig {
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.lockingRedisCacheWriter(redisConnectionFactory);
         RedisCacheManager redisCacheManager = new RedisCacheManager(redisCacheWriter, redisCacheConfiguration);
         return redisCacheManager;
-    }
-
-    @Bean
-    ICacheService redisCacheService() {
-        return new RedisCacheServiceImpl();
     }
 
     @Bean

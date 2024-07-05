@@ -3,8 +3,6 @@ package tbs.framework.utils;
 import cn.hutool.extra.spring.SpringUtil;
 import tbs.framework.base.model.AsyncReceipt;
 
-import java.lang.reflect.Method;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -12,19 +10,25 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author abstergo
  */
 public abstract class ThreadUtil {
-    public static interface IReceiptConsumer {
+    public static interface IReceiptBroker {
         /**
-         * 消费回执
+         * 提交回执，在完成任务的第一时间发生
          *
          * @param receipt 回执数据
          */
-        void consumeReceipt(AsyncReceipt receipt);
+        void submitReceipt(AsyncReceipt receipt);
+
+        /**
+         * 确认消息
+         *
+         * @param receiptId
+         */
+        void acknowledgeReceipt(String receiptId);
     }
 
     /**

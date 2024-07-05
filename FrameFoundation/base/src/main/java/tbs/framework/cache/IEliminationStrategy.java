@@ -1,7 +1,8 @@
 package tbs.framework.cache;
 
 /**
- * 缓存淘汰策略
+ * 缓存淘汰策略,用于CacheLoad和CacheUnLoad注解
+ *
  * @author Abstergo
  */
 public interface IEliminationStrategy {
@@ -13,5 +14,5 @@ public interface IEliminationStrategy {
      * @param strArgs      字符串参数
      * @param intArgs      数字参数
      */
-    void eliminate(String finalKey, ICacheService cacheService, String[] strArgs, int[] intArgs);
+    void eliminate(String finalKey, AbstractTimeBaseCacheManager cacheService, String[] strArgs, int[] intArgs);
 }

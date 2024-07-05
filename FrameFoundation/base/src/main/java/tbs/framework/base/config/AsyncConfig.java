@@ -8,8 +8,6 @@ import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.interfaces.impls.threads.handlers.LogExceptionHandler;
 import tbs.framework.base.properties.AsyncTaskProperty;
 import tbs.framework.base.properties.ExecutorProperty;
-import tbs.framework.log.ILogger;
-import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.utils.BeanUtil;
 import tbs.framework.utils.ThreadUtil;
 import tbs.framework.utils.impls.SimpleThreadUtil;
@@ -34,8 +32,8 @@ public class AsyncConfig {
     }
 
     @Bean(BeanNameConstant.BUILTIN_ASYNC_TASK_CALLBACK)
-    ThreadUtil.IReceiptConsumer receiptConsumer() throws Exception {
-        return asyncTaskProperty.getReceiptConsumer().getConstructor().newInstance();
+    ThreadUtil.IReceiptBroker receiptConsumer() throws Exception {
+        return asyncTaskProperty.getReceiptBroker().getConstructor().newInstance();
     }
 
     @Bean(BeanNameConstant.ASYNC_EXECUTOR_EXCEPTION_HANDLER)
@@ -58,8 +56,7 @@ public class AsyncConfig {
             this.executorProperty.getKeepAliveTime(), TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(this.executorProperty.getQueueCapacity()),
             new ThreadFactoryBuilder().setNamePrefix("main-pool-").setUncaughtExceptionHandler(exceptionHandler)
-                .build(),
-            this.executorProperty.getRejectedExecutionHandler().getConstructor().newInstance());
+                .build(), this.executorProperty.getRejectedExecutionHandler().getConstructor().newInstance());
     }
 
     @Bean(BeanNameConstant.BUILTIN_THREADUTIL)
