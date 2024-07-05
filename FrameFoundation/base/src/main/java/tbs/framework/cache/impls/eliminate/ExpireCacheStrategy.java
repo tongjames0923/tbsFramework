@@ -5,6 +5,9 @@ import tbs.framework.cache.IEliminationStrategy;
 
 import java.time.Duration;
 
+/**
+ * @author Abstergo
+ */
 public class ExpireCacheStrategy implements IEliminationStrategy {
 
     @Override

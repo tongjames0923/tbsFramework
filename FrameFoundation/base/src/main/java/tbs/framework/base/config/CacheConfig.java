@@ -3,6 +3,7 @@ package tbs.framework.base.config;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
+import tbs.framework.cache.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.ITimeBaseSupportedHook;
 import tbs.framework.cache.aspects.CacheAspect;
@@ -13,6 +14,9 @@ import tbs.framework.cache.properties.CacheProperty;
 
 import javax.annotation.Resource;
 
+/**
+ * @author Abstergo
+ */
 public class CacheConfig {
 
     @Resource

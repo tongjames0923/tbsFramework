@@ -1,6 +1,7 @@
 package tbs.framework.multilingual.impls.parameters;
 
 import cn.hutool.extra.spring.SpringUtil;
+import tbs.framework.cache.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
 import tbs.framework.multilingual.ITranslationParameters;
 
@@ -16,7 +17,7 @@ import java.util.Optional;
  */
 public class CustomParameter implements ITranslationParameters {
 
-    private static ImportedTimeBaseCacheManager cacheService;
+    private static AbstractTimeBaseCacheManager cacheService;
 
     private static String keyGen(final String code) {
         return String.format(String.format("LOCALE_PARAMETER:%s", code));
@@ -30,7 +31,7 @@ public class CustomParameter implements ITranslationParameters {
      */
     public static void setParameter(final String code, final Object[] values) {
         if (null == cacheService) {
-            CustomParameter.cacheService = SpringUtil.getBean(ImportedTimeBaseCacheManager.class);
+            CustomParameter.cacheService = SpringUtil.getBean(AbstractTimeBaseCacheManager.class);
         }
         final String key = CustomParameter.keyGen(code);
         CustomParameter.cacheService.put(key, values, true);
