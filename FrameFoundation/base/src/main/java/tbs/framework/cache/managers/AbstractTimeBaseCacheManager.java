@@ -1,8 +1,8 @@
 package tbs.framework.cache.managers;
 
 import lombok.val;
+import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
-import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.supports.ITimeBaseCacheSupport;
 
 import java.time.Duration;
@@ -10,18 +10,17 @@ import java.time.Duration;
 /**
  * @author Abstergo
  */
-public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager<ITimeBaseSupportedHook>
-    implements ITimeBaseCacheSupport {
+public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager implements ITimeBaseCacheSupport {
 
     @Override
-    public void addHook(ITimeBaseSupportedHook hook) {
-        super.addHook(hook);
+    public boolean featureSupport(int code) {
+        return code == FeatureSupportCode.EXPIRED_SUPPORT || super.featureSupport(code);
     }
 
     @Override
     public void expire(String key, Duration time) {
         foreachHook((h) -> {
-            h.onSetDelay(key, time, getCacheService());
+            ((ITimeBaseSupportedHook)h).onSetDelay(key, time, getCacheService());
         }, ITimeBaseSupportedHook.HOOK_OPERATE_FLAG_EXPIRE);
     }
 
@@ -29,7 +28,7 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager<
     public Duration remaining(String key) {
         final Duration[] d = new Duration[1];
         foreachHook((h) -> {
-            val n = h.remainingTime(key, getCacheService());
+            val n = ((ITimeBaseSupportedHook)h).remainingTime(key, getCacheService());
             if (d[0] == null) {
                 d[0] = Duration.ofMillis(n);
             } else {

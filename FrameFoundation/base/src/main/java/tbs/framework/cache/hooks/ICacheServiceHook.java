@@ -2,8 +2,8 @@ package tbs.framework.cache.hooks;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.Ordered;
-import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.ICacheService;
+import tbs.framework.cache.managers.AbstractCacheManager;
 
 /**
  * @author Abstergo
@@ -58,8 +58,17 @@ public interface ICacheServiceHook extends Ordered {
     /**
      * @return 钩子是否执行
      */
-    default boolean hookAvaliable(int type) {
-        return true;
+    default boolean hookAvaliable(int type, AbstractCacheManager host) {
+        switch (type) {
+            case OPERATE_FLAG_CLEAR:
+            case OPERATE_FLAG_GET:
+            case OPERATE_FLAG_REMOVE:
+            case OPERATE_FLAG_SET:
+            case OPERATE_FLAG_TEST:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
@@ -69,4 +78,5 @@ public interface ICacheServiceHook extends Ordered {
     default int getOrder() {
         return 100;
     }
+
 }

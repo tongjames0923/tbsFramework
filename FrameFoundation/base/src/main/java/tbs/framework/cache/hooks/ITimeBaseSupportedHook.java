@@ -1,7 +1,8 @@
 package tbs.framework.cache.hooks;
 
 import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.hooks.ICacheServiceHook;
+import tbs.framework.cache.constants.FeatureSupportCode;
+import tbs.framework.cache.managers.AbstractCacheManager;
 
 import java.time.Duration;
 
@@ -16,4 +17,12 @@ public interface ITimeBaseSupportedHook extends ICacheServiceHook {
     void onTimeout(String key, ICacheService service);
 
     long remainingTime(String key, ICacheService service);
+
+    @Override
+    default boolean hookAvaliable(int type, AbstractCacheManager host) {
+        if (type == HOOK_OPERATE_FLAG_EXPIRE || type == HOOK_OPERATE_FLAG_REMAIN) {
+            return host.featureSupport(FeatureSupportCode.EXPIRED_SUPPORT);
+        }
+        return ICacheServiceHook.super.hookAvaliable(type, host);
+    }
 }

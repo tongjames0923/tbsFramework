@@ -6,7 +6,7 @@ import tbs.framework.cache.managers.AbstractCacheManager;
 
 import java.util.Set;
 
-public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHook, S extends AbstractCacheManager<H>> {
+public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHook, S extends AbstractCacheManager> {
 
     public static enum CacheJudgeEnum {
         /**
@@ -35,7 +35,7 @@ public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHo
      * @param <S>
      */
 
-    public static interface ICacheEliminationJudge<H extends ICacheServiceHook, S extends AbstractCacheManager<H>> {
+    public static interface ICacheEliminationJudge<H extends ICacheServiceHook, S extends AbstractCacheManager> {
         /**
          * 判断是否执行清除
          */
@@ -61,7 +61,7 @@ public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHo
      * @param <H>
      * @param <S>
      */
-    public static interface ICacheEliminationBroker<H extends ICacheServiceHook, S extends AbstractCacheManager<H>> {
+    public static interface ICacheEliminationBroker<H extends ICacheServiceHook, S extends AbstractCacheManager> {
 
         /**
          * 清除缓存
