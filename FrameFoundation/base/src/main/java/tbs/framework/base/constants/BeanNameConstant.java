@@ -6,7 +6,6 @@ package tbs.framework.base.constants;
 public enum BeanNameConstant {
     ;
     public static final String BUILTIN_LOGGER = "BUILTIN_LOGGER";
-    public static final String ERROR_LOG_PROXY = "ERROR_LOG_PROXY";
     public static final String ASYNC_EXECUTOR = "ASYNC_EXECUTOR";
     public static final String ASYNC_EXECUTOR_EXCEPTION_HANDLER = "ASYNC_EXECUTOR_EXCEPTION_HANDLER";
     public static final String ASYNC_EXECUTOR_REJECT_HANDLER = "ASYNC_EXECUTOR_REJECT_HANDLER";

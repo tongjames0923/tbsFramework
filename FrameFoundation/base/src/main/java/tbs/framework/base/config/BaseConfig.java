@@ -22,9 +22,7 @@ import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
-import tbs.framework.proxy.IProxy;
 import tbs.framework.proxy.impls.LockProxy;
-import tbs.framework.proxy.impls.LogExceptionProxy;
 import tbs.framework.utils.IStartup;
 import tbs.framework.utils.UuidUtil;
 import tbs.framework.utils.impls.SimpleUuidUtil;
@@ -89,11 +87,6 @@ public class BaseConfig {
         factory = this.baseProperty.getLoggerProvider().getConstructor().newInstance();
         LogFactory.setLogFactory(factory);
         return factory;
-    }
-
-    @Bean(BeanNameConstant.ERROR_LOG_PROXY)
-    public IProxy logErrorProxy() {
-        return new LogExceptionProxy();
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK)
