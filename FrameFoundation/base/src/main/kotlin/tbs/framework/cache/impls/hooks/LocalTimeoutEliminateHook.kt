@@ -1,18 +1,19 @@
 package tbs.framework.cache.impls.hooks
 
 import tbs.framework.cache.ICacheService
+import tbs.framework.cache.constants.CacheServiceTypeCode
 import tbs.framework.cache.hooks.ITimeBaseSupportedHook
+import tbs.framework.cache.managers.AbstractCacheManager
 import java.time.Duration
 import java.util.concurrent.DelayQueue
 import java.util.concurrent.Delayed
 import java.util.concurrent.TimeUnit
 
-class TimeBaseEliminateCacheHook : ITimeBaseSupportedHook {
+class LocalTimeoutEliminateHook : ITimeBaseSupportedHook {
     class CacheEntry(var key: String, var expiration: Long, val service: ICacheService) : Delayed {
         public override fun getDelay(unit: TimeUnit): Long {
             return unit.convert(
-                Duration.ofMillis(expiration).toMillis() -
-                        System.currentTimeMillis(), TimeUnit.MILLISECONDS
+                Duration.ofMillis(expiration).toMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS
             )
         }
 
@@ -50,10 +51,8 @@ class TimeBaseEliminateCacheHook : ITimeBaseSupportedHook {
     }
 
     override fun onGetCache(
-        key: String,
-        cacheService: ICacheService?,
-        value: Any
-    ): Any? {
+        key: String, cacheService: ICacheService?, value: Any
+    ): Any {
         cleanQueue()
         return value
     }
@@ -89,4 +88,7 @@ class TimeBaseEliminateCacheHook : ITimeBaseSupportedHook {
         return map.getOrDefault(key, null)?.getDelay(TimeUnit.MILLISECONDS) ?: -1;
     }
 
+    override fun hookAvaliable(type: Int, host: AbstractCacheManager): Boolean {
+        return super.hookAvaliable(type, host) && host.cacheService.serviceType() == CacheServiceTypeCode.LOCAL;
+    }
 }

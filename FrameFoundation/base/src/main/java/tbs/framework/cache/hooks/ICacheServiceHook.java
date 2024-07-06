@@ -58,7 +58,7 @@ public interface ICacheServiceHook extends Ordered {
     /**
      * @return 钩子是否执行
      */
-    default boolean hookAvaliable(int type, AbstractCacheManager host) {
+    default boolean hookAvaliable(int type,@NotNull AbstractCacheManager host) {
         switch (type) {
             case OPERATE_FLAG_CLEAR:
             case OPERATE_FLAG_GET:

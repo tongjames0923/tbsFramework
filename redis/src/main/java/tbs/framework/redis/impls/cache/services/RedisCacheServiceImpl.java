@@ -1,22 +1,19 @@
-package tbs.framework.redis.impls;
+package tbs.framework.redis.impls.cache.services;
 
 import cn.hutool.extra.spring.SpringUtil;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.IkeyMixer;
+import tbs.framework.cache.constants.CacheServiceTypeCode;
 import tbs.framework.redis.properties.RedisProperty;
 
 import javax.annotation.Resource;
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author abstergo
  */
-public class RedisCacheServiceImpl implements ICacheService, IkeyMixer, ITimeBaseSupportedHook {
+public class RedisCacheServiceImpl implements ICacheService, IkeyMixer {
     @Override
     public String mixKey(String key) {
         return property.getCacheKeyPrefix() + key;
@@ -27,11 +24,16 @@ public class RedisCacheServiceImpl implements ICacheService, IkeyMixer, ITimeBas
 
     private RedisTemplate<String, Object> redisTemplate = null;
 
-    private RedisTemplate<String, Object> getRedisTemplate() {
+    public RedisTemplate<String, Object> getRedisTemplate() {
         if (redisTemplate == null) {
             redisTemplate = SpringUtil.getBean(property.getCacheSource());
         }
         return redisTemplate;
+    }
+
+    @Override
+    public int serviceType() {
+        return CacheServiceTypeCode.REDIS;
     }
 
     @Override
@@ -47,7 +49,6 @@ public class RedisCacheServiceImpl implements ICacheService, IkeyMixer, ITimeBas
     @Override
     public Object get(String key) {
         ValueOperations<String, Object> vo = getRedisTemplate().opsForValue();
-
         return vo.get(mixKey(key));
     }
 
@@ -69,45 +70,5 @@ public class RedisCacheServiceImpl implements ICacheService, IkeyMixer, ITimeBas
     @Override
     public long cacheSize() {
         return getRedisTemplate().opsForValue().size(mixKey("*"));
-    }
-
-    @Override
-    public void onSetDelay(String key, Duration delay, ICacheService service) {
-        getRedisTemplate().expire(mixKey(key), delay);
-    }
-
-    @Override
-    public void onTimeout(String key, ICacheService service) {
-
-    }
-
-    @Override
-    public long remainingTime(String key, ICacheService service) {
-        return getRedisTemplate().getExpire(mixKey(key), TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void onSetCache(@NotNull String key, Object value, boolean override, ICacheService cacheService) {
-
-    }
-
-    @Override
-    public Object onGetCache(String key, ICacheService cacheService, Object value) {
-        return value;
-    }
-
-    @Override
-    public void onRemoveCache(String key, ICacheService cacheService) {
-
-    }
-
-    @Override
-    public void onClearCache(ICacheService cacheService) {
-
-    }
-
-    @Override
-    public void onTestCache(String key, ICacheService cacheService) {
-
     }
 }

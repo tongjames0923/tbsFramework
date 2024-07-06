@@ -8,6 +8,8 @@ import tbs.framework.cache.supports.ITimeBaseCacheSupport;
 import java.time.Duration;
 
 /**
+ * 支持超时的缓存管理器
+ *
  * @author Abstergo
  */
 public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager implements ITimeBaseCacheSupport {

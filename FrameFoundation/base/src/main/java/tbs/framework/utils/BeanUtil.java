@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
+ * The type Bean util.
+ *
  * @author abstergo
  */
 public class BeanUtil {
@@ -25,7 +27,7 @@ public class BeanUtil {
     /**
      * 装配bean
      *
-     * @param bean
+     * @param bean the bean
      */
     public static void autowireBean(Object bean) {
         AutowireCapableBeanFactory autowireCapableBeanFactory =
@@ -36,8 +38,8 @@ public class BeanUtil {
     /**
      * 销毁bean
      *
-     * @param beanClass  bean类型
      * @param beanPatten 匹配表达式
+     * @param beanClass  bean类型
      */
     public static void destroyBean(String beanPatten, Class<?> beanClass) {
         Pattern pattern = Pattern.compile(beanPatten);
@@ -48,6 +50,16 @@ public class BeanUtil {
         }
     }
 
+    /**
+     * Build bean from properties t.
+     *
+     * @param <T>         the type parameter
+     * @param defaultBean the default bean
+     * @param property    the property
+     * @param func        the func
+     * @return the t
+     * @throws Exception the exception
+     */
     public static <T> T buildBeanFromProperties(T defaultBean, Class<? extends T> property,
         FunctionWithThrows<Class<? extends T>, T, Exception> func) throws Exception {
         if (property == null) {
@@ -59,7 +71,28 @@ public class BeanUtil {
         return func.apply(property);
     }
 
+    /**
+     * Use empty args t.
+     *
+     * @param <T> the type parameter
+     * @param p   the p
+     * @return the t
+     * @throws Exception the exception
+     */
     public static <T> T useEmptyArgs(Class<? extends T> p) throws Exception {
         return p.getConstructor().newInstance();
     }
+
+    /**
+     * Gets as.
+     *
+     * @param <T>  the type parameter
+     * @param <T1> the type parameter
+     * @param v    the v
+     * @return the as
+     */
+    public static <T, T1 extends T> T1 getAs(T v) {
+        return (T1)v;
+    }
+
 }

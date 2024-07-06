@@ -1,12 +1,23 @@
 package tbs.framework.cache;
 
+import tbs.framework.cache.constants.CacheServiceTypeCode;
+
 /**
  * <p>ICacheService interface.</p>
  *
  * @author abstergo
- * @version $Id: $Id
+ * @version $Id : $Id
  */
 public interface ICacheService {
+
+    /**
+     * Service type int.
+     *
+     * @return the int
+     */
+    default int serviceType() {
+        return CacheServiceTypeCode.LOCAL;
+    }
 
     /**
      * 设置缓存
@@ -20,12 +31,17 @@ public interface ICacheService {
     /**
      * 获取值
      *
-     * @param key      键
-     * @param isRemove 是否移除
-     * @return 获取的值
+     * @param key 键
+     * @return 获取的值 object
      */
     Object get(String key);
 
+    /**
+     * Exists boolean.
+     *
+     * @param key the key
+     * @return the boolean
+     */
     boolean exists(String key);
 
     /**
@@ -40,5 +56,10 @@ public interface ICacheService {
      */
     void clear();
 
+    /**
+     * Cache size long.
+     *
+     * @return the long
+     */
     long cacheSize();
 }

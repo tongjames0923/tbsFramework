@@ -1,9 +1,11 @@
 package tbs.framework.base.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
-import tbs.framework.cache.*;
+import tbs.framework.cache.ICacheAspectJudgeMaker;
+import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.aspects.CacheAspect;
 import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
@@ -46,8 +48,8 @@ public class CacheConfig {
         return cacheProperty.getCacheKillStrategy().getConstructor().newInstance();
     }
 
-    //TODO 无法自定义Hook
     @Bean
+    @ConditionalOnMissingBean(AbstractTimeBaseCacheManager.class)
     AbstractTimeBaseCacheManager timeBaseCacheManager(
         @Qualifier(BeanNameConstant.BUILTIN_CACHE_SERVICE) ICacheService timeBaseCacheService,
         ITimeBaseSupportedHook hook) {
