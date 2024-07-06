@@ -1,7 +1,7 @@
 package tbs.framework.cache.impls.hooks
 
 import tbs.framework.cache.ICacheService
-import tbs.framework.cache.ITimeBaseSupportedHook
+import tbs.framework.cache.hooks.ITimeBaseSupportedHook
 import java.time.Duration
 import java.util.concurrent.DelayQueue
 import java.util.concurrent.Delayed

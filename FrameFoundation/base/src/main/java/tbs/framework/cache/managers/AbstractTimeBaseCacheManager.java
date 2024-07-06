@@ -1,6 +1,9 @@
-package tbs.framework.cache;
+package tbs.framework.cache.managers;
 
 import lombok.val;
+import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
+import tbs.framework.cache.managers.AbstractCacheManager;
+import tbs.framework.cache.supports.ITimeBaseCacheSupport;
 
 import java.time.Duration;
 

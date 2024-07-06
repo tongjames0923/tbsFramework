@@ -2,10 +2,10 @@ package tbs.framework.cache.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.cache.AbstractTimeBaseCacheEliminationStrategy;
+import tbs.framework.cache.strategy.AbstractTimeBaseCacheEliminationStrategy;
 import tbs.framework.cache.ICacheAspectJudgeMaker;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.impls.KeyExpiredCacheAspectJudgeMaker;
+import tbs.framework.cache.impls.eliminate.judges.makers.KeyExpiredCacheAspectJudgeMaker;
 import tbs.framework.cache.impls.eliminations.strategys.ExpiredCacheElimination;
 import tbs.framework.cache.impls.services.ConcurrentMapCacheServiceImpl;
 

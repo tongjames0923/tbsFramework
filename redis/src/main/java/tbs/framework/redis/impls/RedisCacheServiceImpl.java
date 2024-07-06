@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.ITimeBaseSupportedHook;
+import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.IkeyMixer;
 import tbs.framework.redis.properties.RedisProperty;
 

@@ -5,9 +5,12 @@ import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.cache.*;
 import tbs.framework.cache.aspects.CacheAspect;
+import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
 import tbs.framework.cache.impls.services.ConcurrentMapCacheServiceImpl;
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.properties.CacheProperty;
+import tbs.framework.cache.strategy.AbstractTimeBaseCacheEliminationStrategy;
 
 import javax.annotation.Resource;
 

@@ -1,9 +1,9 @@
 package tbs.framework.cache.impls.eliminations.strategys
 
-import tbs.framework.cache.AbstractCacheEliminationStrategy.ICacheEliminationBroker
-import tbs.framework.cache.AbstractTimeBaseCacheEliminationStrategy
-import tbs.framework.cache.AbstractTimeBaseCacheManager
-import tbs.framework.cache.ITimeBaseSupportedHook
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy.ICacheEliminationBroker
+import tbs.framework.cache.strategy.AbstractTimeBaseCacheEliminationStrategy
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager
+import tbs.framework.cache.hooks.ITimeBaseSupportedHook
 import java.time.Duration
 
 /**

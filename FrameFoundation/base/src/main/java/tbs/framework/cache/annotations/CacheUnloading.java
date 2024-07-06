@@ -1,7 +1,7 @@
 package tbs.framework.cache.annotations;
 
 import org.intellij.lang.annotations.Language;
-import tbs.framework.cache.AbstractTimeBaseCacheEliminationStrategy;
+import tbs.framework.cache.strategy.AbstractTimeBaseCacheEliminationStrategy;
 import tbs.framework.cache.impls.eliminations.strategys.ExpiredCacheElimination;
 
 import java.lang.annotation.*;

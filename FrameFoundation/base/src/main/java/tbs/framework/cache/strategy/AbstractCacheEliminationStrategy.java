@@ -1,6 +1,8 @@
-package tbs.framework.cache;
+package tbs.framework.cache.strategy;
 
 import org.jetbrains.annotations.NotNull;
+import tbs.framework.cache.hooks.ICacheServiceHook;
+import tbs.framework.cache.managers.AbstractCacheManager;
 
 import java.util.Set;
 

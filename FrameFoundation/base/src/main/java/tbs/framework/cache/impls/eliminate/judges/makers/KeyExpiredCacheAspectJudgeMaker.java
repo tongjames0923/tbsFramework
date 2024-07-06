@@ -1,9 +1,9 @@
-package tbs.framework.cache.impls;
+package tbs.framework.cache.impls.eliminate.judges.makers;
 
-import tbs.framework.cache.AbstractCacheEliminationStrategy;
-import tbs.framework.cache.AbstractTimeBaseCacheManager;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.ICacheAspectJudgeMaker;
-import tbs.framework.cache.ITimeBaseSupportedHook;
+import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.impls.eliminate.judges.SingleKeyTestExpiredCacheJudge;
 
 /**

@@ -1,4 +1,7 @@
-package tbs.framework.cache;
+package tbs.framework.cache.hooks;
+
+import tbs.framework.cache.ICacheService;
+import tbs.framework.cache.hooks.ICacheServiceHook;
 
 import java.time.Duration;
 

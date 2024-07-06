@@ -1,9 +1,8 @@
 package tbs.framework.cache.impls.managers
 
-import org.springframework.stereotype.Repository
-import tbs.framework.cache.AbstractTimeBaseCacheManager
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager
 import tbs.framework.cache.ICacheService
-import tbs.framework.cache.ITimeBaseSupportedHook
+import tbs.framework.cache.hooks.ITimeBaseSupportedHook
 
 class ImportedTimeBaseCacheManager : AbstractTimeBaseCacheManager {
     private var timeBaseCacheManager: ICacheService? = null

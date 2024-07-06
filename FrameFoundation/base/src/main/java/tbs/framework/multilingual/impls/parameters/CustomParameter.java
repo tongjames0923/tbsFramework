@@ -1,7 +1,7 @@
 package tbs.framework.multilingual.impls.parameters;
 
 import cn.hutool.extra.spring.SpringUtil;
-import tbs.framework.cache.AbstractTimeBaseCacheManager;
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
 import tbs.framework.multilingual.ITranslationParameters;
 

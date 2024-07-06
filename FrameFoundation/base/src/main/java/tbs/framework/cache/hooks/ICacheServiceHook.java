@@ -1,7 +1,9 @@
-package tbs.framework.cache;
+package tbs.framework.cache.hooks;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.Ordered;
+import tbs.framework.cache.managers.AbstractCacheManager;
+import tbs.framework.cache.ICacheService;
 
 /**
  * @author Abstergo

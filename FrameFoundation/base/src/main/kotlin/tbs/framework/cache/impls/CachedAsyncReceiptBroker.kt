@@ -3,7 +3,7 @@ package tbs.framework.cache.impls
 import cn.hutool.core.util.StrUtil
 import tbs.framework.base.model.AsyncReceipt
 import tbs.framework.base.properties.AsyncTaskProperty
-import tbs.framework.cache.AbstractTimeBaseCacheManager
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager
 import tbs.framework.utils.ThreadUtil.IReceiptBroker
 import java.time.Duration
 import javax.annotation.Resource

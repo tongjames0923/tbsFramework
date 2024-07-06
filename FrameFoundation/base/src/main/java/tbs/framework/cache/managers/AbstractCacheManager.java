@@ -1,4 +1,7 @@
-package tbs.framework.cache;
+package tbs.framework.cache.managers;
+
+import tbs.framework.cache.ICacheService;
+import tbs.framework.cache.hooks.ICacheServiceHook;
 
 import java.util.Comparator;
 import java.util.HashSet;
