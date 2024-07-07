@@ -2,7 +2,6 @@ package tbs.framework.cache.hooks;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.Ordered;
-import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.managers.AbstractCacheManager;
 
 /**
@@ -16,12 +15,12 @@ public interface ICacheServiceHook extends Ordered {
     /**
      * 设置缓存时触发 {@link AbstractCacheManager#put(String, Object, boolean)}
      *
-     * @param value        存入的值
-     * @param override     是否覆盖标志
-     * @param cacheService 缓存服务
-     * @param key          键
+     * @param key      键
+     * @param value    存入的值
+     * @param override 是否覆盖标志
+     * @param host     缓存服务
      */
-    void onSetCache(@NotNull String key, Object value, boolean override, ICacheService cacheService);
+    void onSetCache(@NotNull String key, Object value, boolean override, @NotNull AbstractCacheManager host);
 
     /**
      * 获取缓存时触发 {@link AbstractCacheManager#get(String)}
@@ -30,7 +29,7 @@ public interface ICacheServiceHook extends Ordered {
      * @param cacheService 缓存服务
      * @param value
      */
-    Object onGetCache(@NotNull String key, ICacheService cacheService, Object value);
+    Object onGetCache(@NotNull String key, @NotNull AbstractCacheManager cacheService, Object value);
 
     /**
      * 移除缓存时触发 {@link AbstractCacheManager#remove(String)}
@@ -38,14 +37,14 @@ public interface ICacheServiceHook extends Ordered {
      * @param key          键
      * @param cacheService 缓存服务
      */
-    void onRemoveCache(@NotNull String key, ICacheService cacheService);
+    void onRemoveCache(@NotNull String key, @NotNull AbstractCacheManager cacheService);
 
     /**
      * 清空缓存的钩子 调用{@link  AbstractCacheManager#clear()}触发
      *
      * @param cacheService 缓存服务
      */
-    void onClearCache(ICacheService cacheService);
+    void onClearCache(@NotNull AbstractCacheManager cacheService);
 
     /**
      * 判断对应键的缓存是否存在 调用{@link AbstractCacheManager#exists(String)}时触发
@@ -53,9 +52,10 @@ public interface ICacheServiceHook extends Ordered {
      * @param cacheService 缓存服务
      * @param key          缓存的的键
      */
-    void onTestCache(@NotNull String key, ICacheService cacheService);
+    void onTestCache(@NotNull String key, @NotNull AbstractCacheManager cacheService);
 
     /**
+     * @param type 对应操作标志，一般是在Hook接口中
      * @return 钩子是否执行
      */
     default boolean hookAvaliable(int type,@NotNull AbstractCacheManager host) {

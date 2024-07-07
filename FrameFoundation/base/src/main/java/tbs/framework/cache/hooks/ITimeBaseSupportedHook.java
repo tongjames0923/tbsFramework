@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.managers.AbstractCacheManager;
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 
 import java.time.Duration;
 
@@ -13,11 +14,11 @@ import java.time.Duration;
 public interface ITimeBaseSupportedHook extends ICacheServiceHook {
     public static final int HOOK_OPERATE_FLAG_EXPIRE = 0x10, HOOK_OPERATE_FLAG_REMAIN = 0x11;
 
-    void onSetDelay(String key, Duration delay, ICacheService service);
+    void onSetDelay(@NotNull String key, @NotNull Duration delay, @NotNull AbstractTimeBaseCacheManager service);
 
-    void onTimeout(String key, ICacheService service);
+    void onTimeout(@NotNull String key, @NotNull ICacheService service);
 
-    long remainingTime(String key, ICacheService service);
+    long remainingTime(@NotNull String key, @NotNull AbstractTimeBaseCacheManager service);
 
     @Override
     default boolean hookAvaliable(int type, @NotNull AbstractCacheManager host) {

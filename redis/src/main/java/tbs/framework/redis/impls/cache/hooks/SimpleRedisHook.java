@@ -4,12 +4,16 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.managers.AbstractCacheManager;
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 import tbs.framework.redis.impls.cache.services.RedisCacheServiceImpl;
 import tbs.framework.utils.BeanUtil;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author abstergo
+ */
 public class SimpleRedisHook implements ITimeBaseSupportedHook {
 
     public RedisCacheServiceImpl getService(ICacheService cacheService) {
@@ -17,51 +21,51 @@ public class SimpleRedisHook implements ITimeBaseSupportedHook {
     }
 
     @Override
-    public void onSetDelay(String key, Duration delay, ICacheService service) {
+    public void onSetDelay(@NotNull String key, @NotNull Duration delay,
+        @NotNull AbstractTimeBaseCacheManager service) {
 
-        RedisCacheServiceImpl cacheService = getService(service);
+        RedisCacheServiceImpl cacheService = getService(service.getCacheService());
         cacheService.getRedisTemplate().expire(cacheService.mixKey(key), delay);
     }
 
     @Override
-    public void onTimeout(String key, ICacheService service) {
+    public void onTimeout(@NotNull String key, @NotNull ICacheService service) {
 
     }
 
     @Override
-    public long remainingTime(String key, ICacheService service) {
-        RedisCacheServiceImpl cacheService = getService(service);
+    public long remainingTime(@NotNull String key, @NotNull AbstractTimeBaseCacheManager service) {
+        RedisCacheServiceImpl cacheService = getService(service.getCacheService());
         return cacheService.getRedisTemplate().getExpire(cacheService.mixKey(key), TimeUnit.SECONDS);
     }
 
     @Override
-    public void onSetCache(@NotNull String key, Object value, boolean override, ICacheService cacheService) {
+    public void onSetCache(@NotNull String key, Object value, boolean override, @NotNull AbstractCacheManager host) {
 
     }
 
     @Override
-    public Object onGetCache(String key, ICacheService cacheService, Object value) {
+    public Object onGetCache(String key, @NotNull AbstractCacheManager cacheService, Object value) {
         return value;
     }
 
     @Override
-    public void onRemoveCache(String key, ICacheService cacheService) {
+    public void onRemoveCache(String key, @NotNull AbstractCacheManager cacheService) {
 
     }
 
     @Override
-    public void onClearCache(ICacheService cacheService) {
+    public void onClearCache(@NotNull AbstractCacheManager cacheService) {
 
     }
 
     @Override
-    public void onTestCache(String key, ICacheService cacheService) {
+    public void onTestCache(String key, @NotNull AbstractCacheManager cacheService) {
 
     }
 
     @Override
     public boolean hookAvaliable(int type, @NotNull AbstractCacheManager host) {
-        return ITimeBaseSupportedHook.super.hookAvaliable(type, host) &&
-            host.getCacheService() instanceof RedisCacheServiceImpl;
+        return ITimeBaseSupportedHook.super.hookAvaliable(type, host) && host.getCacheService() instanceof RedisCacheServiceImpl;
     }
 }

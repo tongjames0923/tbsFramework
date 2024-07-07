@@ -55,7 +55,7 @@ public class AutoLoggerProxyFactory implements BeanPostProcessor {
         // 创建代理对象，可以使用动态代理或其他方式
         // 这里只是示例，具体实现根据需求来
         return Proxy.newProxyInstance(classLoader, new Class[] {ILogger.class}, new InvocationHandler() {
-            private ILogger logger;
+            private ILogger logger = null;
 
             private LogFactory factory = null;
 
@@ -72,8 +72,10 @@ public class AutoLoggerProxyFactory implements BeanPostProcessor {
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (logger == null) {
-                    logger = getLogFactory().getLogger(name);
+                synchronized (this) {
+                    if (logger == null) {
+                        logger = getLogFactory().getLogger(name);
+                    }
                 }
                 return method.invoke(logger, args);
             }

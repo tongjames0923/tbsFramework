@@ -22,20 +22,22 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
         }
     });
 
-    public void addHook(ICacheServiceHook hook) {
+    public AbstractCacheManager addHook(ICacheServiceHook hook) {
         if (!hookSupport(hook)) {
             throw new UnsupportedOperationException("this hook can not be supported");
         }
         hooks.add(hook);
         queue.add(hook);
+        return this;
     }
 
-    public void removeHook(ICacheServiceHook hook) {
+    public AbstractCacheManager removeHook(ICacheServiceHook hook) {
         hooks.remove(hook);
         queue.clear();
         for (ICacheServiceHook h : hooks) {
             queue.add(h);
         }
+        return this;
     }
 
     public boolean hookSupport(@NotNull ICacheServiceHook hook) {
@@ -52,17 +54,19 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
 
     protected void foreachHook(Consumer<ICacheServiceHook> c, int e) {
         for (ICacheServiceHook hook : queue) {
-            if (hook != null && hook.hookAvaliable(e, this)) {
-                c.accept(hook);
+            synchronized (queue) {
+                if (hook != null && hook.hookAvaliable(e, this)) {
+                    c.accept(hook);
+                }
             }
         }
     }
 
     public void put(String key, Object value, boolean override) {
-        getCacheService().put(key, value, override);
         foreachHook((hook) -> {
-            hook.onSetCache(key, value, override, getCacheService());
+            hook.onSetCache(key, value, override, this);
         }, ICacheServiceHook.OPERATE_FLAG_SET);
+        getCacheService().put(key, value, override);
     }
 
     public void put(String key, Object value) {
@@ -72,14 +76,14 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
     public Object get(String key) {
         Object[] val = new Object[] {getCacheService().get(key)};
         foreachHook((hook) -> {
-            val[0] = hook.onGetCache(key, getCacheService(), val[0]);
+            val[0] = hook.onGetCache(key, this, val[0]);
         }, ICacheServiceHook.OPERATE_FLAG_GET);
         return val[0];
     }
 
     public boolean exists(String key) {
         foreachHook((hook) -> {
-            hook.onTestCache(key, getCacheService());
+            hook.onTestCache(key, this);
         }, ICacheServiceHook.OPERATE_FLAG_TEST);
         return getCacheService().exists(key);
     }
@@ -87,17 +91,17 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
     public void remove(String key) {
 
         foreachHook((hook) -> {
-            hook.onRemoveCache(key, getCacheService());
+            hook.onRemoveCache(key, this);
         }, ICacheServiceHook.OPERATE_FLAG_REMOVE);
 
         getCacheService().remove(key);
     }
 
     public void clear() {
-        getCacheService().clear();
         foreachHook((hook) -> {
-            hook.onClearCache(getCacheService());
+            hook.onClearCache(this);
         }, ICacheServiceHook.OPERATE_FLAG_CLEAR);
+        getCacheService().clear();
     }
 
     public long size() {

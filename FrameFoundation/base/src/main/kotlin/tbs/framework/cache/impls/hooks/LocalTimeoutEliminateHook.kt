@@ -4,6 +4,7 @@ import tbs.framework.cache.ICacheService
 import tbs.framework.cache.constants.CacheServiceTypeCode
 import tbs.framework.cache.hooks.ITimeBaseSupportedHook
 import tbs.framework.cache.managers.AbstractCacheManager
+import tbs.framework.cache.managers.AbstractTimeBaseCacheManager
 import java.time.Duration
 import java.util.concurrent.DelayQueue
 import java.util.concurrent.Delayed
@@ -46,45 +47,42 @@ class LocalTimeoutEliminateHook : ITimeBaseSupportedHook {
 
     }
 
-    override fun onSetCache(key: String, value: Any?, override: Boolean, cacheService: ICacheService?) {
-        TODO("Not yet implemented")
+    override fun onSetCache(key: String, value: Any?, override: Boolean, host: AbstractCacheManager) {
     }
 
     override fun onGetCache(
-        key: String, cacheService: ICacheService?, value: Any
+        key: String, cacheService: AbstractCacheManager, value: Any
     ): Any {
         cleanQueue()
         return value
     }
 
-    override fun onRemoveCache(key: String, cacheService: ICacheService?) {
+    override fun onRemoveCache(key: String, cacheService: AbstractCacheManager) {
     }
 
-    override fun onClearCache(cacheService: ICacheService?) {
+    override fun onClearCache(cacheService: AbstractCacheManager) {
         queue.clear();
         map.clear()
     }
 
-    override fun onTestCache(key: String, cacheService: ICacheService) {
+    override fun onTestCache(key: String, cacheService: AbstractCacheManager) {
         cleanQueue()
     }
 
-    override fun onSetDelay(key: String?, delay: Duration, service: ICacheService?) {
+    override fun onSetDelay(key: String, delay: Duration, service: AbstractTimeBaseCacheManager) {
         val now = System.currentTimeMillis()
-        val e = CacheEntry(key!!, now + delay.toMillis(), service!!)
+        val e = CacheEntry(key, now + delay.toMillis(), service.cacheService)
         queue.add(e);
-        map.put(key, e)
-
-
+        map[key] = e
     }
 
 
-    override fun onTimeout(key: String?, service: ICacheService?) {
-        service!!.remove(key);
+    override fun onTimeout(key: String, service: ICacheService) {
+        service.remove(key);
         map.remove(key)
     }
 
-    override fun remainingTime(key: String?, service: ICacheService?): Long {
+    override fun remainingTime(key: String, service: AbstractTimeBaseCacheManager): Long {
         return map.getOrDefault(key, null)?.getDelay(TimeUnit.MILLISECONDS) ?: -1;
     }
 

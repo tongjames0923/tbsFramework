@@ -22,15 +22,15 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
     @Override
     public void expire(String key, Duration time) {
         foreachHook((h) -> {
-            ((ITimeBaseSupportedHook)h).onSetDelay(key, time, getCacheService());
+            ((ITimeBaseSupportedHook)h).onSetDelay(key, time, this);
         }, ITimeBaseSupportedHook.HOOK_OPERATE_FLAG_EXPIRE);
     }
 
     @Override
     public Duration remaining(String key) {
-        final Duration[] d = new Duration[1];
+        final Duration[] d = new Duration[] {null};
         foreachHook((h) -> {
-            val n = ((ITimeBaseSupportedHook)h).remainingTime(key, getCacheService());
+            val n = ((ITimeBaseSupportedHook)h).remainingTime(key, this);
             if (d[0] == null) {
                 d[0] = Duration.ofMillis(n);
             } else {

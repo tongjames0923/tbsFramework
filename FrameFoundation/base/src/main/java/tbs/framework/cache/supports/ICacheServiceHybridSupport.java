@@ -9,18 +9,12 @@ import java.util.function.BiPredicate;
  * The interface Cache service hybrid support.
  */
 public interface ICacheServiceHybridSupport {
-
-    public static final int WRITE_PUT = 1, WRITE_REMOVE = 2, WRITE_CLEAR = 3;
-    public static final int READ_GET = 1, READ_TEST = 2;
-
     /**
      * Service index int.
      *
      * @return the int
      */
     int serviceIndex();
-
-    ICacheService getServiceByIndex(int i);
 
     /**
      * Sets service.
@@ -57,9 +51,4 @@ public interface ICacheServiceHybridSupport {
      * @return the int
      */
     int serviceCount();
-
-    void collaborativeWriting(String key, Object value, boolean overwrite, int flag);
-
-    void collaborativeReading(String key, int flag);
-
 }

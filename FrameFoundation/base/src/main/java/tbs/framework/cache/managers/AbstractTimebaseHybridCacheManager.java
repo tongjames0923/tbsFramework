@@ -44,6 +44,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
             if (condition.test(cacheService, ++i)) {
                 break;
             }
+
         }
         return i;
     }
@@ -78,52 +79,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
     }
 
     @Override
-    public ICacheService getServiceByIndex(int i) {
-        return cacheServiceArrayList.get(i);
-    }
-
-    @Override
     public boolean featureSupport(int code) {
         return super.featureSupport(code) || code == FeatureSupportCode.HYBRID_CACHE_SERVICE;
     }
-
-    @Override
-    public void put(String key, Object value, boolean override) {
-        collaborativeWriting(key, value, override, WRITE_PUT);
-        super.put(key, value, override);
-    }
-
-    @Override
-    public Object get(String key) {
-        collaborativeReading(key, READ_GET);
-        return super.get(key);
-    }
-
-    @Override
-    public boolean exists(String key) {
-        collaborativeReading(key, READ_TEST);
-        return super.exists(key);
-    }
-
-    @Override
-    public void remove(String key) {
-        collaborativeWriting(key, null, false, WRITE_REMOVE);
-        super.remove(key);
-    }
-
-    @Override
-    public void clear() {
-        collaborativeWriting(null, null, false, WRITE_CLEAR);
-        super.clear();
-    }
-
-    @Override
-    public long size() {
-        long r = 0;
-        for (ICacheService cacheService : cacheServiceArrayList) {
-            r += cacheService.cacheSize();
-        }
-        return r;
-    }
-
 }
