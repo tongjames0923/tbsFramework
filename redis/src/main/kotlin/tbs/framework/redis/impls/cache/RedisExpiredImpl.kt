@@ -29,7 +29,7 @@ class RedisExpiredImpl() : IExpireable {
         cs: ICacheService
     ): Long {
         var cacheService = getService(cs)
-        return cacheService.redisTemplate.getExpire(cacheService.mixKey(key), TimeUnit.SECONDS)
+        return cacheService.redisTemplate.getExpire(cacheService.mixKey(key), TimeUnit.MILLISECONDS)
     }
 
     override fun execute() {
