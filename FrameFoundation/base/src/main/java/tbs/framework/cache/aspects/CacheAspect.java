@@ -24,6 +24,9 @@ import tbs.framework.proxy.impls.LockProxy;
 import javax.annotation.Resource;
 import java.util.Optional;
 
+/**
+ * @author Abstergo
+ */
 @Aspect
 public class CacheAspect {
 

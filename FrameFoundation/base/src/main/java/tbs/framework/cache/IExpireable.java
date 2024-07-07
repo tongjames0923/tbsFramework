@@ -7,6 +7,7 @@ import java.time.Duration;
 
 /**
  * 缓存超时功能接口
+ * @author Abstergo
  */
 public interface IExpireable {
     /**
@@ -21,7 +22,7 @@ public interface IExpireable {
         @NotNull ICacheService cacheService);
 
     /**
-     * Remaining long.
+     * Remaining long.单位:毫秒
      *
      * @param key          the key
      * @param manager      the manager
@@ -32,7 +33,7 @@ public interface IExpireable {
         @NotNull ICacheService cacheService);
 
     /**
-     * Execute.
+     * 若有需要，执行此函数清理数据
      */
     public void execute();
 }
