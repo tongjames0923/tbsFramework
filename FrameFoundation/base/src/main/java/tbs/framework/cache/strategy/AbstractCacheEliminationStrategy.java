@@ -1,12 +1,11 @@
 package tbs.framework.cache.strategy;
 
 import org.jetbrains.annotations.NotNull;
-import tbs.framework.cache.hooks.ICacheServiceHook;
 import tbs.framework.cache.managers.AbstractCacheManager;
 
 import java.util.Set;
 
-public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHook, S extends AbstractCacheManager> {
+public abstract class AbstractCacheEliminationStrategy {
 
     public static enum CacheJudgeEnum {
         /**
@@ -35,11 +34,11 @@ public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHo
      * @param <S>
      */
 
-    public static interface ICacheEliminationJudge<H extends ICacheServiceHook, S extends AbstractCacheManager> {
+    public static interface ICacheEliminationJudge {
         /**
          * 判断是否执行清除
          */
-        boolean isEliminated(@NotNull S cacheManager);
+        boolean isEliminated(AbstractCacheManager cacheManager);
 
         /**
          * 待清除的集合
@@ -61,7 +60,7 @@ public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHo
      * @param <H>
      * @param <S>
      */
-    public static interface ICacheEliminationBroker<H extends ICacheServiceHook, S extends AbstractCacheManager> {
+    public static interface ICacheEliminationBroker {
 
         /**
          * 清除缓存
@@ -70,26 +69,27 @@ public abstract class AbstractCacheEliminationStrategy<H extends ICacheServiceHo
          * @param judge        缓存判别器
          * @param true清除成功     ，反之失败
          */
-        boolean eliminated(@NotNull S cacheManager, @NotNull ICacheEliminationJudge<H, S> judge);
+        boolean eliminated(AbstractCacheManager cacheManager, @NotNull ICacheEliminationJudge judge);
     }
 
     /**
      * 获取缓存清除器
      */
     @NotNull
-    protected abstract ICacheEliminationBroker<H, S> getEliminationBroker();
+    protected abstract ICacheEliminationBroker getEliminationBroker();
 
     /**
      * 判别并执行缓存清除
      */
-    public CacheJudgeEnum judgeAndClean(@NotNull S cacheManager, @NotNull ICacheEliminationJudge<H, S> judge) {
+    public CacheJudgeEnum judgeAndClean(
+        AbstractCacheManager cacheManager, @NotNull ICacheEliminationJudge judge) {
         if (!judge.isEliminated(cacheManager)) {
             return CacheJudgeEnum.KeepAlive;
         }
         if (judge.killList().isEmpty()) {
             return CacheJudgeEnum.NoKillings;
         }
-        ICacheEliminationBroker<H, S> broker = getEliminationBroker();
+        ICacheEliminationBroker broker = getEliminationBroker();
         if (broker == null) {
             throw new UnsupportedOperationException("The kill cache broker is null");
         }

@@ -2,7 +2,8 @@ package tbs.framework.cache.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.cache.strategy.AbstractTimeBaseCacheEliminationStrategy;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 import tbs.framework.cache.ICacheAspectJudgeMaker;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.impls.eliminate.judges.makers.KeyExpiredCacheAspectJudgeMaker;
@@ -29,6 +30,6 @@ public class CacheProperty {
     /**
      * 缓存清除策略
      */
-    private Class<? extends AbstractTimeBaseCacheEliminationStrategy> cacheKillStrategy = ExpiredCacheElimination.class;
+    private Class<? extends AbstractCacheEliminationStrategy> cacheKillStrategy = ExpiredCacheElimination.class;
 
 }

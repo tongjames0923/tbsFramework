@@ -1,8 +1,8 @@
 package tbs.framework.cache.annotations;
 
 import org.intellij.lang.annotations.Language;
-import tbs.framework.cache.strategy.AbstractTimeBaseCacheEliminationStrategy;
 import tbs.framework.cache.impls.eliminations.strategys.ExpiredCacheElimination;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 
 import java.lang.annotation.*;
 
@@ -16,7 +16,7 @@ public @interface CacheUnloading {
 
     @Language("SpEL") String key();
 
-    Class<? extends AbstractTimeBaseCacheEliminationStrategy> cacheKillStrategy() default ExpiredCacheElimination.class;
+    Class<? extends AbstractCacheEliminationStrategy> cacheKillStrategy() default ExpiredCacheElimination.class;
 
     int[] intArgs() default {};
 

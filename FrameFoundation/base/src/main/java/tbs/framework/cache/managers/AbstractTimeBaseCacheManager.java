@@ -19,6 +19,11 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
         return code == FeatureSupportCode.EXPIRED_SUPPORT || super.featureSupport(code);
     }
 
+    /**
+     * 获取可超时器以支持超时功能
+     *
+     * @return the expireable
+     */
     protected abstract IExpireable getExpireable();
 
     @Override
@@ -27,6 +32,12 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
         getExpireable().expire(key, time, this, getCacheService());
     }
 
+    /**
+     * 设置超时的钩子运行实现
+     *
+     * @param key  the key
+     * @param time the time
+     */
     protected void hookForExpire(String key, Duration time) {
         foreachHook((h) -> {
             ((ITimeBaseSupportedHook)h).onSetDelay(key, time, this);
