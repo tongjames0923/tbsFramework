@@ -15,7 +15,6 @@ import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.utils.IStartup;
-import tbs.framework.base.utils.LogFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -45,15 +44,6 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      */
     @AutoLogger
     ILogger logger;
-
-    protected ILogger getLogger() {
-        if (logger == null) {
-            synchronized (this) {
-                logger = LogFactory.getInstance().getLogger(this.getClass().getName());
-            }
-        }
-        return logger;
-    }
 
     /**
      * 检查消息消费器是否合法
@@ -383,7 +373,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
             messageArrived(msg, pre.connector, receiver);
             consumeMessage(msg);
         } catch (Exception e) {
-            getLogger().error(e, "error occurred on listen");
+            logger.error(e, "error occurred on listen");
         }
     }
 

@@ -27,9 +27,8 @@ public interface ICacheServiceHook extends Ordered {
      *
      * @param key          键
      * @param cacheService 缓存服务
-     * @param value
      */
-    Object onGetCache(@NotNull String key, @NotNull AbstractCacheManager cacheService, Object value);
+    void onGetCache(@NotNull String key, @NotNull AbstractCacheManager cacheService);
 
     /**
      * 移除缓存时触发 {@link AbstractCacheManager#remove(String)}

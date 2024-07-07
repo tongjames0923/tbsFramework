@@ -8,8 +8,10 @@ import tbs.framework.cache.hooks.IHybridCacheServiceHook;
 import tbs.framework.cache.supports.ICacheServiceHybridSupport;
 import tbs.framework.utils.BeanUtil;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 /**
  * @author abstergo
@@ -44,7 +46,6 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
             if (condition.test(cacheService, ++i)) {
                 break;
             }
-
         }
         return i;
     }
@@ -81,5 +82,85 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
     @Override
     public boolean featureSupport(int code) {
         return super.featureSupport(code) || code == FeatureSupportCode.HYBRID_CACHE_SERVICE;
+    }
+
+    @Override
+    public void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation) {
+        ICacheService service = cacheServiceArrayList.get(index);
+        operation.accept(service);
+    }
+
+    @Override
+    public void clear() {
+        hookForClear();
+        clearImpl();
+    }
+
+    @Override
+    public long size() {
+        Long[] r = new Long[] {0L};
+        selectService((c, i) -> {
+            r[0] += c.cacheSize();
+            return false;
+        });
+        return r[0];
+    }
+
+    protected abstract void putImpl(String key, Object value, boolean ov);
+
+    protected abstract Object getImpl(String key);
+
+    protected abstract boolean existsImpl(String key);
+
+    protected abstract void removeImpl(String key);
+
+    protected abstract void clearImpl();
+
+    @Override
+    public void put(String key, Object value, boolean override) {
+        hookForPut(key, value, override);
+        putImpl(key, value, override);
+    }
+
+    @Override
+    public Object get(String key) {
+        Object r = getImpl(key);
+        hookForGet(key);
+        return r;
+    }
+
+    @Override
+    public boolean exists(String key) {
+        boolean r = existsImpl(key);
+        hookForExist(key);
+        return r;
+    }
+
+    @Override
+    public void remove(String key) {
+        hookForRemove(key);
+        removeImpl(key);
+    }
+
+    @Override
+    public void expire(String key, Duration time) {
+        hookForExpire(key, time);
+        selectService((c, i) -> {
+            if (c.exists(key)) {
+                getExpireable().expire(key, time, this, c);
+            }
+            return false;
+        });
+    }
+
+    @Override
+    public Duration remaining(String key) {
+        Long[] r = new Long[] {Long.MAX_VALUE};
+        selectService((c, i) -> {
+            long v = getExpireable().remaining(key, this, c);
+            r[0] = Math.min(v, r[0]);
+            return false;
+        });
+        return Duration.ofMillis(r[0]);
     }
 }

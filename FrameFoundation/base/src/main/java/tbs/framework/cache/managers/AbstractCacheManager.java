@@ -63,10 +63,14 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
     }
 
     public void put(String key, Object value, boolean override) {
+        hookForPut(key, value, override);
+        getCacheService().put(key, value, override);
+    }
+
+    protected void hookForPut(String key, Object value, boolean override) {
         foreachHook((hook) -> {
             hook.onSetCache(key, value, override, this);
         }, ICacheServiceHook.OPERATE_FLAG_SET);
-        getCacheService().put(key, value, override);
     }
 
     public void put(String key, Object value) {
@@ -74,34 +78,49 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
     }
 
     public Object get(String key) {
-        Object[] val = new Object[] {getCacheService().get(key)};
+        hookForGet(key);
+        return getCacheService().get(key);
+    }
+
+    protected void hookForGet(String key) {
         foreachHook((hook) -> {
-            val[0] = hook.onGetCache(key, this, val[0]);
+            hook.onGetCache(key, this);
         }, ICacheServiceHook.OPERATE_FLAG_GET);
-        return val[0];
     }
 
     public boolean exists(String key) {
+        hookForExist(key);
+        return getCacheService().exists(key);
+    }
+
+    protected void hookForExist(String key) {
         foreachHook((hook) -> {
             hook.onTestCache(key, this);
         }, ICacheServiceHook.OPERATE_FLAG_TEST);
-        return getCacheService().exists(key);
     }
 
     public void remove(String key) {
 
-        foreachHook((hook) -> {
-            hook.onRemoveCache(key, this);
-        }, ICacheServiceHook.OPERATE_FLAG_REMOVE);
+        hookForRemove(key);
 
         getCacheService().remove(key);
     }
 
+    protected void hookForRemove(String key) {
+        foreachHook((hook) -> {
+            hook.onRemoveCache(key, this);
+        }, ICacheServiceHook.OPERATE_FLAG_REMOVE);
+    }
+
     public void clear() {
+        hookForClear();
+        getCacheService().clear();
+    }
+
+    protected void hookForClear() {
         foreachHook((hook) -> {
             hook.onClearCache(this);
         }, ICacheServiceHook.OPERATE_FLAG_CLEAR);
-        getCacheService().clear();
     }
 
     public long size() {

@@ -18,8 +18,6 @@ public interface ITimeBaseSupportedHook extends ICacheServiceHook {
 
     void onTimeout(@NotNull String key, @NotNull ICacheService service);
 
-    long remainingTime(@NotNull String key, @NotNull AbstractTimeBaseCacheManager service);
-
     @Override
     default boolean hookAvaliable(int type, @NotNull AbstractCacheManager host) {
         if (type == HOOK_OPERATE_FLAG_EXPIRE || type == HOOK_OPERATE_FLAG_REMAIN) {

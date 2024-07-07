@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.cache.ICacheAspectJudgeMaker;
 import tbs.framework.cache.ICacheService;
+import tbs.framework.cache.IExpireable;
 import tbs.framework.cache.aspects.CacheAspect;
-import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
 import tbs.framework.cache.impls.services.ConcurrentMapCacheServiceImpl;
 import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
@@ -51,8 +51,7 @@ public class CacheConfig {
     @Bean
     @ConditionalOnMissingBean(AbstractTimeBaseCacheManager.class)
     AbstractTimeBaseCacheManager timeBaseCacheManager(
-        @Qualifier(BeanNameConstant.BUILTIN_CACHE_SERVICE) ICacheService timeBaseCacheService,
-        ITimeBaseSupportedHook hook) {
+        @Qualifier(BeanNameConstant.BUILTIN_CACHE_SERVICE) ICacheService timeBaseCacheService, IExpireable hook) {
         return new ImportedTimeBaseCacheManager(timeBaseCacheService, hook);
     }
 
