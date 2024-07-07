@@ -11,7 +11,9 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import tbs.framework.cache.strategy.AbstractTimeBaseCacheEliminationStrategy;
+import tbs.framework.cache.managers.AbstractCacheManager;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.annotations.CacheLoading;
 import tbs.framework.cache.annotations.CacheUnloading;
@@ -27,7 +29,7 @@ public class CacheAspect {
 
     @Resource
     @Lazy
-    AbstractTimeBaseCacheManager cacheService;
+    AbstractCacheManager cacheService;
 
     @Resource
     @Lazy
@@ -74,7 +76,7 @@ public class CacheAspect {
             return;
         }
 
-        AbstractTimeBaseCacheEliminationStrategy eliminationStrategy =
+        AbstractCacheEliminationStrategy eliminationStrategy =
             SpringUtil.getBean(annotation.cacheKillStrategy());
         String key = getKey(annotation.key(), methodSignature, pjp.getArgs());
         lockProxy.proxy((p) -> {

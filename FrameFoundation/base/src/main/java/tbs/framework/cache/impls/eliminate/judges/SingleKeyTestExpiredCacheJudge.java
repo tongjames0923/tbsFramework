@@ -1,9 +1,9 @@
 package tbs.framework.cache.impls.eliminate.judges;
 
 import org.jetbrains.annotations.NotNull;
-import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
+import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
-import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 
 import java.util.Set;
 
@@ -12,8 +12,7 @@ import java.util.Set;
  *
  * @author Abstergo
  */
-public class SingleKeyTestExpiredCacheJudge implements
-    AbstractCacheEliminationStrategy.ICacheEliminationJudge<ITimeBaseSupportedHook, AbstractTimeBaseCacheManager> {
+public class SingleKeyTestExpiredCacheJudge implements AbstractCacheEliminationStrategy.ICacheEliminationJudge {
 
     private String key;
     private long expired;
@@ -24,7 +23,7 @@ public class SingleKeyTestExpiredCacheJudge implements
     }
 
     @Override
-    public boolean isEliminated(@NotNull AbstractTimeBaseCacheManager cacheManager) {
+    public boolean isEliminated(@NotNull AbstractCacheManager cacheManager) {
         return cacheManager.exists(this.key);
     }
 
