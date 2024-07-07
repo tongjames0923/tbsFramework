@@ -1,5 +1,6 @@
 package tbs.framework.cache.impls
 
+import org.slf4j.LoggerFactory
 import tbs.framework.cache.ICacheService
 import tbs.framework.cache.IExpireable
 import tbs.framework.cache.managers.AbstractCacheManager
@@ -9,6 +10,12 @@ import java.util.concurrent.Delayed
 import java.util.concurrent.TimeUnit
 
 class LocalExpiredImpl : IExpireable {
+
+    private val log = LoggerFactory.getLogger(LocalExpiredImpl::class.java)
+
+    constructor() {
+        log.debug("Local expired")
+    }
 
     class CacheEntry(var key: String, var expiration: Long, val service: ICacheService) : Delayed {
         public override fun getDelay(unit: TimeUnit): Long {
@@ -21,26 +28,40 @@ class LocalExpiredImpl : IExpireable {
             val diff = getDelay(TimeUnit.MILLISECONDS) - other.getDelay(TimeUnit.MILLISECONDS)
             return java.lang.Long.compare(diff, 0)
         }
+
+        override fun toString(): String {
+            return "CacheEntry(key='$key', expiration=$expiration, service=$service)"
+        }
+
     }
 
     val queue = DelayQueue<CacheEntry>()
     val map = HashMap<String, CacheEntry>();
-    private fun cleanQueue() {
 
-        while (queue.isNotEmpty()) {
-            val item = queue.poll();
-            if (item != null) {
-                val delay: Long = item.getDelay(TimeUnit.MILLISECONDS)
-                if (delay > 0) {
-                    queue.add(item)
-                    break
+
+    private fun cleanQueue() {
+        var cnt = 0L;
+        synchronized(cnt)
+        {
+            while (queue.isNotEmpty()) {
+                val item = queue.poll();
+                if (item != null) {
+                    val delay: Long = item.getDelay(TimeUnit.MILLISECONDS)
+                    if (delay > 0) {
+                        queue.add(item)
+                        break
+                    } else {
+                        cnt++;
+                        item.service.remove(item.key)
+                        map.remove(item.key)
+                    }
                 } else {
-                    map.remove(item.key)
+                    break
                 }
-            } else {
-                break
             }
         }
+
+        log.debug("cleand  {}", cnt)
 
 
     }
@@ -51,10 +72,15 @@ class LocalExpiredImpl : IExpireable {
         manager: AbstractCacheManager,
         cacheService: ICacheService
     ) {
-        val now = System.currentTimeMillis()
-        val e = CacheEntry(key, now + duration.toMillis(), cacheService)
-        queue.add(e);
-        map[key] = e
+        synchronized(this)
+        {
+            val now = System.currentTimeMillis()
+            val e = CacheEntry(key, now + duration.toMillis(), cacheService)
+            log.debug("new cache Object:{}", e)
+            queue.offer(e);
+            map[key] = e
+        }
+
     }
 
     override fun remaining(
@@ -62,7 +88,12 @@ class LocalExpiredImpl : IExpireable {
         manager: AbstractCacheManager,
         cacheService: ICacheService
     ): Long {
-        return map.getOrDefault(key, null)?.getDelay(TimeUnit.MILLISECONDS) ?: -1;
+        var now = -1L;
+        synchronized(this)
+        {
+            now = map.getOrDefault(key, null)?.getDelay(TimeUnit.MILLISECONDS) ?: -1
+        }
+        return now;
     }
 
     override fun execute() {
