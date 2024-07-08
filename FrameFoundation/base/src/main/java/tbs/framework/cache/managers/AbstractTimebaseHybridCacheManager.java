@@ -176,7 +176,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
         hookForExpire(key, time);
         selectService((c, i) -> {
             if (c.exists(key)) {
-                getExpireable().expire(key, time, this, c);
+                getExpireSupportOrThrows(c).expire(key, time, this, c);
             }
             return false;
         });
@@ -186,7 +186,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
     public Duration remaining(String key) {
         Long[] r = new Long[] {Long.MAX_VALUE};
         selectService((c, i) -> {
-            long v = getExpireable().remaining(key, this, c);
+            long v = getExpireSupportOrThrows(c).remaining(key, this, c);
             r[0] = Math.min(v, r[0]);
             return false;
         });

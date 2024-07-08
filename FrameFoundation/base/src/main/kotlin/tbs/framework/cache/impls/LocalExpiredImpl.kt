@@ -9,6 +9,10 @@ import java.util.concurrent.DelayQueue
 import java.util.concurrent.Delayed
 import java.util.concurrent.TimeUnit
 
+/**
+ * 通用型超时器，运行execute以清理过期数据，请在合适的时候调用execute()
+ *
+ */
 class LocalExpiredImpl : IExpireable {
 
     private val log = LoggerFactory.getLogger(LocalExpiredImpl::class.java)
@@ -77,7 +81,7 @@ class LocalExpiredImpl : IExpireable {
             val now = System.currentTimeMillis()
             val e = CacheEntry(key, now + duration.toMillis(), cacheService)
             log.debug("new cache Object:{}", e)
-            queue.offer(e);
+            queue.add(e);
             map[key] = e
         }
 
