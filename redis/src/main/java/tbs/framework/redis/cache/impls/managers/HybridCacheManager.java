@@ -8,12 +8,9 @@ import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.managers.AbstractTimebaseHybridCacheManager;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
-import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.redis.IRedisTemplateSupport;
-import tbs.framework.redis.cache.impls.services.RedisCacheServiceImpl;
-import tbs.framework.redis.impls.cache.RedisExpiredImpl;
+import tbs.framework.redis.cache.impls.RedisExpiredImpl;
 
-import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 

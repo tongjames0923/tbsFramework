@@ -1,4 +1,4 @@
-package tbs.framework.redis.impls.cache
+package tbs.framework.redis.cache.impls
 
 import tbs.framework.cache.ICacheService
 import tbs.framework.cache.IExpireable
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
  * @see IRedisTemplateSupport
  *
  */
-class RedisExpiredImpl() : IExpireable {
+public class RedisExpiredImpl() : IExpireable {
     fun getService(cacheService: ICacheService): IRedisTemplateSupport {
         return BeanUtil.getAs(cacheService)
     }
