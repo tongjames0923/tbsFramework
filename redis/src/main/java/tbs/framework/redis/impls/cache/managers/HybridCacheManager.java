@@ -1,12 +1,10 @@
 package tbs.framework.redis.impls.cache.managers;
 
-import cn.hutool.extra.spring.SpringUtil;
 import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
 import tbs.framework.cache.constants.CacheServiceTypeCode;
 import tbs.framework.cache.impls.LocalExpiredImpl;
-import tbs.framework.cache.impls.services.ConcurrentMapCacheServiceImpl;
 import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.managers.AbstractTimebaseHybridCacheManager;
 import tbs.framework.log.ILogger;
@@ -18,6 +16,8 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * The type Hybrid cache manager.
+ *
  * @author abstergo
  */
 public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
@@ -31,20 +31,32 @@ public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
 
     private long levelRatio = 8;
 
+    /**
+     * 每层缓存的容量倍数
+     *
+     * @return the long
+     */
     public long levelRatio() {
         return levelRatio;
     }
 
+    /**
+     * 每层缓存的容量倍数
+     *
+     * @param levelRatio the level ratio
+     * @return the level ratio
+     */
     public HybridCacheManager setLevelRatio(long levelRatio) {
         this.levelRatio = levelRatio;
         return this;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.addService(SpringUtil.getBean(ConcurrentMapCacheServiceImpl.class));
-        this.addService(SpringUtil.getBean(RedisCacheServiceImpl.class));
-        setService(0);
+    public HybridCacheManager(ICacheService... services) {
+        for (ICacheService service : services) {
+            if (service != null) {
+                addService(service);
+            }
+        }
     }
 
     @Override
@@ -158,6 +170,9 @@ public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
         });
     }
 
+    /**
+     * 超时实现
+     */
     IExpireable p = new IExpireable() {
 
         private LocalExpiredImpl localExpired = new LocalExpiredImpl();
@@ -179,8 +194,7 @@ public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
             }
         }
 
-        private long remainByType(@NotNull String key, @NotNull AbstractCacheManager manager,
-            @NotNull ICacheService cacheService) {
+        private long remainByType(@NotNull String key, @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
             switch (cacheService.serviceType()) {
                 case CacheServiceTypeCode.LOCAL:
                     return localExpired.remaining(key, manager, cacheService);
@@ -194,16 +208,14 @@ public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
         }
 
         @Override
-        public void expire(@NotNull String key, @NotNull Duration duration, @NotNull AbstractCacheManager manager,
-            @NotNull ICacheService cacheService) {
+        public void expire(@NotNull String key, @NotNull Duration duration, @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
 
             expireByType(key, duration, manager, cacheService);
 
         }
 
         @Override
-        public long remaining(@NotNull String key, @NotNull AbstractCacheManager manager,
-            @NotNull ICacheService cacheService) {
+        public long remaining(@NotNull String key, @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
 
             return remainByType(key, manager, cacheService);
         }

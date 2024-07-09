@@ -19,6 +19,11 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
         return code == FeatureSupportCode.EXPIRED_SUPPORT || super.featureSupport(code);
     }
 
+    /**
+     * 获取过期逻辑实现.
+     *
+     * @return the expireable
+     */
     protected abstract IExpireable getExpireable();
 
     @Override

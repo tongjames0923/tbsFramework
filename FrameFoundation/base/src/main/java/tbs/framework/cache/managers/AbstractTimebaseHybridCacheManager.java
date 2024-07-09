@@ -1,7 +1,6 @@
 package tbs.framework.cache.managers;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.InitializingBean;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.hooks.IHybridCacheServiceHook;
@@ -17,8 +16,8 @@ import java.util.function.Consumer;
  * @author abstergo
  */
 public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBaseCacheManager
-    implements ICacheServiceHybridSupport, InitializingBean {
-    private int m_serviceIndex = -1;
+    implements ICacheServiceHybridSupport {
+    private int m_serviceIndex = 0;
     private ArrayList<ICacheService> cacheServiceArrayList = new ArrayList<>(8);
 
     @Override
