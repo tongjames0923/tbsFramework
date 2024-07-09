@@ -13,8 +13,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
-import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
-import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.annotations.CacheLoading;
 import tbs.framework.cache.annotations.CacheUnloading;
 import tbs.framework.cache.properties.CacheProperty;

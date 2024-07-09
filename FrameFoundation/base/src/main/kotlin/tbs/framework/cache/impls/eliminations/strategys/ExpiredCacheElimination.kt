@@ -3,7 +3,7 @@ package tbs.framework.cache.impls.eliminations.strategys
 import tbs.framework.cache.managers.AbstractCacheManager
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy.ICacheEliminationBroker
-import tbs.framework.cache.supports.ITimeBaseCacheSupport
+import tbs.framework.cache.supports.IExpireSupport
 import java.time.Duration
 
 /**
@@ -21,7 +21,7 @@ class ExpiredCacheElimination : AbstractCacheEliminationStrategy(),
         judge: ICacheEliminationJudge
     ): Boolean {
         for (i in judge.killList()) {
-            if (cacheManager is ITimeBaseCacheSupport) {
+            if (cacheManager is IExpireSupport) {
                 cacheManager.expire(i, Duration.ofMillis(judge.paramter(0)));
             }
         }

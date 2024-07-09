@@ -2,7 +2,6 @@ package tbs.framework.cache.impls.eliminate.judges;
 
 import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.managers.AbstractCacheManager;
-import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 
 import java.util.Set;

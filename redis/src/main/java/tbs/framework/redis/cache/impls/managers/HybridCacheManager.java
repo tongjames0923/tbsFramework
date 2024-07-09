@@ -5,7 +5,7 @@ import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
 import tbs.framework.cache.impls.LocalExpiredImpl;
 import tbs.framework.cache.managers.AbstractCacheManager;
-import tbs.framework.cache.managers.AbstractTimebaseHybridCacheManager;
+import tbs.framework.cache.managers.AbstractExpiredHybridCacheManager;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.redis.IRedisTemplateSupport;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author abstergo
  */
-public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
+public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
 
     private AtomicLong cleanCacheCount = new AtomicLong(0);
 

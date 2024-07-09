@@ -2,9 +2,9 @@ package tbs.framework.cache.impls.managers
 
 import tbs.framework.cache.ICacheService
 import tbs.framework.cache.IExpireable
-import tbs.framework.cache.managers.AbstractTimeBaseCacheManager
+import tbs.framework.cache.managers.AbstractExpireManager
 
-class ImportedTimeBaseCacheManager : AbstractTimeBaseCacheManager {
+class ImportedExpireManager : AbstractExpireManager {
     private var timeBaseCacheManager: ICacheService? = null
     private var expiredImpl: IExpireable? = null
 

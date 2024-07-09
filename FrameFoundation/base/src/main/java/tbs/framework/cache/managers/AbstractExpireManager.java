@@ -2,8 +2,8 @@ package tbs.framework.cache.managers;
 
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
-import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
-import tbs.framework.cache.supports.ITimeBaseCacheSupport;
+import tbs.framework.cache.hooks.IExpireSupportedHook;
+import tbs.framework.cache.supports.IExpireSupport;
 
 import java.time.Duration;
 
@@ -12,7 +12,7 @@ import java.time.Duration;
  *
  * @author Abstergo
  */
-public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager implements ITimeBaseCacheSupport {
+public abstract class AbstractExpireManager extends AbstractCacheManager implements IExpireSupport {
 
     /**
      * 获取可超时器以支持超时功能
@@ -41,8 +41,8 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
      */
     protected void hookForExpire(String key, Duration time) {
         foreachHook((h) -> {
-            ((ITimeBaseSupportedHook)h).onSetDelay(key, time, this);
-        }, ITimeBaseSupportedHook.HOOK_OPERATE_FLAG_EXPIRE);
+            ((IExpireSupportedHook)h).onSetDelay(key, time, this);
+        }, IExpireSupportedHook.HOOK_OPERATE_FLAG_EXPIRE);
     }
 
     @Override
@@ -58,6 +58,15 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
             Object value = get(key);
             expire(key, delay);
             return value;
+        }
+    }
+
+    public void putAndRemove(String key, Object value, boolean ov, Duration delay) {
+        if (delay.toMillis() <= 0) {
+            put(key, value, ov);
+        } else {
+            put(key, value, ov);
+            expire(key, delay);
         }
     }
 

@@ -2,7 +2,6 @@ package tbs.framework.cache.managers;
 
 import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.hooks.IHybridCacheServiceHook;
 import tbs.framework.cache.supports.ICacheServiceHybridSupport;
 import tbs.framework.utils.BeanUtil;
@@ -17,7 +16,7 @@ import java.util.function.Consumer;
  *
  * @author abstergo
  */
-public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBaseCacheManager
+public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireManager
     implements ICacheServiceHybridSupport {
     private int m_serviceIndex = 0;
     private ArrayList<ICacheService> cacheServiceArrayList = new ArrayList<>(8);

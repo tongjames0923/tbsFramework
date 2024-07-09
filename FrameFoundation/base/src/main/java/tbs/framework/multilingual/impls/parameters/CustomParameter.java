@@ -1,8 +1,8 @@
 package tbs.framework.multilingual.impls.parameters;
 
 import cn.hutool.extra.spring.SpringUtil;
-import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
-import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
+import tbs.framework.cache.managers.AbstractExpireManager;
+import tbs.framework.cache.impls.managers.ImportedExpireManager;
 import tbs.framework.multilingual.ITranslationParameters;
 
 import java.time.Duration;
@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public class CustomParameter implements ITranslationParameters {
 
-    private static AbstractTimeBaseCacheManager cacheService;
+    private static AbstractExpireManager cacheService;
 
     private static String keyGen(final String code) {
         return String.format(String.format("LOCALE_PARAMETER:%s", code));
@@ -31,7 +31,7 @@ public class CustomParameter implements ITranslationParameters {
      */
     public static void setParameter(final String code, final Object[] values) {
         if (null == cacheService) {
-            CustomParameter.cacheService = SpringUtil.getBean(AbstractTimeBaseCacheManager.class);
+            CustomParameter.cacheService = SpringUtil.getBean(AbstractExpireManager.class);
         }
         final String key = CustomParameter.keyGen(code);
         CustomParameter.cacheService.put(key, values, true);
@@ -45,7 +45,7 @@ public class CustomParameter implements ITranslationParameters {
      */
     public static Object[] getParameter(final String code) {
         if (null == cacheService) {
-            CustomParameter.cacheService = SpringUtil.getBean(ImportedTimeBaseCacheManager.class);
+            CustomParameter.cacheService = SpringUtil.getBean(ImportedExpireManager.class);
         }
         final String key = CustomParameter.keyGen(code);
         return (Object[])Optional.ofNullable(CustomParameter.cacheService.getAndRemove(key, Duration.ofMillis(0)))

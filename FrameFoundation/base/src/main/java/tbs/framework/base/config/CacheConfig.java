@@ -8,10 +8,10 @@ import tbs.framework.cache.ICacheAspectJudgeMaker;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
 import tbs.framework.cache.aspects.CacheAspect;
-import tbs.framework.cache.impls.managers.ImportedTimeBaseCacheManager;
+import tbs.framework.cache.impls.managers.ImportedExpireManager;
 import tbs.framework.cache.impls.services.ConcurrentMapCacheServiceImpl;
 import tbs.framework.cache.managers.AbstractCacheManager;
-import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
+import tbs.framework.cache.managers.AbstractExpireManager;
 import tbs.framework.cache.properties.CacheProperty;
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 
@@ -50,10 +50,10 @@ public class CacheConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean(AbstractTimeBaseCacheManager.class)
+    @ConditionalOnMissingBean(AbstractExpireManager.class)
     AbstractCacheManager timeBaseCacheManager(
         @Qualifier(BeanNameConstant.BUILTIN_CACHE_SERVICE) ICacheService timeBaseCacheService, IExpireable hook) {
-        return new ImportedTimeBaseCacheManager(timeBaseCacheService, hook);
+        return new ImportedExpireManager(timeBaseCacheService, hook);
     }
 
 }
