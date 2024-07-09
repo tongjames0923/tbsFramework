@@ -1,7 +1,6 @@
 package tbs.framework.cache.managers;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.InitializingBean;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.hooks.IHybridCacheServiceHook;
@@ -19,8 +18,8 @@ import java.util.function.Consumer;
  * @author abstergo
  */
 public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBaseCacheManager
-    implements ICacheServiceHybridSupport, InitializingBean {
-    private int m_serviceIndex = -1;
+    implements ICacheServiceHybridSupport {
+    private int m_serviceIndex = 0;
     private ArrayList<ICacheService> cacheServiceArrayList = new ArrayList<>(8);
 
     @Override
@@ -176,7 +175,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
         hookForExpire(key, time);
         selectService((c, i) -> {
             if (c.exists(key)) {
-                getExpireable().expire(key, time, this, c);
+                getExpireSupportOrThrows(c).expire(key, time, this, c);
             }
             return false;
         });
@@ -186,7 +185,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
     public Duration remaining(String key) {
         Long[] r = new Long[] {Long.MAX_VALUE};
         selectService((c, i) -> {
-            long v = getExpireable().remaining(key, this, c);
+            long v = getExpireSupportOrThrows(c).remaining(key, this, c);
             r[0] = Math.min(v, r[0]);
             return false;
         });

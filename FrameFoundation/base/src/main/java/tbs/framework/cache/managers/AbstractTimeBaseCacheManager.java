@@ -1,5 +1,6 @@
 package tbs.framework.cache.managers;
 
+import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
 import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
@@ -29,7 +30,13 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
     @Override
     public void expire(String key, Duration time) {
         hookForExpire(key, time);
-        getExpireable().expire(key, time, this, getCacheService());
+        ICacheService cacheService = getCacheService();
+        getExpireSupportOrThrows(cacheService).expire(key, time, this, getCacheService());
+    }
+
+    protected IExpireable getExpireSupportOrThrows(ICacheService cacheService) {
+        return getExpireable().isAccept(this, cacheService)
+            .orElseThrow(() -> new IllegalArgumentException("expire function is not support inused cache service"));
     }
 
     /**
@@ -46,7 +53,8 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
 
     @Override
     public Duration remaining(String key) {
-        return Duration.ofMillis(getExpireable().remaining(key, this, getCacheService()));
+        ICacheService cacheService = getCacheService();
+        return Duration.ofMillis(getExpireSupportOrThrows(cacheService).remaining(key, this, cacheService));
     }
 
     @Override

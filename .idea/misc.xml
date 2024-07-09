@@ -14,6 +14,7 @@
         <option value="$PROJECT_DIR$/../tbsframework-demo/SecPart/pom.xml" />
         <option value="$PROJECT_DIR$/baseParent/pom.xml" />
         <option value="$PROJECT_DIR$/FrameFoundation/pom.xml" />
+        <option value="$PROJECT_DIR$/caffeineCache/pom.xml" />
       </list>
     </option>
   </component>
