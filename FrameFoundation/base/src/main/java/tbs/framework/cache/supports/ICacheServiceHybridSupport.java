@@ -53,5 +53,11 @@ public interface ICacheServiceHybridSupport {
      */
     int serviceCount();
 
+    /**
+     * Operate cache service.
+     *
+     * @param index     the index
+     * @param operation the operation
+     */
     void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation);
 }

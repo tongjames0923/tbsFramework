@@ -13,6 +13,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
+ * The type Abstract timebase hybrid cache manager.
+ *
  * @author abstergo
  */
 public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBaseCacheManager
@@ -105,14 +107,41 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
         return r[0];
     }
 
+    /**
+     * 设置缓存的实现
+     *
+     * @param key   the key
+     * @param value the value
+     * @param ov    the ov
+     */
     protected abstract void putImpl(String key, Object value, boolean ov);
 
+    /**
+     * 获取缓存的实现
+     *
+     * @param key the key
+     * @return the
+     */
     protected abstract Object getImpl(String key);
 
+    /**
+     * 测试是否存在的实现
+     *
+     * @param key the key
+     * @return the boolean
+     */
     protected abstract boolean existsImpl(String key);
 
+    /**
+     * 移除缓存的实现
+     *
+     * @param key the key
+     */
     protected abstract void removeImpl(String key);
 
+    /**
+     * 清空缓存的实现
+     */
     protected abstract void clearImpl();
 
     @Override
@@ -146,7 +175,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
         hookForExpire(key, time);
         selectService((c, i) -> {
             if (c.exists(key)) {
-                getExpireable().expire(key, time, this, c);
+                getExpireSupportOrThrows(c).expire(key, time, this, c);
             }
             return false;
         });
@@ -156,7 +185,7 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
     public Duration remaining(String key) {
         Long[] r = new Long[] {Long.MAX_VALUE};
         selectService((c, i) -> {
-            long v = getExpireable().remaining(key, this, c);
+            long v = getExpireSupportOrThrows(c).remaining(key, this, c);
             r[0] = Math.min(v, r[0]);
             return false;
         });

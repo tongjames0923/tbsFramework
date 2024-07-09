@@ -1,17 +1,19 @@
-package tbs.framework.redis.impls.cache.managers;
+package tbs.framework.redis.cache.impls.managers;
 
 import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
-import tbs.framework.cache.constants.CacheServiceTypeCode;
 import tbs.framework.cache.impls.LocalExpiredImpl;
 import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.managers.AbstractTimebaseHybridCacheManager;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
+import tbs.framework.proxy.impls.LockProxy;
+import tbs.framework.redis.IRedisTemplateSupport;
+import tbs.framework.redis.cache.impls.services.RedisCacheServiceImpl;
 import tbs.framework.redis.impls.cache.RedisExpiredImpl;
-import tbs.framework.redis.impls.cache.services.RedisCacheServiceImpl;
 
+import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -69,6 +71,11 @@ public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
         });
     }
 
+    /**
+     * @implNote
+     * TODO
+     * 多线程场景下数据不精确
+     */
     @Override
     public long size() {
         Long[] r = new Long[] {0L};
@@ -180,30 +187,19 @@ public class HybridCacheManager extends AbstractTimebaseHybridCacheManager {
 
         private void expireByType(@NotNull String key, @NotNull Duration duration,
             @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
-            switch (cacheService.serviceType()) {
-                case CacheServiceTypeCode.LOCAL:
-                    localExpired.expire(key, duration, manager, cacheService);
-                    break;
-                case CacheServiceTypeCode.REDIS:
-                    if (cacheService instanceof RedisCacheServiceImpl) {
-                        redisExpired.expire(key, duration, manager, cacheService);
-                        break;
-                    }
-                default:
-                    throw new UnsupportedOperationException("未知的服务类型");
+            if (cacheService instanceof IRedisTemplateSupport) {
+                redisExpired.expire(key, duration, manager, cacheService);
+            } else {
+                localExpired.expire(key, duration, manager, cacheService);
             }
         }
 
         private long remainByType(@NotNull String key, @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
-            switch (cacheService.serviceType()) {
-                case CacheServiceTypeCode.LOCAL:
-                    return localExpired.remaining(key, manager, cacheService);
-                case CacheServiceTypeCode.REDIS:
-                    if (cacheService instanceof RedisCacheServiceImpl) {
-                        return redisExpired.remaining(key, manager, cacheService);
-                    }
-                default:
-                    throw new UnsupportedOperationException("未知的缓存服务类型");
+
+            if (cacheService instanceof IRedisTemplateSupport) {
+                return redisExpired.remaining(key, manager, cacheService);
+            } else {
+                return localExpired.remaining(key, manager, cacheService);
             }
         }
 

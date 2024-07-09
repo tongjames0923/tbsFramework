@@ -1,4 +1,4 @@
-package tbs.framework.redis.impls.cache.services;
+package tbs.framework.redis.cache.impls.services;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IkeyMixer;
 import tbs.framework.cache.constants.CacheServiceTypeCode;
+import tbs.framework.redis.IRedisTemplateSupport;
 import tbs.framework.redis.properties.RedisProperty;
 
 import javax.annotation.Resource;
@@ -13,7 +14,7 @@ import javax.annotation.Resource;
 /**
  * @author abstergo
  */
-public class RedisCacheServiceImpl implements ICacheService, IkeyMixer {
+public class RedisCacheServiceImpl implements ICacheService, IRedisTemplateSupport, IkeyMixer {
     @Override
     public String mixKey(String key) {
         return property.getCacheKeyPrefix() + key;
@@ -24,7 +25,8 @@ public class RedisCacheServiceImpl implements ICacheService, IkeyMixer {
 
     private RedisTemplate<String, Object> redisTemplate = null;
 
-    public RedisTemplate<String, Object> getRedisTemplate() {
+    @Override
+    public RedisTemplate getRedisTemplate() {
         if (redisTemplate == null) {
             redisTemplate = SpringUtil.getBean(property.getCacheSource());
         }
