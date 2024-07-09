@@ -80,10 +80,6 @@ public abstract class AbstractTimebaseHybridCacheManager extends AbstractTimeBas
         return cacheServiceArrayList.get(serviceIndex());
     }
 
-    @Override
-    public boolean featureSupport(int code) {
-        return super.featureSupport(code) || code == FeatureSupportCode.HYBRID_CACHE_SERVICE;
-    }
 
     @Override
     public void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation) {

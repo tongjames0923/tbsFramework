@@ -1,6 +1,5 @@
 package tbs.framework.cache.managers;
 
-import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.hooks.ICacheServiceHook;
 import tbs.framework.cache.supports.ICacheServiceSupport;
 
@@ -31,9 +30,6 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
      * @return the abstract cache manager
      */
     public AbstractCacheManager addHook(ICacheServiceHook hook) {
-        if (!hookSupport(hook)) {
-            throw new UnsupportedOperationException("this hook can not be supported");
-        }
         hooks.add(hook);
         queue.add(hook);
         return this;
@@ -54,25 +50,6 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
         return this;
     }
 
-    /**
-     * Hook support boolean.
-     *
-     * @param hook the hook
-     * @return the boolean
-     */
-    public boolean hookSupport(@NotNull ICacheServiceHook hook) {
-        return true;
-    }
-
-    /**
-     * 支持的除基础功能代码，内置功能支持见{@link tbs.framework.cache.constants.FeatureSupportCode}
-     *
-     * @param code the code
-     * @return the boolean
-     */
-    public boolean featureSupport(int code) {
-        return false;
-    }
 
     /**
      * Hook count int.

@@ -1,7 +1,5 @@
 package tbs.framework.cache;
 
-import tbs.framework.cache.constants.CacheServiceTypeCode;
-
 /**
  * <p>ICacheService interface.</p>
  *
@@ -9,15 +7,6 @@ import tbs.framework.cache.constants.CacheServiceTypeCode;
  * @version $Id : $Id
  */
 public interface ICacheService {
-
-    /**
-     * Service type int.
-     *
-     * @return the int
-     */
-    default int serviceType() {
-        return CacheServiceTypeCode.LOCAL;
-    }
 
     /**
      * 设置缓存

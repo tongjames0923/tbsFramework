@@ -2,7 +2,6 @@ package tbs.framework.cache.managers;
 
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
-import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.hooks.ITimeBaseSupportedHook;
 import tbs.framework.cache.supports.ITimeBaseCacheSupport;
 
@@ -14,11 +13,6 @@ import java.time.Duration;
  * @author Abstergo
  */
 public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager implements ITimeBaseCacheSupport {
-
-    @Override
-    public boolean featureSupport(int code) {
-        return code == FeatureSupportCode.EXPIRED_SUPPORT || super.featureSupport(code);
-    }
 
     /**
      * 获取可超时器以支持超时功能
@@ -57,7 +51,6 @@ public abstract class AbstractTimeBaseCacheManager extends AbstractCacheManager 
         return Duration.ofMillis(getExpireSupportOrThrows(cacheService).remaining(key, this, cacheService));
     }
 
-    @Override
     public Object getAndRemove(String key, Duration delay) {
         if (delay.toMillis() <= 0) {
             return get(key);

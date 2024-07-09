@@ -2,9 +2,9 @@ package tbs.framework.cache.hooks;
 
 import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
-import tbs.framework.cache.constants.FeatureSupportCode;
 import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.managers.AbstractTimeBaseCacheManager;
+import tbs.framework.cache.supports.ITimeBaseCacheSupport;
 
 import java.time.Duration;
 
@@ -21,7 +21,7 @@ public interface ITimeBaseSupportedHook extends ICacheServiceHook {
     @Override
     default boolean hookAvaliable(int type, @NotNull AbstractCacheManager host) {
         if (type == HOOK_OPERATE_FLAG_EXPIRE || type == HOOK_OPERATE_FLAG_REMAIN) {
-            return host.featureSupport(FeatureSupportCode.EXPIRED_SUPPORT);
+            return host instanceof ITimeBaseCacheSupport;
         }
         return ICacheServiceHook.super.hookAvaliable(type, host);
     }

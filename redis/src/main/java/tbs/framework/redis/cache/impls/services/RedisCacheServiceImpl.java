@@ -5,7 +5,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IkeyMixer;
-import tbs.framework.cache.constants.CacheServiceTypeCode;
 import tbs.framework.redis.IRedisTemplateSupport;
 import tbs.framework.redis.properties.RedisProperty;
 
@@ -31,11 +30,6 @@ public class RedisCacheServiceImpl implements ICacheService, IRedisTemplateSuppo
             redisTemplate = SpringUtil.getBean(property.getCacheSource());
         }
         return redisTemplate;
-    }
-
-    @Override
-    public int serviceType() {
-        return CacheServiceTypeCode.REDIS;
     }
 
     @Override
