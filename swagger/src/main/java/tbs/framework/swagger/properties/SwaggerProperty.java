@@ -42,7 +42,7 @@ public class SwaggerProperty {
     /**
      * 扫描包路径
      */
-    private String basePackage;
+    private String basePackage="/";
     /**
      * 分组
      */

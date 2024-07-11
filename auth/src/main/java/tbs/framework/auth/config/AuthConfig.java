@@ -1,14 +1,19 @@
 package tbs.framework.auth.config;
 
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tbs.framework.auth.aspects.ControllerAspect;
 import tbs.framework.auth.config.interceptors.TokenInterceptor;
@@ -22,6 +27,8 @@ import tbs.framework.auth.properties.AuthProperty;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 public class AuthConfig {
@@ -49,9 +56,36 @@ public class AuthConfig {
     }
 
     @Bean
+    public HttpMessageConverter<String> responseBodyConverter() {
+        StringHttpMessageConverter converter = new StringHttpMessageConverter(Charset.forName("UTF-8"));
+        return converter;
+    }
+
+    @Bean
     WebMvcConfigurer authWebMvcConfigurer(final IRequestTokenPicker requestTokenPicker,
-        final IUserModelPicker userModelPicker) {
+        final IUserModelPicker userModelPicker, ObjectMapper objectMapper,
+        HttpMessageConverter<String> responseBodyConverter) {
         return new WebMvcConfigurer() {
+
+            //
+
+            //2.2：解决No converter found for return value of type: xxxx
+            public MappingJackson2HttpMessageConverter messageConverter() {
+                MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+                converter.setObjectMapper(objectMapper);
+                return converter;
+            }
+
+            @Override
+            public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+                //解决中文乱码
+                converters.add(responseBodyConverter);
+                //解决： 添加解决中文乱码后的配置之后，返回json数据直接报错 500：no convertter for return value of type
+                //或这个：Could not find acceptable representation
+                converters.add(messageConverter());
+            }
+
             @Override
             public void addInterceptors(final InterceptorRegistry registry) {
                 registry.addInterceptor(new TokenInterceptor(requestTokenPicker))

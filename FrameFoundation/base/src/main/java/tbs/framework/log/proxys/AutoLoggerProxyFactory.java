@@ -2,6 +2,7 @@ package tbs.framework.log.proxys;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import tbs.framework.base.utils.LogFactory;
@@ -16,32 +17,39 @@ import java.lang.reflect.Proxy;
 /**
  * @author abstergo
  */
+
+@Slf4j
 public class AutoLoggerProxyFactory implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         for (Field f : bean.getClass().getDeclaredFields()) {
-            f.setAccessible(true);
-            AutoLogger annotation = f.getDeclaredAnnotation(AutoLogger.class);
-            if (annotation != null && f.getType().equals(ILogger.class)) {
-                try {
-                    Object fieldValue = f.get(bean);
-                    if (fieldValue != null) {
-                        continue;
-                    }
-                    String n = "";
-                    LogFactory logFactory = null;
-                    if (StrUtil.isEmpty(annotation.value())) {
-                        n = bean.getClass().getName();
-                    } else {
-                        n = annotation.value();
-                    }
+            try {
+                f.setAccessible(true);
+                AutoLogger annotation = f.getDeclaredAnnotation(AutoLogger.class);
+                if (annotation != null && f.getType().equals(ILogger.class)) {
+                    try {
+                        Object fieldValue = f.get(bean);
+                        if (fieldValue != null) {
+                            continue;
+                        }
+                        String n = "";
+                        LogFactory logFactory = null;
+                        if (StrUtil.isEmpty(annotation.value())) {
+                            n = bean.getClass().getName();
+                        } else {
+                            n = annotation.value();
+                        }
 
-                    Object proxyValue = createProxy(bean.getClass().getClassLoader(), n, annotation.factory());
-                    f.set(bean, proxyValue);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Failed to proxy field: " + f.getName(), e);
+                        Object proxyValue = createProxy(bean.getClass().getClassLoader(), n, annotation.factory());
+                        f.set(bean, proxyValue);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Failed to proxy field: " + f.getName(), e);
+                    }
                 }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
             }
+
         }
         return bean;
     }

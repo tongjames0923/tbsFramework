@@ -2,6 +2,7 @@ package tbs.framework.swagger.config;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,7 +28,6 @@ public class SwaggerConfig {
     @Resource
     private SwaggerProperty swaggerProperty;
 
-
     @Bean
     WebMvcConfigurer swaggerConfigurer() {
         return new WebMvcConfigurer() {
@@ -47,15 +47,17 @@ public class SwaggerConfig {
     ApplicationRunner showDocumentUrl() {
         String context = SpringUtil.getApplicationContext().getEnvironment().getProperty("server.servlet.context-path");
         context = StrUtil.isEmpty(context) ? "" : context;
-
-        String finalContext = context;
+        String port = SpringUtil.getApplicationContext().getEnvironment().getProperty("server.port");
+        port = StringUtils.isEmpty(port) ? "8080"
+            : SpringUtil.getApplicationContext().getEnvironment().getProperty("server.port");
+        String finalContext = context, finalPort = port;
         return new ApplicationRunner() {
             @AutoLogger
             ILogger logger;
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                logger.info(String.format("visit: http://127.0.0.1:%s%s/doc.html",
-                    SpringUtil.getApplicationContext().getEnvironment().getProperty("server.port"), finalContext));
+                logger.info(String.format("visit: http://127.0.0.1:%s%s/doc.html", finalPort, finalContext));
             }
         };
     }
