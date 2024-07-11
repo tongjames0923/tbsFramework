@@ -1,8 +1,8 @@
 package tbs.framework.mq.consumer.manager.impls;
 
 import cn.hutool.core.util.StrUtil;
-import tbs.framework.log.ILogger;
 import tbs.framework.base.utils.LogFactory;
+import tbs.framework.log.ILogger;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
@@ -28,7 +28,7 @@ public class PatternConsumerManager implements IMessageConsumerManager {
 
     private ILogger getLogger() {
         if (logger == null) {
-            logger = LogFactory.getInstance().getLogger(PatternConsumerManager.class.getName());
+            logger = LogFactory.Companion.getInstance().getLogger(PatternConsumerManager.class.getName());
         }
         return logger;
     }

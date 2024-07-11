@@ -56,7 +56,7 @@ public interface IProxy {
         try {
             return this.proxy(function, param, addtional);
         } catch (final Throwable e) {
-            LogFactory.getInstance().getLogger(this.getClass().getName()).error(e, e.getMessage());
+            LogFactory.Companion.getInstance().getLogger(this.getClass().getName()).error(e, e.getMessage());
             return Optional.empty();
         }
     }

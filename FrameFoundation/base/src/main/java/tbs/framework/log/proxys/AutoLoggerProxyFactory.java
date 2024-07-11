@@ -70,7 +70,7 @@ public class AutoLoggerProxyFactory implements BeanPostProcessor {
             private LogFactory getLogFactory() {
                 if (factory == null) {
                     if (StrUtil.isEmpty(factoryName)) {
-                        factory = LogFactory.getInstance();
+                        factory = LogFactory.Companion.getInstance();
                     } else {
                         factory = SpringUtil.getBean(factoryName, LogFactory.class);
                     }

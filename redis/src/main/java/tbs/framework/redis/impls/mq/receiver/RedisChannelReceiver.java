@@ -1,6 +1,7 @@
 package tbs.framework.redis.impls.mq.receiver;
 
 import org.jetbrains.annotations.NotNull;
+import tbs.framework.base.utils.LogFactory;
 import tbs.framework.lock.expections.ObtainLockFailException;
 import tbs.framework.log.ILogger;
 import tbs.framework.mq.center.AbstractMessageCenter;
@@ -10,7 +11,6 @@ import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
 import tbs.framework.redis.properties.RedisMqProperty;
-import tbs.framework.base.utils.LogFactory;
 
 import javax.annotation.Resource;
 import java.util.Set;
@@ -103,7 +103,7 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
      */
     private ILogger getLogger() {
         if (logger == null) {
-            logger = LogFactory.getInstance().getLogger(this.getClass().getName());
+            logger = LogFactory.Companion.getInstance().getLogger(this.getClass().getName());
         }
         return logger;
     }
