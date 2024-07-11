@@ -4,10 +4,14 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.hooks.IHybridCacheServiceHook;
 import tbs.framework.cache.supports.ICacheServiceHybridSupport;
+import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.BeanUtil;
 
+import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
@@ -20,6 +24,19 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     implements ICacheServiceHybridSupport {
     private int m_serviceIndex = 0;
     private ArrayList<ICacheService> cacheServiceArrayList = new ArrayList<>(8);
+
+    @Resource
+    LockProxy lockProxy;
+
+    private static final String genLockKey(Object k) {
+        return "LOCK_PREFIX_FOR_CACHE_MANANGER:" + k.getClass().getName() + ":" + k.hashCode();
+    }
+
+    protected void safeWorkWithCacheServiceList(Consumer<List<ICacheService>> consumer) {
+        lockProxy.quickLock(() -> {
+            consumer.accept(cacheServiceArrayList);
+        }, genLockKey(this));
+    }
 
     @Override
     public int serviceIndex() {
@@ -41,13 +58,15 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
 
     @Override
     public int selectService(BiPredicate<ICacheService, Integer> condition) {
-        int i = -1;
-        for (ICacheService cacheService : cacheServiceArrayList) {
-            if (condition.test(cacheService, ++i)) {
-                break;
+        AtomicInteger i = new AtomicInteger(-1);
+        safeWorkWithCacheServiceList((l) -> {
+            for (ICacheService cacheService : cacheServiceArrayList) {
+                if (condition.test(cacheService, i.incrementAndGet())) {
+                    break;
+                }
             }
-        }
-        return i;
+        });
+        return i.get();
     }
 
     @Override
@@ -56,7 +75,9 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
             hook.onNewCacheServiceAdd(this, service, cacheServiceArrayList.size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_ADD_SERVICE);
-        cacheServiceArrayList.add(service);
+        safeWorkWithCacheServiceList((l) -> {
+            l.add(service);
+        });
     }
 
     @Override
@@ -65,7 +86,9 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
             hook.onServiceRemove(this, cacheServiceArrayList.get(index), cacheServiceArrayList.size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_REMOVE_SERVICE);
-        cacheServiceArrayList.remove(index);
+        safeWorkWithCacheServiceList((l) -> {
+            l.remove(index);
+        });
 
     }
 
@@ -82,8 +105,10 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
 
     @Override
     public void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation) {
-        ICacheService service = cacheServiceArrayList.get(index);
-        operation.accept(service);
+        safeWorkWithCacheServiceList((l) -> {
+            ICacheService service = l.get(index);
+            operation.accept(service);
+        });
     }
 
     @Override

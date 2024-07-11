@@ -68,23 +68,6 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
         });
     }
 
-    /**
-     * @implNote
-     * TODO
-     * 多线程场景下数据不精确
-     */
-    @Override
-    public long size() {
-        Long[] r = new Long[] {0L};
-        selectService((c, i) -> {
-            long cnt = c.cacheSize();
-            r[0] += cnt;
-            logger.debug("cache size: {} {} {}", i, c, cnt);
-            return false;
-        });
-        return r[0];
-    }
-
     @Override
     protected void putImpl(String key, Object value, boolean ov) {
         AtomicLong cacheSize = new AtomicLong(1);

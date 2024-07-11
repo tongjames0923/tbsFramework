@@ -17,10 +17,6 @@ class LocalExpiredImpl : IExpireable {
 
     private val log = LoggerFactory.getLogger(LocalExpiredImpl::class.java)
 
-    constructor() {
-        log.debug("Local expired")
-    }
-
     class CacheEntry(var key: String, var expiration: Long, val service: ICacheService) : Delayed {
         public override fun getDelay(unit: TimeUnit): Long {
             return unit.convert(
@@ -45,7 +41,7 @@ class LocalExpiredImpl : IExpireable {
 
     private fun cleanQueue() {
         var cnt = 0L;
-        synchronized(cnt)
+        synchronized(this)
         {
             while (queue.isNotEmpty()) {
                 val item = queue.poll();
