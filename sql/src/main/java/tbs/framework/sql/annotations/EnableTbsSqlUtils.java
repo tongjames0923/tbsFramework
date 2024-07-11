@@ -18,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 @EnableTransactionManagement
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(SqlConfig.class)
-@EnableConfigurationProperties(SqlProperty.class)
+@Import({SqlConfig.class})
+@EnableConfigurationProperties({SqlProperty.class})
 public @interface EnableTbsSqlUtils {
 }
