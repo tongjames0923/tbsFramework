@@ -2,8 +2,7 @@ package tbs.framework.base.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.lock.ILock;
-import tbs.framework.lock.impls.JdkLock;
+import tbs.framework.lock.ILockProvider;
 
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +16,7 @@ public class LockProperty {
     /**
      * 锁类型
      */
-    private Class<? extends ILock> proxyLockType = JdkLock.class;
+    private Class<? extends ILockProvider> lockProvider = null;
 
     /**
      * 锁等待时间

@@ -38,6 +38,7 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
 
     @Resource
     private RedisTaskBlockLock taksBlockLock;
+
     @Resource
     private IMessageConnector builder;
 
@@ -87,7 +88,6 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
             taksBlockLock.unlock(lockId(message));
         }
     }
-
 
     private static final String LOCK_KEY = "MESSAGE_CENTER_BLOCK_KEY";
 

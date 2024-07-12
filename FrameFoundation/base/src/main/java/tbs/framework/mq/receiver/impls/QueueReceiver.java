@@ -5,6 +5,7 @@ import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.proxy.impls.LockProxy;
+import tbs.framework.utils.ThreadUtil;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -40,7 +41,8 @@ public class QueueReceiver extends AbstractIdentityReceiver {
     /**
      * The Lock addtional info.
      */
-    SimpleLockAddtionalInfo lockAddtionalInfo = new SimpleLockAddtionalInfo("QUEUE_LOCK");
+    SimpleLockAddtionalInfo lockAddtionalInfo =
+        new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock("QUEUE_LOCK"));
 
     @Override
     public IMessage receive() {

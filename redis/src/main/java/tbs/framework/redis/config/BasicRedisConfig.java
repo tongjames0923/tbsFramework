@@ -20,7 +20,6 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.redis.constants.RedisBeanNameConstants;
 import tbs.framework.redis.impls.lock.RedisTaskBlockLock;
-import tbs.framework.redis.impls.lock.RedissonLockImpl;
 import tbs.framework.redis.properties.RedisProperty;
 
 import java.time.Duration;
@@ -46,11 +45,6 @@ public class BasicRedisConfig {
         config.useSingleServer().setAddress("redis://" + this.host + ":" + this.port).setPassword(this.password);
         RedissonClient redissonClient = Redisson.create(config);
         return redissonClient;
-    }
-
-    @Bean
-    RedissonLockImpl redissonLock() {
-        return new RedissonLockImpl();
     }
 
     @Bean

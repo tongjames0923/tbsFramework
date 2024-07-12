@@ -6,6 +6,7 @@ import tbs.framework.cache.hooks.IHybridCacheServiceHook;
 import tbs.framework.cache.supports.ICacheServiceHybridSupport;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.BeanUtil;
+import tbs.framework.utils.ThreadUtil;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -26,17 +27,13 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     @Resource
     LockProxy lockProxy;
 
-    private static final String genLockKey(Object k) {
-        return "LOCK_PREFIX_FOR_CACHE_MANANGER:" + k.getClass().getName() + ":" + k.hashCode();
-    }
-
     @NotNull
     protected abstract List<ICacheService> getCacheServiceList();
 
     protected void safeWorkWithCacheServiceList(Consumer<List<ICacheService>> consumer) {
         lockProxy.quickLock(() -> {
             consumer.accept(getCacheServiceList());
-        }, genLockKey(this));
+        }, ThreadUtil.getInstance().getLock(this));
     }
 
     @Override

@@ -10,7 +10,7 @@ import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
 
-import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -34,22 +34,8 @@ public class LockProxy implements IProxy {
     @AutoLogger
     private static ILogger logger;
 
-    private ILock lock;
-    private Class<? extends ILock> lockClass;
-
-    private BigDecimal lockId = new BigDecimal(0);
-
-    ILock getLock() {
-        if (null == lock) {
-            lock = SpringUtil.getBean(lockClass);
-        }
-        return lock;
-    }
-
     private final long lockTimeOut;
     private final TimeUnit lockTimeUnit;
-
-    private static final String addtionalLockIdKey = "LOCK_ID";
 
     /**
      * <p>Constructor for LockProxy.</p>
@@ -58,9 +44,7 @@ public class LockProxy implements IProxy {
      * @param lockTimeOut  a long
      * @param lockTimeUnit a {@link java.util.concurrent.TimeUnit} object
      */
-    public LockProxy(Class<? extends ILock> lock, final LogFactory util, final long lockTimeOut,
-        final TimeUnit lockTimeUnit) {
-        this.lockClass = lock;
+    public LockProxy(final LogFactory util, final long lockTimeOut, final TimeUnit lockTimeUnit) {
         this.lockTimeOut = lockTimeOut;
         this.lockTimeUnit = lockTimeUnit;
     }
@@ -91,32 +75,35 @@ public class LockProxy implements IProxy {
     public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
         IProxyAdditionalInfo additional) throws Throwable {
         Optional<R> result = Optional.empty();
-        String lockId = "";
+        ILock lk = null;
         if (null != additional) {
-            lockId = additional.getInfoAs(String.class, addtionalLockIdKey);
+            lk = additional.getInfoAs(ILock.class, null);
         }
-        logger.debug("{} begin to lock", lockId);
-        boolean isLocked = false;
+        if (lk == null) {
+            throw new ObtainLockFailException("no lock get from additional info");
+        }
+
         try {
-            isLocked = this.getLock().tryLock(this.lockTimeOut, this.lockTimeUnit, lockId);
+            logger.debug("try to lock for {}", lk.toString());
+            boolean isLocked = lk.tryLock(Duration.ofMillis(TimeUnit.MILLISECONDS.convert(lockTimeOut, lockTimeUnit)));
             if (isLocked) {
-                logger.debug("{} locked", lockId);
+                logger.debug("locked for {}", lk.toString());
                 R r = function.apply(param);
                 result = Optional.ofNullable(r);
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }
         } finally {
-            this.getLock().unlock(lockId);
-            logger.debug("{}  unlocked", lockId);
+            logger.debug("unlock for {}", lk.toString());
+            lk.unLock();
         }
         return result;
     }
 
-    public void quickLock(Runnable task, String lockId) {
+    public void quickLock(Runnable task, ILock lock) {
         safeProxy((p) -> {
             task.run();
             return null;
-        }, null, new SimpleLockAddtionalInfo(lockId));
+        }, null, new SimpleLockAddtionalInfo(lock));
     }
 }

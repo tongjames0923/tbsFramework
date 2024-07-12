@@ -11,13 +11,14 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import tbs.framework.cache.managers.AbstractCacheManager;
-import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 import tbs.framework.cache.annotations.CacheLoading;
 import tbs.framework.cache.annotations.CacheUnloading;
+import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.properties.CacheProperty;
+import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.proxy.impls.LockProxy;
+import tbs.framework.utils.ThreadUtil;
 
 import javax.annotation.Resource;
 import java.util.Optional;
@@ -77,14 +78,13 @@ public class CacheAspect {
             return;
         }
 
-        AbstractCacheEliminationStrategy eliminationStrategy =
-            SpringUtil.getBean(annotation.cacheKillStrategy());
+        AbstractCacheEliminationStrategy eliminationStrategy = SpringUtil.getBean(annotation.cacheKillStrategy());
         String key = getKey(annotation.key(), methodSignature, pjp.getArgs());
         lockProxy.proxy((p) -> {
             eliminationStrategy.judgeAndClean(cacheService, SpringUtil.getBean(cacheProperty.getCacheKillJudgeMaker())
                 .makeJudge(key, annotation.intArgs(), annotation.stringArgs()));
             return null;
-        }, null, new SimpleLockAddtionalInfo(CacheLockPrefix + key));
+        }, null, new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock(CacheLockPrefix + key)));
 
     }
 
@@ -110,7 +110,7 @@ public class CacheAspect {
 
                 return res;
             }
-        }, null, new SimpleLockAddtionalInfo(CacheLockPrefix + key));
+        }, null, new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock(CacheLockPrefix + key)));
 
         return result.isEmpty() ? null : result.get();
     }

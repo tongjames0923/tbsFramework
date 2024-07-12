@@ -4,36 +4,51 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import tbs.framework.lock.ILock;
 
-import javax.annotation.Resource;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author abstergo
  */
 public class RedissonLockImpl implements ILock {
-    @Resource
-    RedissonClient redissonClient;
 
-    @Override
-    public boolean tryLock(long time, TimeUnit unit, String lockId) throws InterruptedException {
-        return redissonClient.getLock(lockId).tryLock(time, unit);
+    private RedissonClient redissonClient;
+
+    private Object target;
+
+    public RedissonLockImpl(RedissonClient redissonClient, Object target) {
+        this.redissonClient = redissonClient;
+        this.target = target;
     }
 
     @Override
-    public void lock(String lockId) {
-        redissonClient.getLock(lockId).lock();
+    public boolean tryLock(Duration timeOut) throws InterruptedException {
+        return getLock().tryLock(timeOut.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public boolean isLocked(String lockId) {
-        return redissonClient.getLock(lockId).isLocked();
+    public boolean isHeldByCurrentThread() {
+        return getLock().isHeldByCurrentThread();
     }
 
     @Override
-    public void unlock(String lockId) {
-        RLock lock = redissonClient.getLock(lockId);
-        if (lock.isLocked() && lock.isHeldByCurrentThread()) {
-            lock.unlock();
+    public boolean isLocked() {
+        return getLock().isLocked();
+    }
+
+    private RLock getLock() {
+        return redissonClient.getLock(target.toString());
+    }
+
+    @Override
+    public void unLock() {
+        if (isLocked() && isHeldByCurrentThread()) {
+            getLock().unlock();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "RedissonLockImpl{" + "redissonClient=" + redissonClient + ", target=" + target + '}';
     }
 }

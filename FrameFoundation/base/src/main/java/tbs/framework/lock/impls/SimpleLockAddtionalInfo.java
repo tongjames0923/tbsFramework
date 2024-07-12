@@ -1,5 +1,7 @@
 package tbs.framework.lock.impls;
 
+import org.jetbrains.annotations.NotNull;
+import tbs.framework.lock.ILock;
 import tbs.framework.proxy.IProxy;
 
 /**
@@ -7,10 +9,10 @@ import tbs.framework.proxy.IProxy;
  */
 public class SimpleLockAddtionalInfo implements IProxy.IProxyAdditionalInfo {
 
-    private String lockName;
+    ILock target;
 
-    public SimpleLockAddtionalInfo(String lockName) {
-        this.lockName = lockName;
+    public SimpleLockAddtionalInfo(@NotNull ILock target) {
+        this.target = target;
     }
 
     public SimpleLockAddtionalInfo() {
@@ -27,9 +29,9 @@ public class SimpleLockAddtionalInfo implements IProxy.IProxyAdditionalInfo {
      */
     @Override
     public <T> T getInfoAs(Class<T> clazz, String key) {
-        if (clazz != String.class) {
+        if (clazz != ILock.class) {
             return null;
         }
-        return (T)lockName;
+        return (T)target;
     }
 }

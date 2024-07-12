@@ -9,6 +9,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import tbs.framework.lock.annotations.LockIt;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.proxy.impls.LockProxy;
+import tbs.framework.utils.ThreadUtil;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -31,9 +32,10 @@ public class LockAspect {
         final String lockName = lockIt.proxyImpl();
         final String lockId = lockIt.lockId();
         final LockProxy proxy = SpringUtil.getBean(lockName);
+
         Optional v = proxy.safeProxy((o -> {
             return joinPoint.proceed();
-        }), null, new SimpleLockAddtionalInfo(lockId));
+        }), null, new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock(lockId)));
 
         return v.isPresent() ? v.get() : null;
     }

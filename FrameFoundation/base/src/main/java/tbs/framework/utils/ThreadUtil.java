@@ -2,14 +2,14 @@ package tbs.framework.utils;
 
 import cn.hutool.extra.spring.SpringUtil;
 import tbs.framework.base.model.AsyncReceipt;
+import tbs.framework.lock.ILock;
+import tbs.framework.lock.ILockProvider;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author abstergo
@@ -73,5 +73,20 @@ public abstract class ThreadUtil {
     public <T> List<Future<T>> callAndAwait(List<Callable<T>> tasks, long timeout, TimeUnit unit)
         throws InterruptedException {
         return getExecutorService().invokeAll(tasks, timeout, unit);
+    }
+
+    private ConcurrentHashMap<Object, ILock> iLockConcurrentHashMap = new ConcurrentHashMap<>();
+
+    @Resource
+    ILockProvider lockProvider;
+
+    public ILock getLock(Object target) {
+        if (target == null) {
+            throw new UnsupportedOperationException("can not be null for lock target");
+        }
+        ILock lock = iLockConcurrentHashMap.getOrDefault(target, lockProvider.getLocker(target));
+        iLockConcurrentHashMap.putIfAbsent(target, lock);
+
+        return lock;
     }
 }

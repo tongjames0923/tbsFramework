@@ -12,9 +12,8 @@ import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
 import tbs.framework.base.properties.MqProperty;
 import tbs.framework.base.utils.LogFactory;
-import tbs.framework.lock.ILock;
+import tbs.framework.lock.ILockProvider;
 import tbs.framework.lock.aspects.LockAspect;
-import tbs.framework.lock.impls.JdkLock;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.log.proxys.AutoLoggerProxyFactory;
@@ -30,11 +29,6 @@ import tbs.framework.utils.impls.Slf4JLoggerFactory;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -89,21 +83,6 @@ public class BaseConfig {
         return factory;
     }
 
-    @Bean(BeanNameConstant.BUILTIN_LOCK)
-    public ILock builtinJdkLock()
-        throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        return new JdkLock(new Function<String, Lock>() {
-            private Map<String, Lock> lockMap = new HashMap<>();
-
-            @Override
-            public Lock apply(String s) {
-                Lock l = lockMap.getOrDefault(s, new ReentrantLock());
-                lockMap.put(s, l);
-                return l;
-            }
-        });
-    }
-
     @Bean
     public UuidUtil uuidUtil() throws Exception {
         if (null == this.baseProperty.getUuidProvider()) {
@@ -112,10 +91,14 @@ public class BaseConfig {
         return baseProperty.getUuidProvider().getConstructor().newInstance();
     }
 
+    @Bean(BeanNameConstant.BUILTIN_LOCK_PROVIDER)
+    public ILockProvider lockProvider() throws Exception {
+        return this.lockProperty.getLockProvider().getConstructor().newInstance();
+    }
+
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     public LockProxy lockProxy(final LogFactory util) {
-        return new LockProxy(this.lockProperty.getProxyLockType(), util, this.lockProperty.getProxyLockTimeout(),
-            this.lockProperty.getProxyLockTimeUnit());
+        return new LockProxy(util, this.lockProperty.getProxyLockTimeout(), this.lockProperty.getProxyLockTimeUnit());
     }
 
     @Bean
