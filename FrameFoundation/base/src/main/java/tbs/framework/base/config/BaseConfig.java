@@ -106,13 +106,6 @@ public class BaseConfig {
         return new LockAspect();
     }
 
-    @Bean
-    IMessageQueueEvents baseMessageQueueEvent(IMessageConsumerManager manager) throws Exception {
-        if (mqProperty.getEventImpl() == null) {
-            return new EmptySentAndErrorEventImpl();
-        }
-        return mqProperty.getEventImpl().getConstructor().newInstance();
-    }
 
     @Bean
     IMessageConsumerManager consumerManager() throws Exception {

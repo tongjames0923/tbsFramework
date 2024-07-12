@@ -12,7 +12,10 @@ import tbs.framework.mq.receiver.impls.QueueReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
@@ -23,11 +26,10 @@ public class MessageQueueCenter extends AbstractMessageCenter {
 
     private IMessagePublisher publisher;
 
-    List<IMessageReceiver> receivers = new ArrayList<>();
+    List<IMessageReceiver> receivers = null;
 
     @Resource
     MessageQueueConnector messageQueueConnector;
-
 
     @Override
     public IMessageConnector getConnector() {
@@ -54,12 +56,12 @@ public class MessageQueueCenter extends AbstractMessageCenter {
 
     @Override
     public void addReceivers(IMessageReceiver... receiver) {
-        receivers.addAll(Arrays.asList(receiver));
+        getReceivers().addAll(Arrays.asList(receiver));
     }
 
     @Override
     public void removeReceivers(IMessageReceiver... receiver) {
-        receivers.removeAll(Arrays.asList(receiver));
+        getReceivers().removeAll(Arrays.asList(receiver));
     }
 
     @Override
@@ -78,7 +80,7 @@ public class MessageQueueCenter extends AbstractMessageCenter {
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
         }
-        listen(Executors.newFixedThreadPool(3), 3);
+        listen(Executors.newFixedThreadPool(1), 1);
     }
 
     @Override

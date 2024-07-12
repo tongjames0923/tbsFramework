@@ -1,5 +1,6 @@
 package tbs.framework.mq.sender.impls;
 
+import org.springframework.context.annotation.Lazy;
 import tbs.framework.mq.center.impls.MessageQueueCenter;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.message.IMessage;
@@ -14,11 +15,9 @@ import javax.annotation.Resource;
  */
 public class MessageQueueSender implements IMessagePublisher {
 
+    @Resource
+    @Lazy
     private MessageQueueCenter center;
-
-    public MessageQueueSender(MessageQueueCenter center) {
-        this.center = center;
-    }
 
     @Resource
     IMessageConsumerManager consumerManager;
