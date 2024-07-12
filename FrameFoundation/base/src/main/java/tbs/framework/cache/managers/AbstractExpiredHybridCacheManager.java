@@ -9,7 +9,6 @@ import tbs.framework.utils.BeanUtil;
 
 import javax.annotation.Resource;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
@@ -23,7 +22,6 @@ import java.util.function.Consumer;
 public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireManager
     implements ICacheServiceHybridSupport {
     private int m_serviceIndex = 0;
-    private ArrayList<ICacheService> cacheServiceArrayList = new ArrayList<>(8);
 
     @Resource
     LockProxy lockProxy;
@@ -32,9 +30,12 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
         return "LOCK_PREFIX_FOR_CACHE_MANANGER:" + k.getClass().getName() + ":" + k.hashCode();
     }
 
+    @NotNull
+    protected abstract List<ICacheService> getCacheServiceList();
+
     protected void safeWorkWithCacheServiceList(Consumer<List<ICacheService>> consumer) {
         lockProxy.quickLock(() -> {
-            consumer.accept(cacheServiceArrayList);
+            consumer.accept(getCacheServiceList());
         }, genLockKey(this));
     }
 
@@ -45,12 +46,12 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
 
     @Override
     public void setService(int index) {
-        if (index >= cacheServiceArrayList.size()) {
+        if (index >= getCacheServiceList().size()) {
             throw new ArrayIndexOutOfBoundsException("index is too large");
         }
         foreachHook((h) -> {
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
-            hook.onSwitch(this, cacheServiceArrayList.get(m_serviceIndex), cacheServiceArrayList.get(index));
+            hook.onSwitch(this, getCacheServiceList().get(m_serviceIndex), getCacheServiceList().get(index));
         }, IHybridCacheServiceHook.HOOK_OPERATE_SWITCH);
 
         this.m_serviceIndex = index;
@@ -60,7 +61,7 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     public int selectService(BiPredicate<ICacheService, Integer> condition) {
         AtomicInteger i = new AtomicInteger(-1);
         safeWorkWithCacheServiceList((l) -> {
-            for (ICacheService cacheService : cacheServiceArrayList) {
+            for (ICacheService cacheService : getCacheServiceList()) {
                 if (condition.test(cacheService, i.incrementAndGet())) {
                     break;
                 }
@@ -73,7 +74,7 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     public void addService(@NotNull ICacheService service) {
         foreachHook((h) -> {
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
-            hook.onNewCacheServiceAdd(this, service, cacheServiceArrayList.size());
+            hook.onNewCacheServiceAdd(this, service, getCacheServiceList().size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_ADD_SERVICE);
         safeWorkWithCacheServiceList((l) -> {
             l.add(service);
@@ -84,7 +85,7 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     public void removeService(int index) {
         foreachHook((h) -> {
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
-            hook.onServiceRemove(this, cacheServiceArrayList.get(index), cacheServiceArrayList.size());
+            hook.onServiceRemove(this, getCacheServiceList().get(index), getCacheServiceList().size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_REMOVE_SERVICE);
         safeWorkWithCacheServiceList((l) -> {
             l.remove(index);
@@ -94,14 +95,13 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
 
     @Override
     public int serviceCount() {
-        return cacheServiceArrayList.size();
+        return getCacheServiceList().size();
     }
 
     @Override
     public ICacheService getCacheService() {
-        return cacheServiceArrayList.get(serviceIndex());
+        return getCacheServiceList().get(serviceIndex());
     }
-
 
     @Override
     public void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation) {

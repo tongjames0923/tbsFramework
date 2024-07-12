@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.redis.constants.RedisBeanNameConstants;
-import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
+import tbs.framework.redis.impls.lock.RedisTaskBlockLock;
 import tbs.framework.redis.impls.lock.RedissonLockImpl;
 import tbs.framework.redis.properties.RedisProperty;
 
@@ -118,7 +118,7 @@ public class BasicRedisConfig {
     }
 
     @Bean
-    RedisTaksBlockLock redisBlockLock() {
-        return new RedisTaksBlockLock();
+    RedisTaskBlockLock redisBlockLock() {
+        return new RedisTaskBlockLock();
     }
 }

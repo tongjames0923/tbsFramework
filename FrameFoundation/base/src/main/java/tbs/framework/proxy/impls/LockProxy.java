@@ -95,12 +95,12 @@ public class LockProxy implements IProxy {
         if (null != additional) {
             lockId = additional.getInfoAs(String.class, addtionalLockIdKey);
         }
-        logger.trace("{} begin to lock", lockId);
+        logger.debug("{} begin to lock", lockId);
         boolean isLocked = false;
         try {
             isLocked = this.getLock().tryLock(this.lockTimeOut, this.lockTimeUnit, lockId);
             if (isLocked) {
-                logger.trace("{} locked", lockId);
+                logger.debug("{} locked", lockId);
                 R r = function.apply(param);
                 result = Optional.ofNullable(r);
             } else {
@@ -108,7 +108,7 @@ public class LockProxy implements IProxy {
             }
         } finally {
             this.getLock().unlock(lockId);
-            logger.trace("{}  unlocked", lockId);
+            logger.debug("{}  unlocked", lockId);
         }
         return result;
     }

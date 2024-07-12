@@ -9,7 +9,7 @@ import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
-import tbs.framework.redis.impls.lock.RedisTaksBlockLock;
+import tbs.framework.redis.impls.lock.RedisTaskBlockLock;
 import tbs.framework.redis.properties.RedisMqProperty;
 
 import javax.annotation.Resource;
@@ -37,7 +37,7 @@ public class RedisChannelReceiver extends AbstractIdentityReceiver {
     RedisMqProperty mqProperty;
 
     @Resource
-    private RedisTaksBlockLock taksBlockLock;
+    private RedisTaskBlockLock taksBlockLock;
     @Resource
     private IMessageConnector builder;
 

@@ -17,7 +17,7 @@ class LocalExpiredImpl : IExpireable {
 
     private val log = LoggerFactory.getLogger(LocalExpiredImpl::class.java)
 
-    class CacheEntry(var key: String, var expiration: Long, val service: ICacheService) : Delayed {
+    class CacheEntry(var key: String, var expiration: Long, val service: AbstractCacheManager) : Delayed {
         public override fun getDelay(unit: TimeUnit): Long {
             return unit.convert(
                 Duration.ofMillis(expiration).toMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS
@@ -75,7 +75,7 @@ class LocalExpiredImpl : IExpireable {
         synchronized(this)
         {
             val now = System.currentTimeMillis()
-            val e = CacheEntry(key, now + duration.toMillis(), cacheService)
+            val e = CacheEntry(key, now + duration.toMillis(), manager)
             log.debug("new cache Object:{}", e)
             queue.add(e);
             map[key] = e

@@ -1,5 +1,6 @@
 package tbs.framework.redis.cache.impls.managers;
 
+import cn.hutool.core.collection.CollUtil;
 import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
@@ -12,7 +13,10 @@ import tbs.framework.redis.IRedisTemplateSupport;
 import tbs.framework.redis.cache.impls.RedisExpiredImpl;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * The type Hybrid cache manager.
@@ -22,6 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
 
     private AtomicLong cleanCacheCount = new AtomicLong(0);
+
+    List<ICacheService> cacheServices = new ArrayList<>(8);
 
     private static final long LIMIT = 32L;
 
@@ -51,11 +57,19 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
     }
 
     public HybridCacheManager(ICacheService... services) {
-        for (ICacheService service : services) {
-            if (service != null) {
-                addService(service);
-            }
+        this(List.of(services));
+    }
+
+    public HybridCacheManager(List<ICacheService> cacheServiceList) {
+        if (CollUtil.isEmpty(cacheServiceList)) {
+            return;
         }
+        getCacheServiceList().addAll(cacheServiceList.stream().filter((r) -> r != null).collect(Collectors.toList()));
+    }
+
+    @Override
+    protected @NotNull List<ICacheService> getCacheServiceList() {
+        return cacheServices;
     }
 
     @Override
@@ -174,7 +188,8 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
             }
         }
 
-        private long remainByType(@NotNull String key, @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
+        private long remainByType(@NotNull String key, @NotNull AbstractCacheManager manager,
+            @NotNull ICacheService cacheService) {
 
             if (cacheService instanceof IRedisTemplateSupport) {
                 return redisExpired.remaining(key, manager, cacheService);
@@ -184,14 +199,16 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
         }
 
         @Override
-        public void expire(@NotNull String key, @NotNull Duration duration, @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
+        public void expire(@NotNull String key, @NotNull Duration duration, @NotNull AbstractCacheManager manager,
+            @NotNull ICacheService cacheService) {
 
             expireByType(key, duration, manager, cacheService);
 
         }
 
         @Override
-        public long remaining(@NotNull String key, @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
+        public long remaining(@NotNull String key, @NotNull AbstractCacheManager manager,
+            @NotNull ICacheService cacheService) {
 
             return remainByType(key, manager, cacheService);
         }
