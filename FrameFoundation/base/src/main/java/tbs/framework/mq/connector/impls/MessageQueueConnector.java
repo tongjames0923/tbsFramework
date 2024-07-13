@@ -45,7 +45,7 @@ public class MessageQueueConnector implements IMessageConnector {
     }
 
     @Override
-    public void destoryPublishers(AbstractMessageCenter center, List<IMessagePublisher> publishers) {
+    public void destoryPublishers(AbstractMessageCenter center, IMessagePublisher publishers) {
 
     }
 

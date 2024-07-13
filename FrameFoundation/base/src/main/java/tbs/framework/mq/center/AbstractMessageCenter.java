@@ -21,34 +21,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 /**
- * The type Abstract message center.
+ * 抽象消息中心类。
  *
  * @author abstergo
  */
 public abstract class AbstractMessageCenter implements IStartup, DisposableBean {
 
+    // 是否启动的原子布尔值
     private AtomicBoolean started = new AtomicBoolean(false);
-
+    // 是否监听的原子布尔值
     private AtomicBoolean listening = new AtomicBoolean(false);
 
-    /**
-     * The Logger.
-     */
+    // 日志记录器
     @AutoLogger
-    ILogger logger;
+    private ILogger logger;
+
+    // 获取日志记录器
+    protected ILogger getLogger() {
+        return logger;
+    }
 
     /**
-     * 检查消息消费器是否合法
+     * 检查消息消费器是否合法。
      *
-     * @param messageConsumer the message consumer
+     * @param messageConsumer 消息消费器。
      */
     public static void checkInputConsumer(IMessageConsumer messageConsumer) {
         if (messageConsumer == null || StrUtil.isEmpty(messageConsumer.consumerId())) {
@@ -60,125 +62,125 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     }
 
     /**
-     * Gets connector.
+     * 获取消息接收连接器。
      *
-     * @return 实现的消息接收连接器 connector
+     * @return 消息接收连接器。
      */
     public abstract IMessageConnector getConnector();
 
     /**
-     * Gets message publisher.
+     * 获取消息发布器。
      *
-     * @return 实现的消息发布器 message publisher
+     * @return 消息发布器。
      */
     public abstract IMessagePublisher getMessagePublisher();
 
     /**
-     * Sets message publisher.
+     * 设置消息发布器。
      *
-     * @param messagePublisher the message publisher
+     * @param messagePublisher 消息发布器。
      */
     public abstract void setMessagePublisher(IMessagePublisher messagePublisher);
 
     /**
-     * Gets receivers.
+     * 获取消息接收器列表。
      *
-     * @return the receivers
+     * @return 消息接收器列表。
      */
     public abstract List<IMessageReceiver> getReceivers();
 
     /**
-     * Add receivers.
+     * 添加消息接收器。
      *
-     * @param receiver the receiver
+     * @param receiver 消息接收器。
      */
     public abstract void addReceivers(IMessageReceiver... receiver);
 
     /**
-     * Remove receivers.
+     * 移除消息接收器。
      *
-     * @param receiver the receiver
+     * @param receiver 消息接收器。
      */
     public abstract void removeReceivers(IMessageReceiver... receiver);
 
     /**
-     * 消息中心事件
+     * 获取消息队列事件处理器。
      *
-     * @return 实现的事件器 message queue events
+     * @return 消息队列事件处理器。
      */
     protected abstract Optional<IMessageQueueEvents> getMessageQueueEvents();
 
     /**
-     * 为消费准备的消费管理器
+     * 获取消息消费者管理器。
      *
-     * @return 实现的消费者管理器 message consumer manager
+     * @return 消息消费者管理器。
      */
     protected abstract Optional<IMessageConsumerManager> getMessageConsumerManager();
 
     /**
-     * All consumers in center list.
+     * 获取消息中心中的所有消费者。
      *
-     * @return the list
+     * @return 消息消费者列表。
      */
     public List<IMessageConsumer> allConsumersInCenter() {
         return getMessageConsumerManager().map(IMessageConsumerManager::getConsumers).orElseThrow(() -> {
-            return new UnsupportedOperationException("consumer manager is not avaliable");
+            throw new UnsupportedOperationException("consumer manager is not available");
         });
     }
 
     /**
-     * 设置信息中心是否启动
+     * 设置消息中心是否启动。
      *
-     * @param started the started
+     * @param started 是否启动。
      */
     protected void setStarted(boolean started) {
         this.started.set(started);
     }
 
     /**
-     * 消息中心是否启动
+     * 检查消息中心是否启动。
      *
-     * @return the boolean
+     * @return 是否启动。
      */
     public boolean isStart() {
         return started.get();
     }
 
     /**
-     * 新增消息消费者
+     * 添加消息消费者。
      *
-     * @param messageConsumer the message consumer
-     * @return the abstract message center
+     * @param messageConsumer 消息消费者。
+     * @return 当前消息中心对象。
      */
     public AbstractMessageCenter appendConsumer(IMessageConsumer messageConsumer) {
         getMessageConsumerManager().orElseThrow(() -> {
-            return new UnsupportedOperationException("none consumer manager");
+            throw new UnsupportedOperationException("none consumer manager");
         }).setMessageConsumer(messageConsumer);
         return this;
     }
 
     /**
-     * 移除消息消费者
+     * 移除消息消费者。
      *
-     * @param consumer the consumer
-     * @return the abstract message center
+     * @param consumer 消息消费者。
+     * @return 当前消息中心对象。
      */
     public AbstractMessageCenter remove(IMessageConsumer consumer) {
         getMessageConsumerManager().orElseThrow(() -> {
-            return new UnsupportedOperationException("none consumer manager");
+            throw new UnsupportedOperationException("none consumer manager");
         }).removeMessageConsumer(consumer);
         return this;
     }
 
     /**
-     * 针对一个消费者批量消息消息
+     * 对指定消费者批量消费消息。
      *
-     * @param consumer 消费者
-     * @param message  消息
+     * @param consumer 消费者。
+     * @param message  消息。
      */
     public void consumeMessages(IMessageConsumer consumer, IMessage... message) {
         IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
-            return new UnsupportedOperationException("none consumer manager");
+            throw new UnsupportedOperationException("none consumer manager");
         });
         for (IMessage msg : message) {
             if (msg == null) {
@@ -189,13 +191,13 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     }
 
     /**
-     * 针对一个消息采用默认的 {@link IMessageConsumerManager#selectMessageConsumer(IMessage)} 选择消费者并进行批量消费
+     * 对消息采用默认的消费者管理器选择消费者并进行批量消费。
      *
-     * @param message 信息
+     * @param message 消息。
      */
     public void consumeMessage(IMessage message) {
         IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
-            return new UnsupportedOperationException("none consumer manager");
+            throw new UnsupportedOperationException("none consumer manager");
         });
         List<IMessageConsumer> consumers = manager.selectMessageConsumer(message);
         if (CollUtil.isEmpty(consumers)) {
@@ -207,106 +209,102 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     }
 
     /**
-     * 消息抵达触发
+     * 消息抵达触发。
      *
-     * @param msg       the msg
-     * @param connector the connector
-     * @param receiver  the receiver
+     * @param msg       消息。
+     * @param connector 消息连接器。
+     * @param receiver  消息接收器。
      */
     public void messageArrived(IMessage msg, IMessageConnector connector, IMessageReceiver receiver) {
         getMessageQueueEvents().orElseThrow(() -> {
-            return new UnsupportedOperationException("none events avaliable");
+            throw new UnsupportedOperationException("none events available");
         }).onMessageReceived(msg, connector, receiver);
     }
 
     /**
-     * 消息已发送回调
+     * 消息已发送回调。
      *
-     * @param msg the msg
+     * @param msg 消息。
      */
     public void messageSent(IMessage msg) {
-        getMessageQueueEvents().orElseThrow(() -> {
-            return new UnsupportedOperationException("none events avaliable");
-        }).onMessageSent(msg);
+        getMessageQueueEvents().ifPresent((ev) -> {
+            ev.onMessageSent(msg);
+        });
     }
 
     /**
-     * 消息异常处理回调
+     * 消息异常处理回调。
      *
-     * @param msg      异常消息
-     * @param r        重试次数
-     * @param type     操作类型
-     * @param e        异常
-     * @param consumer 异常消费者
-     * @return 是否重试 boolean
+     * @param msg      异常消息。
+     * @param r        重试次数。
+     * @param type     操作类型。
+     * @param e        异常。
+     * @param consumer 异常消费者。
+     * @return 是否重试。
      */
     public boolean handleMessageError(IMessage msg, int r, IMessageQueueEvents.MessageHandleType type, Throwable e,
         IMessageConsumer consumer) {
         return getMessageQueueEvents().orElseThrow(() -> {
-            return new UnsupportedOperationException("none events avaliable");
+            throw new UnsupportedOperationException("none events available");
         }).onMessageFailed(msg, r, type, e, consumer);
     }
 
     /**
-     * 消费时消费处理
+     * 消费时异常处理。
      *
-     * @param m 异常消息
-     * @param r 重试次数
-     * @param e 异常
-     * @param c 异常消费者
-     * @return 是否重试 boolean
-     * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
-     * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
+     * @param m 异常消息。
+     * @param r 重试次数。
+     * @param e 异常。
+     * @param c 异常消费者。
+     * @return 是否重试。
      */
     public boolean errorOnConsume(IMessage m, int r, Throwable e, IMessageConsumer c) {
         return handleMessageError(m, r, IMessageQueueEvents.MessageHandleType.Consume, e, c);
     }
 
     /**
-     * 接收时异常处理
+     * 接收时异常处理。
      *
-     * @param r 重试次数
-     * @param e 异常
-     * @return 是否重试 boolean
-     * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
-     * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
+     * @param r 重试次数。
+     * @param e 异常。
+     * @return 是否重试。
      */
-    public boolean errorOnRecive(int r, Throwable e) {
+    public boolean errorOnReceive(int r, Throwable e) {
         return handleMessageError(null, r, IMessageQueueEvents.MessageHandleType.Receive, e, null);
     }
 
     /**
-     * 发送时异常处理
+     * 发送时异常处理。
      *
-     * @param m 异常的消息
-     * @param r 重试次数
-     * @param e 异常
-     * @return 是否重试 boolean
-     * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
-     * @see #handleMessageError(IMessage, int, IMessageQueueEvents.MessageHandleType, Throwable, IMessageConsumer)
+     * @param m 异常的消息。
+     * @param r 重试次数。
+     * @param e 异常。
+     * @return 是否重试。
      */
     public boolean errorOnSend(IMessage m, int r, Throwable e) {
         return handleMessageError(m, r, IMessageQueueEvents.MessageHandleType.Send, e, null);
     }
 
     /**
-     * 发布消息 由publisher实现 {@link #getMessagePublisher()}
+     * 发布消息。
      *
-     * @param message 信息
+     * @param message 消息。
      */
     public void publish(IMessage message) {
         if (message == null) {
             throw new NullPointerException("message is null");
         }
         IMessagePublisher publisher = getMessagePublisher();
-        int tryTimes = 0;
+        final AtomicInteger tryTimes = new AtomicInteger(0);
         while (true) {
             try {
                 publisher.publishAll(message);
                 break;
-            } catch (Exception e) {
+            } catch (Exception ex) {
+                tryTimes.incrementAndGet();
                 if (getMessageQueueEvents().map((ev) -> {
-                    return !ev.onMessageFailed(message, tryTimes, IMessageQueueEvents.MessageHandleType.Send, e, null);
+                    return !ev.onMessageFailed(message, tryTimes.get(), IMessageQueueEvents.MessageHandleType.Send, ex,
+                        null);
                 }).orElse(true)) {
                     break;
                 }
@@ -318,43 +316,30 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     }
 
     /**
-     * 是否在监听
+     * 检查消息中心是否在监听。
      *
-     * @return the boolean
+     * @return 是否在监听。
      */
     public boolean isListen() {
         return listening.get();
     }
 
     /**
-     * 启动监听（即启动消息接收器）由{@link #getMessageReceiver()}实现
-     *
-     * @param executorService 异步服务
-     * @param thread          线程数
+     * 启动监听，即启动消息接收器。
      */
-    public void listen(ExecutorService executorService, int thread) {
+    public void listen() {
         PreCheckResult pre = preCheckResult();
         this.listening.set(true);
-        toListen(executorService, thread, pre);
-    }
-
-    private void toListen(ExecutorService executorService, int thread, PreCheckResult pre) {
-        for (int i = 0; i < thread; i++) {
-            executorService.execute(() -> {
-                while (isStart() && isListen()) {
-                    mainListenTask(pre);
-                }
-            });
+        while (isStart() && isListen()) {
+            mainListenTask(pre);
         }
+        this.listening.set(false);
     }
 
     private void mainListenTask(PreCheckResult pre) {
         try {
-            BigDecimal index = pre.currentRec.getAndAccumulate(BigDecimal.ONE, new BinaryOperator<BigDecimal>() {
-                @Override
-                public BigDecimal apply(BigDecimal bigDecimal, BigDecimal bigDecimal2) {
-                    return bigDecimal.add(bigDecimal2);
-                }
+            BigDecimal index = pre.currentRec.getAndAccumulate(BigDecimal.ONE, (bigDecimal, bigDecimal2) -> {
+                return bigDecimal.add(bigDecimal2);
             }).divideAndRemainder(BigDecimal.valueOf(pre.cnt.get()))[1];
             IMessageReceiver receiver = pre.receivers.getOrDefault(index.intValue(), null);
             if (receiver == null) {
@@ -394,13 +379,9 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
 
     private @NotNull ReceiverPreHandle receiverHandleTask(IMessageConnector connector) {
         AtomicReference<BigDecimal> currentRec = new AtomicReference<>(BigDecimal.ZERO);
-
         AtomicInteger cnt = new AtomicInteger(0);
-        Map<Integer, IMessageReceiver> receivers = getReceivers().stream().collect(Collectors.toMap((p) -> {
-            return cnt.getAndIncrement();
-        }, (p) -> {
-            return p;
-        }));
+        Map<Integer, IMessageReceiver> receivers =
+            getReceivers().stream().collect(Collectors.toMap(p -> cnt.getAndIncrement(), p -> p));
         if (CollUtil.isEmpty(receivers)) {
             throw new NoSuchElementException("receivers is empty");
         }
@@ -410,24 +391,26 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
 
     private static class ReceiverPreHandle {
         /**
-         * The Current rec.
+         * 当前接收器索引的原子引用。
          */
         public final AtomicReference<BigDecimal> currentRec;
+
         /**
-         * The Cnt.
+         * 接收器数量的原子整数。
          */
         public final AtomicInteger cnt;
+
         /**
-         * The Receivers.
+         * 接收器映射，键为接收器索引，值为接收器对象。
          */
         public final Map<Integer, IMessageReceiver> receivers;
 
         /**
-         * Instantiates a new Receiver pre handle.
+         * 构造函数，初始化当前接收器索引、接收器数量和接收器映射。
          *
-         * @param currentRec the current rec
-         * @param cnt        the cnt
-         * @param receivers  the receivers
+         * @param currentRec 当前接收器索引的原子引用。
+         * @param cnt        接收器数量的原子整数。
+         * @param receivers  接收器映射。
          */
         public ReceiverPreHandle(AtomicReference<BigDecimal> currentRec, AtomicInteger cnt,
             Map<Integer, IMessageReceiver> receivers) {
@@ -439,29 +422,32 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
 
     private static class PreCheckResult {
         /**
-         * The Connector.
+         * 消息连接器。
          */
         public final IMessageConnector connector;
+
         /**
-         * The Current rec.
+         * 当前接收器索引的原子引用。
          */
         public final AtomicReference<BigDecimal> currentRec;
+
         /**
-         * The Cnt.
+         * 接收器数量的原子整数。
          */
         public final AtomicInteger cnt;
+
         /**
-         * The Receivers.
+         * 接收器映射，键为接收器索引，值为接收器对象。
          */
         public final Map<Integer, IMessageReceiver> receivers;
 
         /**
-         * Instantiates a new Pre check result.
+         * 构造函数，初始化消息连接器、当前接收器索引、接收器数量和接收器映射。
          *
-         * @param connector  the connector
-         * @param currentRec the current rec
-         * @param cnt        the cnt
-         * @param receivers  the receivers
+         * @param connector  消息连接器。
+         * @param currentRec 当前接收器索引的原子引用。
+         * @param cnt        接收器数量的原子整数。
+         * @param receivers  接收器映射。
          */
         public PreCheckResult(IMessageConnector connector, AtomicReference<BigDecimal> currentRec, AtomicInteger cnt,
             Map<Integer, IMessageReceiver> receivers) {
@@ -473,37 +459,45 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     }
 
     /**
-     * 停止监听消息
+     * 停止监听消息。
      */
     public void stopListen() {
         listening.set(false);
     }
 
     /**
-     * 消息中心启动
+     * 消息中心启动。
      */
     protected abstract void centerStartToWork();
 
     /**
-     * 消息中心停止
+     * 消息中心停止。
      */
     protected abstract void centerStopToWork();
 
+    /**
+     * 设置启动标志为true,使用连接器设置发布器和接收器,执行额外的启动操作。涉及的相关对象包括消息连接器、消息发布器和消息接收器。 配置发布器
+     *
+     * @throws RuntimeException
+     * @see IMessageConnector#createPublishers(AbstractMessageCenter) 配置发布器
+     * @see IMessageConnector#createReceivers(AbstractMessageCenter) 配置接收器
+     * @see AbstractMessageCenter#getConnector() 获取连接器
+     * @see AbstractMessageCenter#centerStartToWork() 额外启动操作
+     * @see AbstractMessageCenter#setStarted(boolean) 设置启动标志
+     */
     @Override
     public void startUp() throws RuntimeException {
         setStarted(true);
         centerStartToWork();
         getConnector().createPublishers(this);
         getConnector().createReceivers(this);
-
     }
 
-    /**
-     *
-     */
     @Override
     public void destroy() throws Exception {
-        setStarted(false);
         centerStopToWork();
+        getConnector().destoryReceivers(this, getReceivers());
+        getConnector().destoryPublishers(this, getMessagePublisher());
+        setStarted(false);
     }
 }

@@ -33,7 +33,7 @@ public interface IMessageConnector {
      * @param center     the center
      * @param publishers 需要销毁的发布器
      */
-    void destoryPublishers(AbstractMessageCenter center, List<IMessagePublisher> publishers);
+    void destoryPublishers(AbstractMessageCenter center, IMessagePublisher publishers);
 
     /**
      * 销毁消息接收器

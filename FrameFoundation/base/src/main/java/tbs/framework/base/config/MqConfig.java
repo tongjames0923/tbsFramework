@@ -2,10 +2,9 @@ package tbs.framework.base.config;
 
 import org.springframework.context.annotation.Bean;
 import tbs.framework.base.properties.MqProperty;
+import tbs.framework.mq.center.AbstractMessageCenter;
+import tbs.framework.mq.center.impls.MessageQueueCenter;
 import tbs.framework.mq.connector.impls.MessageQueueConnector;
-import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
-import tbs.framework.mq.event.IMessageQueueEvents;
-import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
 import tbs.framework.mq.receiver.impls.QueueReceiver;
 import tbs.framework.mq.sender.impls.MessageQueueSender;
 
@@ -21,11 +20,8 @@ public class MqConfig {
     MqProperty mqProperty;
 
     @Bean
-    IMessageQueueEvents baseMessageQueueEvent(IMessageConsumerManager manager) throws Exception {
-        if (mqProperty.getEventImpl() == null) {
-            return new EmptySentAndErrorEventImpl();
-        }
-        return mqProperty.getEventImpl().getConstructor().newInstance();
+    AbstractMessageCenter center() {
+        return new MessageQueueCenter();
     }
 
     @Bean

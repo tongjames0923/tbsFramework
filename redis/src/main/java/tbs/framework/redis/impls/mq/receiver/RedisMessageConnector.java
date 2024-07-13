@@ -12,9 +12,9 @@ import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
+import tbs.framework.redis.impls.lock.RedisTaskBlockLock;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisMqProperty;
-import tbs.framework.utils.BeanUtil;
 import tbs.framework.utils.IStartup;
 
 import javax.annotation.Resource;
@@ -25,14 +25,19 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Redis消息连接器类。
+ *
  * @author Abstergo
  */
 public class RedisMessageConnector implements IStartup, DisposableBean, IMessageConnector {
     /**
-     *
+     * 消息主题前缀。
      */
     public static final String TOPIC_PREFIX = "MESSAGE_CENTER.";
 
+    /**
+     * 存储消息监听器的映射。
+     */
     private Map<String, MessageListenerAdapter> listeners = new ConcurrentHashMap<>();
 
     @Override
@@ -40,20 +45,39 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
         return 1;
     }
 
+    /**
+     * Redis消息监听容器。
+     */
     @Resource
     private RedisMessageListenerContainer container;
 
-
+    /**
+     * Redis消息队列属性。
+     */
     @Resource
     @Lazy
     RedisMqProperty redisMqProperty;
 
+    /**
+     * Redis消息发送器。
+     */
     @Resource
     RedisSender sender;
+
+    /**
+     * Redis任务阻塞锁。
+     */
+    @Resource
+    RedisTaskBlockLock taskBlockLock;
 
     public RedisMessageConnector() {
     }
 
+    /**
+     * 设置消息监听器。
+     *
+     * @param receivers 消息接收器列表。
+     */
     private void setUpListenners(List<IMessageReceiver> receivers) {
         for (IMessageReceiver messageReceiver : receivers) {
             if (messageReceiver == null) {
@@ -72,12 +96,21 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
         }
     }
 
+    /**
+     * 启动消息监听容器。
+     */
     private void setup() {
         if (!container.isRunning()) {
             container.start();
         }
     }
 
+    /**
+     * 获取消息主题。
+     *
+     * @param inputs 消息主题输入。
+     * @return 消息主题列表。
+     */
     private static List<PatternTopic> getTopic(Set<String> inputs) {
         List<PatternTopic> topics = new LinkedList<>();
         for (String i : inputs) {
@@ -108,11 +141,10 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
     public void createReceivers(AbstractMessageCenter center) {
         List<IMessageReceiver> receivers = new LinkedList<>();
         center.allConsumersInCenter().forEach((c) -> {
-            RedisChannelReceiver receiver = new RedisChannelReceiver(c);
+            RedisChannelReceiver receiver = new RedisChannelReceiver(center, c, redisMqProperty, taskBlockLock, this);
             if (SpringUtil.getApplicationContext().containsBean(receiver.receiverId() + c.consumerId())) {
                 return;
             }
-            BeanUtil.registerBean(receiver, receiver.receiverId() + c.consumerId());
             center.addReceivers(receiver);
             receivers.add(receiver);
         });
@@ -120,7 +152,7 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
     }
 
     @Override
-    public void destoryPublishers(AbstractMessageCenter center, List<IMessagePublisher> publishers) {
+    public void destoryPublishers(AbstractMessageCenter center, IMessagePublisher publishers) {
 
     }
 
@@ -131,9 +163,11 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
                 AbstractIdentityReceiver abstractIdentityReceiver = (AbstractIdentityReceiver)receiver;
                 abstractIdentityReceiver.setAvaliable(false);
                 MessageListenerAdapter adapter = listeners.get(((AbstractIdentityReceiver)receiver).receiverId());
+                if (adapter == null) {
+                    continue;
+                }
                 container.removeMessageListener(adapter);
             }
-            SpringUtil.getApplicationContext().getAutowireCapableBeanFactory().destroyBean(receiver);
         }
     }
 }

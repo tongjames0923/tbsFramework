@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import tbs.framework.base.constants.BeanNameConstant;
@@ -44,6 +45,15 @@ public class BaseConfig {
 
     @Resource
     MqProperty mqProperty;
+
+    @Bean
+    @ConditionalOnMissingBean(IMessageQueueEvents.class)
+    IMessageQueueEvents baseMessageQueueEvent(IMessageConsumerManager manager) throws Exception {
+        if (mqProperty.getEventImpl() == null) {
+            return new EmptySentAndErrorEventImpl();
+        }
+        return mqProperty.getEventImpl().getConstructor().newInstance();
+    }
 
     @Bean
     ApplicationRunner startUp() {

@@ -1,6 +1,7 @@
 package tbs.framework.mq.center.impls;
 
 import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.context.annotation.Lazy;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.connector.impls.MessageQueueConnector;
@@ -8,16 +9,11 @@ import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.mq.receiver.IMessageReceiver;
-import tbs.framework.mq.receiver.impls.QueueReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
+import tbs.framework.utils.ThreadUtil;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * @author Abstergo
@@ -26,9 +22,10 @@ public class MessageQueueCenter extends AbstractMessageCenter {
 
     private IMessagePublisher publisher;
 
-    List<IMessageReceiver> receivers = null;
+    private List<IMessageReceiver> receivers = new LinkedList<>();
 
     @Resource
+    @Lazy
     MessageQueueConnector messageQueueConnector;
 
     @Override
@@ -48,9 +45,6 @@ public class MessageQueueCenter extends AbstractMessageCenter {
 
     @Override
     public List<IMessageReceiver> getReceivers() {
-        if (receivers == null) {
-            receivers = SpringUtil.getBeansOfType(QueueReceiver.class).values().stream().collect(Collectors.toList());
-        }
         return receivers;
     }
 
@@ -80,11 +74,13 @@ public class MessageQueueCenter extends AbstractMessageCenter {
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
         }
-        listen(Executors.newFixedThreadPool(1), 1);
+        ThreadUtil.getInstance().runCollectionInBackground(() -> {
+            this.listen();
+        });
     }
 
     @Override
     protected void centerStopToWork() {
-
+        stopListen();
     }
 }
