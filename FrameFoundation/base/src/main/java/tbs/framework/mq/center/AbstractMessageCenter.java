@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
+import tbs.framework.base.utils.LogFactory;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.mq.connector.IMessageConnector;
@@ -43,7 +44,10 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
     private ILogger logger;
 
     // 获取日志记录器
-    protected ILogger getLogger() {
+    protected synchronized ILogger getLogger() {
+        if (logger == null) {
+            logger = LogFactory.Companion.getInstance().getLogger(AbstractMessageCenter.class.getName());
+        }
         return logger;
     }
 
@@ -358,7 +362,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
             messageArrived(msg, pre.connector, receiver);
             consumeMessage(msg);
         } catch (Exception e) {
-            logger.error(e, "error occurred on listen");
+            getLogger().error(e, "error occurred on listen");
         }
     }
 

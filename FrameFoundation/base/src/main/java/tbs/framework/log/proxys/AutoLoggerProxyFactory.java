@@ -80,12 +80,14 @@ public class AutoLoggerProxyFactory implements BeanPostProcessor {
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                Object value = null;
                 synchronized (this) {
                     if (logger == null) {
                         logger = getLogFactory().getLogger(name);
                     }
+                    value = method.invoke(logger, args);
                 }
-                return method.invoke(logger, args);
+                return value;
             }
         });
     }

@@ -15,7 +15,7 @@ public class LogMqEvent implements IMessageQueueEvents {
 
     ILogger logger;
 
-    private ILogger getLogger() {
+    private synchronized ILogger getLogger() {
         if (logger == null) {
             logger = LogFactory.Companion.getInstance().getLogger(this.getClass().getName());
         }

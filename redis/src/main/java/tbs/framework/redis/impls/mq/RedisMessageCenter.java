@@ -48,7 +48,7 @@ public class RedisMessageCenter extends AbstractMessageCenter {
     @Override
     protected void centerStartToWork() {
         Collection<IMessageConsumer> consumers = SpringUtil.getBeansOfType(IMessageConsumer.class).values();
-        IMessageConnector connector = getConnector();
+//        IMessageConnector connector = getConnector();
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
         }
