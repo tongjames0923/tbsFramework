@@ -7,6 +7,8 @@ import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
 
+import java.time.Duration;
+
 /**
  * @author Abstergo
  */
@@ -27,4 +29,8 @@ public class MqProperty {
      * 消费者管理器的实现¬
      */
     private Class<? extends IMessageConsumerManager> consumerManager = MappedConsumerManager.class;
+
+    private Duration taskBlockAliveTime = Duration.ofMinutes(5);
+
+    private Duration taskBlockCleanInterval = Duration.ofMinutes(1);
 }

@@ -6,7 +6,6 @@ import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.center.impls.MessageQueueCenter;
 import tbs.framework.mq.connector.impls.MessageQueueConnector;
 import tbs.framework.mq.receiver.impls.LocalFullFeatureReceiver;
-import tbs.framework.mq.sender.impls.LocalProvideSender;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -22,11 +21,6 @@ public class MqConfig {
     @Bean
     AbstractMessageCenter center() {
         return new MessageQueueCenter();
-    }
-
-    @Bean
-    LocalProvideSender sender() {
-        return new LocalProvideSender();
     }
 
     @Bean

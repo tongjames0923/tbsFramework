@@ -208,7 +208,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
             return;
         }
         for (IMessageConsumer consumer : consumers) {
-            consumeMessages(consumer, message);
+            manager.consumeOnce(this, consumer, message);
         }
     }
 

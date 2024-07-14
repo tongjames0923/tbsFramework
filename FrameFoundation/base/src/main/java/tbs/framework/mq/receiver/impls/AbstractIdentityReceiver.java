@@ -1,8 +1,8 @@
 package tbs.framework.mq.receiver.impls;
 
 import cn.hutool.core.util.StrUtil;
-import tbs.framework.utils.UuidUtil;
 import tbs.framework.mq.receiver.IMessageReceiver;
+import tbs.framework.utils.UuidUtil;
 
 /**
  * @author abstergo
@@ -26,7 +26,7 @@ public abstract class AbstractIdentityReceiver implements IMessageReceiver {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return this.receiverId().hashCode();
     }
 
     /**

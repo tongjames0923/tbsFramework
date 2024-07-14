@@ -1,5 +1,6 @@
 package tbs.framework.mq.connector.impls;
 
+import tbs.framework.mq.IMessageDataSource;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
@@ -11,20 +12,31 @@ import tbs.framework.mq.sender.impls.LocalProvideSender;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * @author Abstergo
  */
 public class MessageQueueConnector implements IMessageConnector {
 
-    private PriorityQueue<IMessage> messageQueue = new PriorityQueue<>(MessageQueueConnector::compare);
+    private IMessageDataSource messageDataSource = new IMessageDataSource() {
+
+        private PriorityBlockingQueue<IMessage> messageQueue =
+            new PriorityBlockingQueue<>(32, MessageQueueConnector::compare);
+
+        @Override
+        public void addMessage(IMessage message) {
+            messageQueue.add(message);
+        }
+
+        @Override
+        public IMessage getMessage() {
+            return messageQueue.poll();
+        }
+    };
 
     @Resource
     List<LocalFullFeatureReceiver> localFullFeatureReceivers;
-
-    @Resource
-    LocalProvideSender sender;
 
     private static int compare(IMessage m1, IMessage m2) {
         return m1.getPriority() > m2.getPriority() ? -1 : 1;
@@ -32,14 +44,14 @@ public class MessageQueueConnector implements IMessageConnector {
 
     @Override
     public void createPublishers(AbstractMessageCenter center) {
-        center.setMessagePublisher(sender);
+        center.setMessagePublisher(new LocalProvideSender(messageDataSource));
     }
 
     @Override
     public void createReceivers(AbstractMessageCenter center) {
         for (LocalFullFeatureReceiver localFullFeatureReceiver : localFullFeatureReceivers) {
             localFullFeatureReceiver.setAvaliable(true);
-            localFullFeatureReceiver.setQueue(messageQueue, this);
+            localFullFeatureReceiver.setQueue(messageDataSource, this);
             center.addReceivers(localFullFeatureReceiver);
         }
     }

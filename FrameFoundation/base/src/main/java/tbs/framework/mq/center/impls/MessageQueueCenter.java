@@ -74,6 +74,11 @@ public class MessageQueueCenter extends AbstractMessageCenter {
         for (IMessageConsumer consumer : consumers) {
             appendConsumer(consumer);
         }
+    }
+
+    @Override
+    public void startUp() throws RuntimeException {
+        super.startUp();
         ThreadUtil.getInstance().runCollectionInBackground(() -> {
             this.listen();
         });

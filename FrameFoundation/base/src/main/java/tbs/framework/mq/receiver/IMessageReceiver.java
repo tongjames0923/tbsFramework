@@ -27,13 +27,6 @@ public interface IMessageReceiver {
     IMessageConnector builder();
 
     /**
-     * 获取到消息的调用 可能消息来自外部
-     *
-     * @param message 信息
-     */
-    void pull(IMessage message);
-
-    /**
      * 消息接收器的接受Topic
      *
      * @return
