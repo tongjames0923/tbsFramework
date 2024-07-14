@@ -3,7 +3,7 @@ package tbs.framework.redis.impls.lock;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import tbs.framework.lock.expections.ObtainLockFailException;
+import tbs.framework.mq.IMessageHandleBlocker;
 
 import javax.annotation.Resource;
 import java.time.Duration;
@@ -13,16 +13,7 @@ import java.time.Duration;
  *
  * @author abstergo
  */
-public class RedisTaskBlockLock {
-
-    private Duration maxLockAliveTime = Duration.ofMinutes(5);
-
-    private Duration unLockDelayTime = Duration.ofSeconds(30);
-
-    public RedisTaskBlockLock(Duration maxLockAliveTime, Duration unLockDelayTime) {
-        this.maxLockAliveTime = maxLockAliveTime;
-        this.unLockDelayTime = unLockDelayTime;
-    }
+public class RedisTaskBlockLock extends IMessageHandleBlocker {
 
     public RedisTaskBlockLock() {
     }
@@ -44,18 +35,13 @@ public class RedisTaskBlockLock {
         return "BLOCK_KEY_REDIS_LOCK:" + l;
     }
 
-    public void lock(String lockId) {
-        boolean locked = redisTemplate.opsForValue().setIfAbsent(key(lockId), true, maxLockAliveTime);
-        if (!locked) {
-            throw new ObtainLockFailException("lock has been obtained.");
-        }
+    @Override
+    protected boolean lock(String id, Duration alive) {
+        return redisTemplate.opsForValue().setIfAbsent(key(id), true, alive);
     }
 
-    public boolean isLocked(String lockId) {
-        return redisTemplate.hasKey(key(lockId));
-    }
-
-    public void unlock(String lockId) {
-        redisTemplate.expire(key(lockId), unLockDelayTime);
+    @Override
+    protected void unlock(String id, Duration delay) {
+        redisTemplate.expire(key(id), delay);
     }
 }

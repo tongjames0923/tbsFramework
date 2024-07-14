@@ -19,11 +19,6 @@ public class RedisMqProperty {
      */
     private int listenerPoolSize = 4;
     /**
-     * 消息中心仅允许消费一次
-     */
-    private boolean messageHandleOnce = true;
-
-    /**
      * 消息序列化类
      */
     private Class<? extends RedisSerializer> messageSerializerClass = JdkSerializationRedisSerializer.class;

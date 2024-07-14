@@ -7,10 +7,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import tbs.framework.base.properties.MqProperty;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
+import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
+import tbs.framework.mq.receiver.impls.DirectConsumeReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.redis.impls.lock.RedisTaskBlockLock;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
@@ -39,6 +42,9 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
      * 存储消息监听器的映射。
      */
     private Map<String, MessageListenerAdapter> listeners = new ConcurrentHashMap<>();
+
+    @Resource
+    MqProperty property;
 
     @Override
     public int getOrder() {
@@ -70,27 +76,30 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
     @Resource
     RedisTaskBlockLock taskBlockLock;
 
-    public RedisMessageConnector() {
+    public void redisConsume(IMessage message) {
+
     }
 
     /**
      * 设置消息监听器。
      *
      * @param receivers 消息接收器列表。
+     * @param center
      */
-    private void setUpListenners(List<IMessageReceiver> receivers) {
-        for (IMessageReceiver messageReceiver : receivers) {
-            if (messageReceiver == null) {
+    private void setUpListenners(List<IMessageReceiver> messageReceivers, AbstractMessageCenter center) {
+        for (IMessageReceiver receiver : messageReceivers) {
+            if (receiver == null) {
                 continue;
             }
-            MessageListenerAdapter adapter = new MessageListenerAdapter(messageReceiver, "pull");
+
+            MessageListenerAdapter adapter = new MessageListenerAdapter(receiver, "consumeDirectly");
             adapter.setSerializer(SpringUtil.getBean(redisMqProperty.getMessageSerializerClass()));
 
-            List<PatternTopic> topics = getTopic(messageReceiver.acceptTopics());
+            List<PatternTopic> topics = getTopic(receiver.acceptTopics());
             container.addMessageListener(adapter, topics);
             adapter.afterPropertiesSet();
-            if (messageReceiver instanceof AbstractIdentityReceiver) {
-                AbstractIdentityReceiver abstractIdentityReceiver = (AbstractIdentityReceiver)messageReceiver;
+            if (receiver instanceof AbstractIdentityReceiver) {
+                AbstractIdentityReceiver abstractIdentityReceiver = (AbstractIdentityReceiver)receiver;
                 listeners.putIfAbsent(abstractIdentityReceiver.receiverId(), adapter);
             }
         }
@@ -141,14 +150,15 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
     public void createReceivers(AbstractMessageCenter center) {
         List<IMessageReceiver> receivers = new LinkedList<>();
         center.allConsumersInCenter().forEach((c) -> {
-            RedisChannelReceiver receiver = new RedisChannelReceiver(center, c, redisMqProperty, taskBlockLock, this);
+            DirectConsumeReceiver receiver =
+                new DirectConsumeReceiver(this, c.avaliableTopics(), center, property, taskBlockLock);
             if (SpringUtil.getApplicationContext().containsBean(receiver.receiverId() + c.consumerId())) {
                 return;
             }
             center.addReceivers(receiver);
             receivers.add(receiver);
         });
-        setUpListenners(receivers);
+        setUpListenners(receivers, center);
     }
 
     @Override
