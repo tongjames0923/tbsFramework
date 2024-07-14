@@ -2,7 +2,6 @@ package tbs.framework.mq.center;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.DisposableBean;
 import tbs.framework.base.utils.LogFactory;
 import tbs.framework.log.ILogger;
@@ -17,15 +16,11 @@ import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.utils.IStartup;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * 抽象消息中心类。
@@ -34,16 +29,22 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractMessageCenter implements IStartup, DisposableBean {
 
-    // 是否启动的原子布尔值
+
     private AtomicBoolean started = new AtomicBoolean(false);
-    // 是否监听的原子布尔值
+
     private AtomicBoolean listening = new AtomicBoolean(false);
 
-    // 日志记录器
+    private AtomicBoolean warnForEmptyConsumer = new AtomicBoolean(false);
+
+    private void tooManyRetryTimes(int n) {
+        if (n >= 128) {
+            throw new RuntimeException("too many retry times");
+        }
+    }
+
     @AutoLogger
     private ILogger logger;
 
-    // 获取日志记录器
     protected synchronized ILogger getLogger() {
         if (logger == null) {
             logger = LogFactory.Companion.getInstance().getLogger(AbstractMessageCenter.class.getName());
@@ -127,9 +128,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      * @return 消息消费者列表。
      */
     public List<IMessageConsumer> allConsumersInCenter() {
-        return getMessageConsumerManager().map(IMessageConsumerManager::getConsumers).orElseThrow(() -> {
-            throw new UnsupportedOperationException("consumer manager is not available");
-        });
+        return getMessageConsumerManager().map(IMessageConsumerManager::getConsumers).orElse(CollUtil.newArrayList());
     }
 
     /**
@@ -157,9 +156,9 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      * @return 当前消息中心对象。
      */
     public AbstractMessageCenter appendConsumer(IMessageConsumer messageConsumer) {
-        getMessageConsumerManager().orElseThrow(() -> {
-            throw new UnsupportedOperationException("none consumer manager");
-        }).setMessageConsumer(messageConsumer);
+        getMessageConsumerManager().ifPresent(c -> {
+            c.setMessageConsumer(messageConsumer);
+        });
         return this;
     }
 
@@ -170,28 +169,10 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      * @return 当前消息中心对象。
      */
     public AbstractMessageCenter remove(IMessageConsumer consumer) {
-        getMessageConsumerManager().orElseThrow(() -> {
-            throw new UnsupportedOperationException("none consumer manager");
-        }).removeMessageConsumer(consumer);
-        return this;
-    }
-
-    /**
-     * 对指定消费者批量消费消息。
-     *
-     * @param consumer 消费者。
-     * @param message  消息。
-     */
-    public void consumeMessages(IMessageConsumer consumer, IMessage... message) {
-        IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
-            throw new UnsupportedOperationException("none consumer manager");
+        getMessageConsumerManager().ifPresent(c -> {
+            c.removeMessageConsumer(consumer);
         });
-        for (IMessage msg : message) {
-            if (msg == null) {
-                continue;
-            }
-            manager.consumeOnce(this, consumer, msg);
-        }
+        return this;
     }
 
     /**
@@ -200,16 +181,33 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      * @param message 消息。
      */
     public void consumeMessage(IMessage message) {
-        IMessageConsumerManager manager = getMessageConsumerManager().orElseThrow(() -> {
-            throw new UnsupportedOperationException("none consumer manager");
+        getMessageConsumerManager().ifPresentOrElse(manager -> {
+            List<IMessageConsumer> consumers = manager.selectMessageConsumer(message);
+            if (CollUtil.isEmpty(consumers)) {
+                if (!warnForEmptyConsumer.get()) {
+                    getLogger().warn("no consumer to consume message");
+                    warnForEmptyConsumer.set(true);
+                }
+                return;
+            }
+            for (IMessageConsumer consumer : consumers) {
+                while (true) {
+                    int r = 0;
+                    try {
+                        manager.consumeOnce(this, consumer, message);
+                        break;
+                    } catch (Exception e) {
+                        if (!errorOnConsume(message, r++, e, consumer)) {
+                            break;
+                        }
+                    }
+                    tooManyRetryTimes(r);
+                }
+
+            }
+        }, () -> {
+            throw new NoSuchElementException("no consumer manager");
         });
-        List<IMessageConsumer> consumers = manager.selectMessageConsumer(message);
-        if (CollUtil.isEmpty(consumers)) {
-            return;
-        }
-        for (IMessageConsumer consumer : consumers) {
-            manager.consumeOnce(this, consumer, message);
-        }
     }
 
     /**
@@ -220,9 +218,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      * @param receiver  消息接收器。
      */
     public void messageArrived(IMessage msg, IMessageConnector connector, IMessageReceiver receiver) {
-        getMessageQueueEvents().orElseThrow(() -> {
-            throw new UnsupportedOperationException("none events available");
-        }).onMessageReceived(msg, connector, receiver);
+        getMessageQueueEvents().ifPresent(c -> c.onMessageReceived(msg, connector, receiver));
     }
 
     /**
@@ -248,9 +244,9 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      */
     public boolean handleMessageError(IMessage msg, int r, IMessageQueueEvents.MessageHandleType type, Throwable e,
         IMessageConsumer consumer) {
-        return getMessageQueueEvents().orElseThrow(() -> {
-            throw new UnsupportedOperationException("none events available");
-        }).onMessageFailed(msg, r, type, e, consumer);
+        return getMessageQueueEvents().map((m) -> {
+            return m.onMessageFailed(msg, r, type, e, consumer);
+        }).orElse(false);
     }
 
     /**
@@ -273,7 +269,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      * @param e 异常。
      * @return 是否重试。
      */
-    public boolean errorOnReceive(int r, Throwable e) {
+    public boolean errorOnReceive(Throwable e, int r) {
         return handleMessageError(null, r, IMessageQueueEvents.MessageHandleType.Receive, e, null);
     }
 
@@ -305,14 +301,11 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
                 publisher.publish(message, this);
                 break;
             } catch (Exception ex) {
-                tryTimes.incrementAndGet();
-                if (getMessageQueueEvents().map((ev) -> {
-                    return !ev.onMessageFailed(message, tryTimes.get(), IMessageQueueEvents.MessageHandleType.Send, ex,
-                        null);
-                }).orElse(true)) {
+                if (!errorOnSend(message, tryTimes.incrementAndGet(), ex)) {
                     break;
                 }
             }
+            tooManyRetryTimes(tryTimes.get());
         }
         getMessageQueueEvents().ifPresent((ev) -> {
             ev.onMessageSent(message);
@@ -332,136 +325,51 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      * 启动监听，即启动消息接收器。
      */
     public void listen() {
-        PreCheckResult pre = preCheckResult();
+        listenPreCheck();
         this.listening.set(true);
         while (isStart() && isListen()) {
-            mainListenTask(pre);
+            for (IMessageReceiver receiver : getReceivers()) {
+                if (receiver instanceof AbstractIdentityReceiver) {
+                    AbstractIdentityReceiver identityReceiver = (AbstractIdentityReceiver)receiver;
+                    if (!identityReceiver.avaliable()) {
+                        continue;
+                    }
+                }
+                IMessage msg = null;
+                int rr = 0;
+                while (true) {
+                    try {
+                        msg = receiver.receive();
+                        break;
+                    } catch (Exception e) {
+                        if (!errorOnReceive(e, rr++)) {
+                            break;
+                        }
+                    }
+                    tooManyRetryTimes(rr);
+                }
+
+                if (msg == null) {
+                    Thread.yield();
+                    continue;
+                }
+
+                messageArrived(msg, getConnector(), receiver);
+
+                consumeMessage(msg);
+            }
         }
         this.listening.set(false);
     }
 
-    private void mainListenTask(PreCheckResult pre) {
-        try {
-            BigDecimal index = pre.currentRec.getAndAccumulate(BigDecimal.ONE, (bigDecimal, bigDecimal2) -> {
-                return bigDecimal.add(bigDecimal2);
-            }).divideAndRemainder(BigDecimal.valueOf(pre.cnt.get()))[1];
-            IMessageReceiver receiver = pre.receivers.getOrDefault(index.intValue(), null);
-            if (receiver == null) {
-                throw new NoSuchElementException("receiver index[" + index.intValue() + "] is not in map");
-            }
-            if (receiver instanceof AbstractIdentityReceiver) {
-                AbstractIdentityReceiver identityReceiver = (AbstractIdentityReceiver)receiver;
-                if (!identityReceiver.avaliable()) {
-                    return;
-                }
-            }
-            IMessage msg = receiver.receive();
-            if (msg == null) {
-                return;
-            }
-            messageArrived(msg, pre.connector, receiver);
-            consumeMessage(msg);
-        } catch (Exception e) {
-            getLogger().error(e, "error occurred on listen");
-        }
-    }
-
-    private @NotNull PreCheckResult preCheckResult() {
+    private void listenPreCheck() {
         if (!isStart()) {
-            throw new RuntimeException("center is not started");
+            throw new IllegalStateException("message center is not started");
         }
-        IMessageConnector connector = getConnector();
-
         if (isListen()) {
-            throw new RuntimeException("center is already listen");
-        }
-        ReceiverPreHandle receiverHandle = receiverHandleTask(connector);
-        PreCheckResult pre =
-            new PreCheckResult(connector, receiverHandle.currentRec, receiverHandle.cnt, receiverHandle.receivers);
-        return pre;
-    }
-
-    private @NotNull ReceiverPreHandle receiverHandleTask(IMessageConnector connector) {
-        AtomicReference<BigDecimal> currentRec = new AtomicReference<>(BigDecimal.ZERO);
-        AtomicInteger cnt = new AtomicInteger(0);
-        Map<Integer, IMessageReceiver> receivers =
-            getReceivers().stream().collect(Collectors.toMap(p -> cnt.getAndIncrement(), p -> p));
-        if (CollUtil.isEmpty(receivers)) {
-            throw new NoSuchElementException("receivers is empty");
-        }
-        ReceiverPreHandle receiverHandle = new ReceiverPreHandle(currentRec, cnt, receivers);
-        return receiverHandle;
-    }
-
-    private static class ReceiverPreHandle {
-        /**
-         * 当前接收器索引的原子引用。
-         */
-        public final AtomicReference<BigDecimal> currentRec;
-
-        /**
-         * 接收器数量的原子整数。
-         */
-        public final AtomicInteger cnt;
-
-        /**
-         * 接收器映射，键为接收器索引，值为接收器对象。
-         */
-        public final Map<Integer, IMessageReceiver> receivers;
-
-        /**
-         * 构造函数，初始化当前接收器索引、接收器数量和接收器映射。
-         *
-         * @param currentRec 当前接收器索引的原子引用。
-         * @param cnt        接收器数量的原子整数。
-         * @param receivers  接收器映射。
-         */
-        public ReceiverPreHandle(AtomicReference<BigDecimal> currentRec, AtomicInteger cnt,
-            Map<Integer, IMessageReceiver> receivers) {
-            this.currentRec = currentRec;
-            this.cnt = cnt;
-            this.receivers = receivers;
+            throw new IllegalStateException("message center is listening");
         }
     }
-
-    private static class PreCheckResult {
-        /**
-         * 消息连接器。
-         */
-        public final IMessageConnector connector;
-
-        /**
-         * 当前接收器索引的原子引用。
-         */
-        public final AtomicReference<BigDecimal> currentRec;
-
-        /**
-         * 接收器数量的原子整数。
-         */
-        public final AtomicInteger cnt;
-
-        /**
-         * 接收器映射，键为接收器索引，值为接收器对象。
-         */
-        public final Map<Integer, IMessageReceiver> receivers;
-
-        /**
-         * 构造函数，初始化消息连接器、当前接收器索引、接收器数量和接收器映射。
-         *
-         * @param connector  消息连接器。
-         * @param currentRec 当前接收器索引的原子引用。
-         * @param cnt        接收器数量的原子整数。
-         * @param receivers  接收器映射。
-         */
-        public PreCheckResult(IMessageConnector connector, AtomicReference<BigDecimal> currentRec, AtomicInteger cnt,
-            Map<Integer, IMessageReceiver> receivers) {
-            this.connector = connector;
-            this.currentRec = currentRec;
-            this.cnt = cnt;
-            this.receivers = receivers;
-        }
-    }
-
     /**
      * 停止监听消息。
      */
@@ -499,9 +407,10 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
 
     @Override
     public void destroy() throws Exception {
+        setStarted(false);
+        stopListen();
         centerStopToWork();
         getConnector().destoryReceivers(this, getReceivers());
         getConnector().destoryPublishers(this, getMessagePublisher());
-        setStarted(false);
     }
 }

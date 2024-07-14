@@ -21,15 +21,7 @@ public class LocalProvideSender implements IMessagePublisher {
 
     @Override
     public void publish(IMessage m, @NotNull AbstractMessageCenter center) {
-        center.getReceivers().forEach(r -> {
-            if (center.getMessageConsumerManager().map((v) -> {
-                return v.match(m.getTopic(), r.acceptTopics());
-            }).orElse(false)) {
-                messageQueue.addMessage(m);
-            } else {
-                throw new RuntimeException("Topic not match");
-            }
-
-        });
+        // 将消息添加到消息队列
+        messageQueue.addMessage(m);
     }
 }

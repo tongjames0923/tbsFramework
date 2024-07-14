@@ -13,7 +13,7 @@ public interface IMessagePublisher {
      * 消息发布
      *
      * @param message 信息
-     * @param center
+     * @param center 消息中心
      */
     void publish(@NotNull IMessage message,@NotNull AbstractMessageCenter center);
 }

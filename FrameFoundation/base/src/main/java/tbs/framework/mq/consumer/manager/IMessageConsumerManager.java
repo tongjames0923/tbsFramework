@@ -38,17 +38,7 @@ public interface IMessageConsumerManager {
      * @param message  消息
      */
     default void consumeOnce(AbstractMessageCenter center, IMessageConsumer consumer, IMessage message) {
-        while (true) {
-            int r = 0;
-            try {
-                consumer.consume(message);
-                break;
-            } catch (Exception e) {
-                if (!center.errorOnConsume(message, r++, e, consumer)) {
-                    break;
-                }
-            }
-        }
+        consumer.consume(message);
     }
 
     /**
