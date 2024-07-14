@@ -7,8 +7,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
-import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.redis.impls.mq.RedisMessageCenter;
 import tbs.framework.redis.impls.mq.receiver.RedisMessageConnector;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
@@ -74,10 +72,8 @@ public class MsgConfig {
     }
 
     @Bean
-    RedisMessageCenter abstractMessageCenter(
-        IMessageConsumerManager consumerManager, IMessageQueueEvents events) {
-        return new RedisMessageCenter(events,
-            consumerManager);
+    RedisMessageCenter abstractMessageCenter() {
+        return new RedisMessageCenter();
     }
 
 }
