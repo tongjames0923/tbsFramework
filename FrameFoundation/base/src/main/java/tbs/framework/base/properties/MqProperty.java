@@ -30,7 +30,13 @@ public class MqProperty {
      */
     private Class<? extends IMessageConsumerManager> consumerManager = MappedConsumerManager.class;
 
+    /**
+     * 任务块存活时间，任务锁占有时间
+     */
     private Duration taskBlockAliveTime = Duration.ofMinutes(5);
 
+    /**
+     * 任务块清理间隔,消息处理完成后锁存在时间
+     */
     private Duration taskBlockCleanInterval = Duration.ofMinutes(1);
 }
