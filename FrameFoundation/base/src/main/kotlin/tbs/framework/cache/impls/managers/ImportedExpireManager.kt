@@ -12,9 +12,7 @@ class ImportedExpireManager : AbstractExpireManager {
         this.timeBaseCacheManager = service
         this.expiredImpl = e
     }
-
-    public constructor() : super()
-
+    
 
     override fun getCacheService(): ICacheService {
         return timeBaseCacheManager!!
