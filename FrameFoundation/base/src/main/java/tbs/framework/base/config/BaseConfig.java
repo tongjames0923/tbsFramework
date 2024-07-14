@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -13,15 +14,18 @@ import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
 import tbs.framework.base.properties.MqProperty;
 import tbs.framework.base.utils.LogFactory;
+import tbs.framework.cache.managers.AbstractExpireManager;
 import tbs.framework.lock.ILockProvider;
 import tbs.framework.lock.aspects.LockAspect;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.log.proxys.AutoLoggerProxyFactory;
+import tbs.framework.mq.AbstractMessageHandleBlocker;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
 import tbs.framework.mq.event.IMessageQueueEvents;
 import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
+import tbs.framework.mq.impls.CacheMessageHandleBlocker;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.IStartup;
 import tbs.framework.utils.UuidUtil;
@@ -116,7 +120,6 @@ public class BaseConfig {
         return new LockAspect();
     }
 
-
     @Bean
     IMessageConsumerManager consumerManager() throws Exception {
         if (mqProperty.getConsumerManager() == null) {
@@ -131,5 +134,12 @@ public class BaseConfig {
         mapper.registerModule(new JavaTimeModule());
         // You can add more configurations here if needed
         return mapper;
+    }
+
+    @ConditionalOnBean(AbstractExpireManager.class)
+    @ConditionalOnMissingBean(AbstractMessageHandleBlocker.class)
+    @Bean
+    AbstractMessageHandleBlocker messageHandleBlocker() {
+        return new CacheMessageHandleBlocker();
     }
 }

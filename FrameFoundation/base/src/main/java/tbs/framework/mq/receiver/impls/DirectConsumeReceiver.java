@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.base.properties.MqProperty;
 import tbs.framework.base.utils.LogFactory;
 import tbs.framework.log.ILogger;
-import tbs.framework.mq.IMessageHandleBlocker;
+import tbs.framework.mq.AbstractMessageHandleBlocker;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
@@ -24,7 +24,7 @@ public class DirectConsumeReceiver extends AbstractIdentityReceiver {
 
     private MqProperty property;
 
-    private IMessageHandleBlocker blocker;
+    private AbstractMessageHandleBlocker blocker;
 
     private ILogger logger = null;
 
@@ -36,7 +36,7 @@ public class DirectConsumeReceiver extends AbstractIdentityReceiver {
     }
 
     public DirectConsumeReceiver(IMessageConnector messageConnector, Set<String> topics, AbstractMessageCenter center,
-        MqProperty property, IMessageHandleBlocker blocker) {
+        MqProperty property, AbstractMessageHandleBlocker blocker) {
         this.messageConnector = messageConnector;
         this.topics = topics;
         this.center = center;

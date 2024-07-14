@@ -30,12 +30,6 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     @NotNull
     protected abstract List<ICacheService> getCacheServiceList();
 
-    protected void safeWorkWithCacheServiceList(Consumer<List<ICacheService>> consumer) {
-        lockProxy.quickLock(() -> {
-            consumer.accept(getCacheServiceList());
-        }, ThreadUtil.getInstance().getLock(this));
-    }
-
     @Override
     public int serviceIndex() {
         return m_serviceIndex;
@@ -57,13 +51,12 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     @Override
     public int selectService(BiPredicate<ICacheService, Integer> condition) {
         AtomicInteger i = new AtomicInteger(-1);
-        safeWorkWithCacheServiceList((l) -> {
+
             for (ICacheService cacheService : getCacheServiceList()) {
                 if (condition.test(cacheService, i.incrementAndGet())) {
                     break;
                 }
             }
-        });
         return i.get();
     }
 
@@ -73,9 +66,9 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
             hook.onNewCacheServiceAdd(this, service, getCacheServiceList().size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_ADD_SERVICE);
-        safeWorkWithCacheServiceList((l) -> {
-            l.add(service);
-        });
+
+            getCacheServiceList().add(service);
+
     }
 
     @Override
@@ -84,9 +77,9 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
             hook.onServiceRemove(this, getCacheServiceList().get(index), getCacheServiceList().size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_REMOVE_SERVICE);
-        safeWorkWithCacheServiceList((l) -> {
-            l.remove(index);
-        });
+
+            getCacheServiceList().remove(index);
+
 
     }
 
@@ -102,10 +95,9 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
 
     @Override
     public void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation) {
-        safeWorkWithCacheServiceList((l) -> {
-            ICacheService service = l.get(index);
+
+            ICacheService service = getCacheServiceList().get(index);
             operation.accept(service);
-        });
     }
 
     @Override
