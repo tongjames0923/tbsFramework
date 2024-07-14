@@ -3,7 +3,7 @@ package tbs.framework.mq.consumer.manager.impls;
 import cn.hutool.core.util.StrUtil;
 import tbs.framework.base.utils.LogFactory;
 import tbs.framework.log.ILogger;
-import tbs.framework.mq.center.AbstractMessageCenter;
+import tbs.framework.mq.center.AbstractListenableMessageCenter;
 import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.message.IMessage;
@@ -52,14 +52,14 @@ public class PatternConsumerManager implements IMessageConsumerManager {
 
     @Override
     public IMessageConsumerManager setMessageConsumer(IMessageConsumer messageConsumer) {
-        AbstractMessageCenter.checkInputConsumer(messageConsumer);
+        AbstractListenableMessageCenter.checkInputConsumer(messageConsumer);
         consumers.add(messageConsumer);
         return this;
     }
 
     @Override
     public boolean removeMessageConsumer(IMessageConsumer messageConsumer) {
-        AbstractMessageCenter.checkInputConsumer(messageConsumer);
+        AbstractListenableMessageCenter.checkInputConsumer(messageConsumer);
         return consumers.removeIf((p) -> {
             return p == null || p.consumerId().equals(messageConsumer.consumerId());
         });

@@ -2,7 +2,7 @@ package tbs.framework.mq.center.impls;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.context.annotation.Lazy;
-import tbs.framework.mq.center.AbstractMessageCenter;
+import tbs.framework.mq.center.AbstractListenableMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.connector.impls.MessageQueueConnector;
 import tbs.framework.mq.consumer.IMessageConsumer;
@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * @author Abstergo
  */
-public class MessageQueueCenter extends AbstractMessageCenter {
+public class MessageQueueCenter extends AbstractListenableMessageCenter {
 
     private IMessagePublisher publisher;
 

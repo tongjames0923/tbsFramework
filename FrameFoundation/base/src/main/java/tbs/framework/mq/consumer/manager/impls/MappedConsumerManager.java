@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tbs.framework.mq.center.AbstractMessageCenter.checkInputConsumer;
+import static tbs.framework.mq.center.AbstractListenableMessageCenter.checkInputConsumer;
 
 /**
  * 完全匹配管理器
