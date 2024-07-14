@@ -15,6 +15,7 @@ import tbs.framework.redis.cache.impls.RedisExpiredImpl;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -139,14 +140,15 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
     @Override
     protected boolean existsImpl(String key) {
         executeCacheClean(true);
-        int k = selectService((c, i) -> {
-            return c.exists(key);
-        });
-        logger.debug("cache key exists: key={} index={}", key, k);
-        if (k >= serviceCount()) {
+        AtomicBoolean f = new AtomicBoolean(false);
+        selectService((c, i) -> {
+            if (c.exists(key)) {
+                f.set(true);
+                return true;
+            }
             return false;
-        }
-        return true;
+        });
+        return f.get();
     }
 
     @Override

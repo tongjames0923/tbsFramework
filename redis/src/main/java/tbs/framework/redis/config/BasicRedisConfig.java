@@ -19,7 +19,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.redis.constants.RedisBeanNameConstants;
-import tbs.framework.redis.impls.lock.RedisTaskBlockLock;
 import tbs.framework.redis.properties.RedisProperty;
 
 import java.time.Duration;
@@ -110,9 +109,5 @@ public class BasicRedisConfig {
         RedisCacheManager redisCacheManager = new RedisCacheManager(redisCacheWriter, redisCacheConfiguration);
         return redisCacheManager;
     }
-
-    @Bean
-    RedisTaskBlockLock redisBlockLock() {
-        return new RedisTaskBlockLock();
-    }
+    
 }

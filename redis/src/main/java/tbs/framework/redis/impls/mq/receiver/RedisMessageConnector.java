@@ -8,6 +8,7 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import tbs.framework.base.properties.MqProperty;
+import tbs.framework.mq.AbstractMessageHandleBlocker;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
@@ -15,7 +16,6 @@ import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.receiver.impls.AbstractIdentityReceiver;
 import tbs.framework.mq.receiver.impls.DirectConsumeReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
-import tbs.framework.redis.impls.lock.RedisTaskBlockLock;
 import tbs.framework.redis.impls.mq.sender.RedisSender;
 import tbs.framework.redis.properties.RedisMqProperty;
 import tbs.framework.utils.IStartup;
@@ -74,7 +74,7 @@ public class RedisMessageConnector implements IStartup, DisposableBean, IMessage
      * Redis任务阻塞锁。
      */
     @Resource
-    RedisTaskBlockLock taskBlockLock;
+    AbstractMessageHandleBlocker taskBlockLock;
 
     public void redisConsume(IMessage message) {
 
