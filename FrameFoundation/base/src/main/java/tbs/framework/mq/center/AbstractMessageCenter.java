@@ -112,14 +112,14 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
      *
      * @return 消息队列事件处理器。
      */
-    protected abstract Optional<IMessageQueueEvents> getMessageQueueEvents();
+    public abstract Optional<IMessageQueueEvents> getMessageQueueEvents();
 
     /**
      * 获取消息消费者管理器。
      *
      * @return 消息消费者管理器。
      */
-    protected abstract Optional<IMessageConsumerManager> getMessageConsumerManager();
+    public abstract Optional<IMessageConsumerManager> getMessageConsumerManager();
 
     /**
      * 获取消息中心中的所有消费者。
@@ -302,7 +302,7 @@ public abstract class AbstractMessageCenter implements IStartup, DisposableBean 
         final AtomicInteger tryTimes = new AtomicInteger(0);
         while (true) {
             try {
-                publisher.publishAll(message);
+                publisher.publish(message, this);
                 break;
             } catch (Exception ex) {
                 tryTimes.incrementAndGet();

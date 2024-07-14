@@ -5,8 +5,8 @@ import tbs.framework.base.properties.MqProperty;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.center.impls.MessageQueueCenter;
 import tbs.framework.mq.connector.impls.MessageQueueConnector;
-import tbs.framework.mq.receiver.impls.QueueReceiver;
-import tbs.framework.mq.sender.impls.MessageQueueSender;
+import tbs.framework.mq.receiver.impls.LocalFullFeatureReceiver;
+import tbs.framework.mq.sender.impls.LocalProvideSender;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -25,17 +25,17 @@ public class MqConfig {
     }
 
     @Bean
-    MessageQueueSender sender() {
-        return new MessageQueueSender();
+    LocalProvideSender sender() {
+        return new LocalProvideSender();
     }
 
     @Bean
-    QueueReceiver queueReceiver() {
-        return (QueueReceiver)new QueueReceiver().setAvaliable(true).setId("main-queueReceiver");
+    LocalFullFeatureReceiver queueReceiver() {
+        return (LocalFullFeatureReceiver)new LocalFullFeatureReceiver().setAvaliable(true).setId("main-queueReceiver");
     }
 
     @Bean
-    MessageQueueConnector messageQueueConnector(List<QueueReceiver> receivers) {
+    MessageQueueConnector messageQueueConnector(List<LocalFullFeatureReceiver> receivers) {
 
         return new MessageQueueConnector();
     }

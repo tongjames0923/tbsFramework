@@ -51,12 +51,12 @@ public abstract class AbstractListImplMessageCenter extends AbstractMessageCente
     }
 
     @Override
-    protected Optional<IMessageQueueEvents> getMessageQueueEvents() {
+    public Optional<IMessageQueueEvents> getMessageQueueEvents() {
         return Optional.of(events);
     }
 
     @Override
-    protected Optional<IMessageConsumerManager> getMessageConsumerManager() {
+    public Optional<IMessageConsumerManager> getMessageConsumerManager() {
         return Optional.ofNullable(manager);
     }
 

@@ -1,5 +1,7 @@
 package tbs.framework.mq.sender;
 
+import org.jetbrains.annotations.NotNull;
+import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.message.IMessage;
 
 /**
@@ -7,10 +9,11 @@ import tbs.framework.mq.message.IMessage;
  */
 public interface IMessagePublisher {
 
-
     /**
-     * 消息批量发布
+     * 消息发布
+     *
      * @param message 信息
+     * @param center
      */
-    void publishAll(IMessage... message);
+    void publish(@NotNull IMessage message,@NotNull AbstractMessageCenter center);
 }

@@ -59,12 +59,12 @@ public class MessageQueueCenter extends AbstractMessageCenter {
     }
 
     @Override
-    protected Optional<IMessageQueueEvents> getMessageQueueEvents() {
+    public Optional<IMessageQueueEvents> getMessageQueueEvents() {
         return Optional.ofNullable(SpringUtil.getBean(IMessageQueueEvents.class));
     }
 
     @Override
-    protected Optional<IMessageConsumerManager> getMessageConsumerManager() {
+    public Optional<IMessageConsumerManager> getMessageConsumerManager() {
         return Optional.ofNullable(SpringUtil.getBean(IMessageConsumerManager.class));
     }
 

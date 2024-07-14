@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Abstergo
  */
-public class QueueReceiver extends AbstractIdentityReceiver {
+public class LocalFullFeatureReceiver extends AbstractIdentityReceiver {
 
     private Queue<IMessage> queue;
     AtomicBoolean hasValue = new AtomicBoolean(false);
@@ -32,17 +32,19 @@ public class QueueReceiver extends AbstractIdentityReceiver {
      * @param connector the connector
      * @return the queue
      */
-    public QueueReceiver setQueue(Queue<IMessage> queue, IMessageConnector connector) {
+    public LocalFullFeatureReceiver setQueue(Queue<IMessage> queue, IMessageConnector connector) {
         this.queue = queue;
         this.connector = connector;
         return this;
     }
 
+    private static final String LOCK_NAME = "QUEUE_LOCK";
+
     /**
      * The Lock addtional info.
      */
     SimpleLockAddtionalInfo lockAddtionalInfo =
-        new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock("QUEUE_LOCK"));
+        new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock(LOCK_NAME));
 
     @Override
     public IMessage receive() {
@@ -68,7 +70,7 @@ public class QueueReceiver extends AbstractIdentityReceiver {
     }
 
     @Override
-    @LockIt(lockId = "QUEUE_LOCK")
+    @LockIt(lockId = LOCK_NAME)
     public void pull(IMessage message) {
         if (!avaliable()) {
             return;
