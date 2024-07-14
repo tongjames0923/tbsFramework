@@ -11,8 +11,6 @@ import tbs.framework.mq.consumer.IMessageConsumer;
 import tbs.framework.mq.receiver.IMessageReceiver;
 import tbs.framework.mq.sender.IMessagePublisher;
 import tbs.framework.rabbitmq.properties.RabbitMqProperty;
-import tbs.framework.rabbitmq.receivers.ManulRabbitReceiver;
-import tbs.framework.rabbitmq.sender.RabbitMqSender;
 
 import javax.annotation.Resource;
 import java.util.LinkedList;
@@ -21,12 +19,12 @@ import java.util.List;
 /**
  * @author Abstergo
  */
-public class RabbitMqManulReceiveConnector implements IMessageConnector {
+public abstract class AbstractRabbitMqConnector implements IMessageConnector {
     @Resource
-    RabbitAdmin reabbitAdmin;
+    private RabbitAdmin reabbitAdmin;
 
     @Resource
-    RabbitMqProperty rabbitMqProperty;
+    private RabbitMqProperty rabbitMqProperty;
 
     private List<Queue> queues = new LinkedList<>();
 
@@ -39,7 +37,15 @@ public class RabbitMqManulReceiveConnector implements IMessageConnector {
         return exchange;
     }
 
-    public RabbitMqManulReceiveConnector(RabbitMqProperty rabbitMqProperty) {
+    public RabbitAdmin reabbitAdmin() {
+        return reabbitAdmin;
+    }
+
+    public RabbitMqProperty rabbitMqProperty() {
+        return rabbitMqProperty;
+    }
+
+    public AbstractRabbitMqConnector(RabbitMqProperty rabbitMqProperty) {
         this.rabbitMqProperty = rabbitMqProperty;
         for (String queueName : rabbitMqProperty.getQueues()) {
             queues.add(new Queue(queueName));
@@ -47,9 +53,13 @@ public class RabbitMqManulReceiveConnector implements IMessageConnector {
 
     }
 
+    protected abstract IMessagePublisher createPublisher(AbstractMessageCenter center);
+
+    protected abstract IMessageReceiver createReceiver(Queue queue, AbstractMessageCenter center);
+
     @Override
     public void createPublishers(AbstractMessageCenter center) {
-        center.setMessagePublisher(new RabbitMqSender(reabbitAdmin.getRabbitTemplate(), this));
+        center.setMessagePublisher(createPublisher(center));
     }
 
     @Override
@@ -77,7 +87,7 @@ public class RabbitMqManulReceiveConnector implements IMessageConnector {
                 reabbitAdmin.declareBinding(binding);
                 bindings.add(binding);
             }
-            center.getReceivers().add(new ManulRabbitReceiver(this, reabbitAdmin.getRabbitTemplate(), queue.getName()));
+            center.getReceivers().add(createReceiver(queue, center));
         }
     }
 

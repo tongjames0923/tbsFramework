@@ -5,7 +5,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.receiver.IMessageReceiver;
-import tbs.framework.rabbitmq.connectors.RabbitMqManulReceiveConnector;
+import tbs.framework.rabbitmq.connectors.AbstractRabbitMqConnector;
 
 /**
  * 主动接收形式的rabbitMq消息接收器
@@ -13,13 +13,13 @@ import tbs.framework.rabbitmq.connectors.RabbitMqManulReceiveConnector;
  * @author Abstergo
  */
 public class ManulRabbitReceiver implements IMessageReceiver {
-    private RabbitMqManulReceiveConnector connector;
+    private AbstractRabbitMqConnector connector;
 
     private RabbitTemplate template;
 
     private String queueName;
 
-    public ManulRabbitReceiver(RabbitMqManulReceiveConnector connector, RabbitTemplate template, String queueName) {
+    public ManulRabbitReceiver(AbstractRabbitMqConnector connector, RabbitTemplate template, String queueName) {
         this.connector = connector;
         this.template = template;
         this.queueName = queueName;
@@ -40,8 +40,4 @@ public class ManulRabbitReceiver implements IMessageReceiver {
         return connector;
     }
 
-    @Override
-    public void pull(IMessage message) {
-
-    }
 }

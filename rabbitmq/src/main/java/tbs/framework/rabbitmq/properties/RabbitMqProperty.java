@@ -24,4 +24,6 @@ public class RabbitMqProperty {
     private AcknowledgeMode acknowledgeMode = AcknowledgeMode.AUTO;
     private long receiveTimeout = 3000;
 
+    private boolean passiveReception = false;
+
 }

@@ -6,7 +6,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.rabbitmq.RabbitMqCenter;
-import tbs.framework.rabbitmq.connectors.RabbitMqManulReceiveConnector;
+import tbs.framework.rabbitmq.connectors.AbstractRabbitMqConnector;
+import tbs.framework.rabbitmq.connectors.RabbitMqActiveReceiveConnector;
+import tbs.framework.rabbitmq.connectors.RabbitMqPasstiveReceiveConnector;
 import tbs.framework.rabbitmq.constants.RabbitMqConstant;
 import tbs.framework.rabbitmq.properties.RabbitMqProperty;
 
@@ -43,9 +45,20 @@ public class RabbitMqConfig {
     //    }
 
     @Bean(RabbitMqConstant.BEAN_CONNECTOR)
-    RabbitMqManulReceiveConnector rabbitMqConnector() {
-        return new RabbitMqManulReceiveConnector(rabbitMqProperty);
+    AbstractRabbitMqConnector rabbitMqConnector() {
+        if (rabbitMqProperty.isPassiveReception()) {
+            return new RabbitMqPasstiveReceiveConnector(rabbitMqProperty);
+        } else {
+            return new RabbitMqActiveReceiveConnector(rabbitMqProperty);
+        }
     }
+
+    //    @Bean
+    //    @ConditionalOnProperty(prefix = "tbs.framework.mq.rabbit.passive-reception", value = "true")
+    //    public SimpleMessageListenerContainer mqMessageContainer(ConnectionFactory connectionFactory)
+    //        throws AmqpException, IOException {
+    //        return container;
+    //    }
 
     @Bean
     AbstractMessageCenter center() {

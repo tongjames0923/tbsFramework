@@ -5,7 +5,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.mq.message.IMessage;
 import tbs.framework.mq.sender.IMessagePublisher;
-import tbs.framework.rabbitmq.connectors.RabbitMqManulReceiveConnector;
+import tbs.framework.rabbitmq.connectors.AbstractRabbitMqConnector;
 
 /**
  * @author Abstergo
@@ -14,9 +14,9 @@ public class RabbitMqSender implements IMessagePublisher {
 
     private RabbitTemplate messagingTemplate;
 
-    private RabbitMqManulReceiveConnector owner;
+    private AbstractRabbitMqConnector owner;
 
-    public RabbitMqSender(RabbitTemplate messagingTemplate, RabbitMqManulReceiveConnector owner) {
+    public RabbitMqSender(RabbitTemplate messagingTemplate, AbstractRabbitMqConnector owner) {
         this.messagingTemplate = messagingTemplate;
         this.owner = owner;
     }

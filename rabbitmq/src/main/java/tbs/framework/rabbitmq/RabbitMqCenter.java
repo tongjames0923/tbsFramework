@@ -2,7 +2,8 @@ package tbs.framework.rabbitmq;
 
 import tbs.framework.mq.center.AbstractListImplMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
-import tbs.framework.rabbitmq.connectors.RabbitMqManulReceiveConnector;
+import tbs.framework.rabbitmq.connectors.AbstractRabbitMqConnector;
+import tbs.framework.rabbitmq.properties.RabbitMqProperty;
 import tbs.framework.utils.ThreadUtil;
 
 import javax.annotation.Resource;
@@ -13,19 +14,24 @@ import javax.annotation.Resource;
 public class RabbitMqCenter extends AbstractListImplMessageCenter {
 
     @Resource
-    private RabbitMqManulReceiveConnector rabbitMqManulReceiveConnector;
+    RabbitMqProperty mqProperty;
+    @Resource
+    private AbstractRabbitMqConnector abstractRabbitMqConnector;
 
     @Override
     public IMessageConnector getConnector() {
-        return rabbitMqManulReceiveConnector;
+        return abstractRabbitMqConnector;
     }
 
     @Override
     public void startUp() throws RuntimeException {
         super.startUp();
-        ThreadUtil.getInstance().runCollectionInBackground(() -> {
-            listen();
-        });
+        if (!mqProperty.isPassiveReception()) {
+            ThreadUtil.getInstance().runCollectionInBackground(() -> {
+                listen();
+            });
+        }
+
     }
 
     @Override
