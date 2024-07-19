@@ -4,16 +4,15 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.hooks.IHybridCacheServiceHook;
 import tbs.framework.cache.supports.ICacheServiceHybridSupport;
+import tbs.framework.lock.IReadWriteLock;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.BeanUtil;
-import tbs.framework.utils.ThreadUtil;
 
 import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 
 /**
  * The type Abstract timebase hybrid cache manager.
@@ -26,6 +25,11 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
 
     @Resource
     LockProxy lockProxy;
+
+    public static final String GLOBAL_LOCK = "GLOBAL_LOCK_CACHE_MANAGER";
+
+    @Resource(name = GLOBAL_LOCK)
+    IReadWriteLock globalLock;
 
     @NotNull
     protected abstract List<ICacheService> getCacheServiceList();
@@ -40,23 +44,25 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
         if (index >= getCacheServiceList().size()) {
             throw new ArrayIndexOutOfBoundsException("index is too large");
         }
+
         foreachHook((h) -> {
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
             hook.onSwitch(this, getCacheServiceList().get(m_serviceIndex), getCacheServiceList().get(index));
         }, IHybridCacheServiceHook.HOOK_OPERATE_SWITCH);
-
-        this.m_serviceIndex = index;
+        lockProxy.quickLock(() -> {
+            m_serviceIndex = index;
+        }, globalLock.writeLock());
     }
 
     @Override
     public int selectService(BiPredicate<ICacheService, Integer> condition) {
         AtomicInteger i = new AtomicInteger(-1);
 
-            for (ICacheService cacheService : getCacheServiceList()) {
-                if (condition.test(cacheService, i.incrementAndGet())) {
-                    break;
-                }
+        for (ICacheService cacheService : getCacheServiceList()) {
+            if (condition.test(cacheService, i.incrementAndGet())) {
+                break;
             }
+        }
         return i.get();
     }
 
@@ -67,8 +73,9 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
             hook.onNewCacheServiceAdd(this, service, getCacheServiceList().size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_ADD_SERVICE);
 
+        lockProxy.quickLock(() -> {
             getCacheServiceList().add(service);
-
+        }, globalLock.writeLock());
     }
 
     @Override
@@ -77,9 +84,9 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
             IHybridCacheServiceHook hook = BeanUtil.getAs(h);
             hook.onServiceRemove(this, getCacheServiceList().get(index), getCacheServiceList().size());
         }, IHybridCacheServiceHook.HOOK_OPERATE_REMOVE_SERVICE);
-
+        lockProxy.quickLock(() -> {
             getCacheServiceList().remove(index);
-
+        }, globalLock.writeLock());
 
     }
 
@@ -94,25 +101,22 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     }
 
     @Override
-    public void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation) {
-
-            ICacheService service = getCacheServiceList().get(index);
-            operation.accept(service);
-    }
-
-    @Override
     public void clear() {
         hookForClear();
-        clearImpl();
+        lockProxy.quickLock(() -> {
+            clearImpl();
+        }, globalLock.writeLock());
     }
 
     @Override
     public long size() {
         Long[] r = new Long[] {0L};
-        selectService((c, i) -> {
-            r[0] += c.cacheSize();
-            return false;
-        });
+        lockProxy.quickLock(() -> {
+            selectService((c, i) -> {
+                r[0] += c.cacheSize();
+                return false;
+            });
+        }, globalLock.readLock());
         return r[0];
     }
 
@@ -156,21 +160,31 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     @Override
     public void put(String key, Object value, boolean override) {
         hookForPut(key, value, override);
-        putImpl(key, value, override);
+        lockProxy.quickLock(() -> {
+            putImpl(key, value, override);
+        }, globalLock.writeLock());
+
     }
 
     @Override
     public Object get(String key) {
-        Object r = getImpl(key);
+        Object[] r = new Object[] {null};
+        lockProxy.quickLock(() -> {
+            r[0] = getImpl(key);
+        }, globalLock.readLock());
+
         hookForGet(key);
-        return r;
+        return r[0];
     }
 
     @Override
     public boolean exists(String key) {
-        boolean r = existsImpl(key);
+        Boolean[] r = new Boolean[] {false};
+        lockProxy.quickLock(() -> {
+            r[0] = existsImpl(key);
+        }, globalLock.readLock());
         hookForExist(key);
-        return r;
+        return r[0];
     }
 
     @Override
@@ -182,22 +196,37 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     @Override
     public void expire(String key, Duration time) {
         hookForExpire(key, time);
-        selectService((c, i) -> {
-            if (c.exists(key)) {
+        lockProxy.quickLock(() -> {
+            selectService((c, i) -> {
                 getExpireSupportOrThrows(c).expire(key, time, this, c);
-            }
-            return false;
-        });
+                return false;
+            });
+        }, globalLock.writeLock());
+
     }
 
     @Override
     public Duration remaining(String key) {
         Long[] r = new Long[] {Long.MAX_VALUE};
-        selectService((c, i) -> {
-            long v = getExpireSupportOrThrows(c).remaining(key, this, c);
-            r[0] = Math.min(v, r[0]);
-            return false;
-        });
+        lockProxy.quickLock(() -> {
+            selectService((c, i) -> {
+                long v = getExpireSupportOrThrows(c).remaining(key, this, c);
+                r[0] = Math.min(v, r[0]);
+                return false;
+            });
+        }, globalLock.readLock());
+
         return Duration.ofMillis(r[0]);
+    }
+
+    @Override
+    public void ifExsist(String key, boolean expectNotExist, boolean isWriteOperation,
+        ICacheExistOpearte cacheExistOpearte) {
+        lockProxy.quickLock(() -> {
+            boolean e = existsImpl(key);
+            if (e == expectNotExist) {
+                cacheExistOpearte.accept(key, this);
+            }
+        }, isWriteOperation ? globalLock.writeLock() : globalLock.readLock());
     }
 }

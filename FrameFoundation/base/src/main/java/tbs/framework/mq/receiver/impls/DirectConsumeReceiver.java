@@ -47,11 +47,16 @@ public class DirectConsumeReceiver extends AbstractIdentityReceiver {
     public void consumeDirectly(IMessage message) {
         center.messageArrived(message, messageConnector, this);
         try {
+            boolean isConsume = true;
             if (blocker != null && property != null) {
-                blocker.takeLock(lockId(message), property.getTaskBlockAliveTime());
+                isConsume = blocker.takeLock(lockId(message), property.getTaskBlockAliveTime());
             }
-
+            if (!isConsume) {
+                getLogger().debug("message is blocked, message: {}", message);
+                return;
+            }
             center.consumeMessage(message);
+            getLogger().debug("message is consumed, message: {}", message);
         } catch (RuntimeException r) {
             getLogger().error(r, "consumeDirectly error, message: {}", message);
         } finally {

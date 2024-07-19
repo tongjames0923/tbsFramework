@@ -3,8 +3,6 @@ package tbs.framework.mq.impls
 import tbs.framework.cache.IkeyMixer
 import tbs.framework.cache.managers.AbstractExpireManager
 import tbs.framework.mq.AbstractMessageHandleBlocker
-import tbs.framework.proxy.impls.LockProxy
-import tbs.framework.utils.ThreadUtil
 import java.time.Duration
 import javax.annotation.Resource
 
@@ -26,20 +24,16 @@ class CacheMessageHandleBlocker : AbstractMessageHandleBlocker, IkeyMixer {
     override fun lock(id: String, alive: Duration): Boolean {
 
         var v = false;
-        LockProxy.getInstance().quickLock({
-            if (!cache.exists(id)) {
-                cache.putAndRemove(id, true, false, alive)
-                v = true
-            }
-        }, ThreadUtil.getInstance().getLock(mixKey(id)))
+        cache.ifExsist(id, false, true, { k,m ->
+            cache.putAndRemove(id, true, false, alive)
+            v = true
+        });
         return v;
     }
 
     override fun unlock(id: String, delay: Duration) {
-        LockProxy.getInstance().quickLock({
-            if (cache.exists(id)) {
-                cache.expire(id, delay)
-            }
-        }, ThreadUtil.getInstance().getLock(mixKey(id)))
+        cache.ifExsist(id, true, true, { k, m ->
+            cache.expire(id, delay)
+        });
     }
 }

@@ -50,14 +50,14 @@ public class BaseConfig {
     @Resource
     MqProperty mqProperty;
 
-    @Bean
-    @ConditionalOnMissingBean(IMessageQueueEvents.class)
-    IMessageQueueEvents baseMessageQueueEvent(IMessageConsumerManager manager) throws Exception {
-        if (mqProperty.getEventImpl() == null) {
-            return new EmptySentAndErrorEventImpl();
-        }
-        return mqProperty.getEventImpl().getConstructor().newInstance();
-    }
+//    @Bean
+//    @ConditionalOnMissingBean(IMessageQueueEvents.class)
+//    IMessageQueueEvents baseMessageQueueEvent(IMessageConsumerManager manager) throws Exception {
+//        if (mqProperty.getEventImpl() == null) {
+//            return new EmptySentAndErrorEventImpl();
+//        }
+//        return mqProperty.getEventImpl().getConstructor().newInstance();
+//    }
 
     @Bean
     ApplicationRunner startUp() {

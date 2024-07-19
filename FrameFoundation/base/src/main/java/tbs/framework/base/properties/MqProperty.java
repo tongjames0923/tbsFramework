@@ -20,10 +20,6 @@ public class MqProperty {
      */
     private boolean autoStartCenter = true;
 
-    /**
-     * 事件处理实现
-     */
-    private Class<? extends IMessageQueueEvents> eventImpl = EmptySentAndErrorEventImpl.class;
 
     /**
      * 消费者管理器的实现¬

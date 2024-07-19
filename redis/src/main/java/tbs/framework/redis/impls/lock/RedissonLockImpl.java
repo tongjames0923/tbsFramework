@@ -22,8 +22,13 @@ public class RedissonLockImpl implements ILock {
     }
 
     @Override
-    public boolean tryLock(Duration timeOut) throws InterruptedException {
-        return getLock().tryLock(timeOut.toMillis(), TimeUnit.MILLISECONDS);
+    public boolean tryLock(Duration timeOut) {
+        try {
+            return getLock().tryLock(timeOut.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
@@ -42,7 +47,7 @@ public class RedissonLockImpl implements ILock {
 
     @Override
     public void unLock() {
-        if (isLocked() && isHeldByCurrentThread()) {
+        if (isHeldByCurrentThread()) {
             getLock().unlock();
         }
     }

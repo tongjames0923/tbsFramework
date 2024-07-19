@@ -4,12 +4,15 @@ import org.jetbrains.annotations.NotNull;
 import tbs.framework.cache.ICacheService;
 
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 
 /**
  * The interface Cache service hybrid support.
+ *
+ * @author Abstergo
  */
 public interface ICacheServiceHybridSupport {
+
+
     /**
      * Service index int.
      *
@@ -53,11 +56,5 @@ public interface ICacheServiceHybridSupport {
      */
     int serviceCount();
 
-    /**
-     * Operate cache service.
-     *
-     * @param index     the index
-     * @param operation the operation
-     */
-    void operateCacheService(@NotNull int index, @NotNull Consumer<ICacheService> operation);
+
 }

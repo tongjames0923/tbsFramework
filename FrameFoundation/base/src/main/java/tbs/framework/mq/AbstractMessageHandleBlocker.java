@@ -6,6 +6,7 @@ import java.time.Duration;
 
 /**
  * 消息处理阻塞器，用于锁定和解锁消息处理。
+ *
  * @author Abstergo
  */
 public abstract class AbstractMessageHandleBlocker {
@@ -25,7 +26,7 @@ public abstract class AbstractMessageHandleBlocker {
      * @param id    消息的唯一标识符。
      * @param delay 解锁后的延迟时间。
      */
-    protected abstract void unlock(@NotNull  String id, @NotNull Duration delay);
+    protected abstract void unlock(@NotNull String id, @NotNull Duration delay);
 
     /**
      * 尝试获取消息处理锁，如果获取失败则抛出运行时异常。
@@ -33,10 +34,8 @@ public abstract class AbstractMessageHandleBlocker {
      * @param id       消息的唯一标识符。
      * @param maxAlive 锁定持续的最大时间。
      */
-    public void takeLock(@NotNull String id, @NotNull Duration maxAlive) {
-        if (!lock(id, maxAlive)) {
-            throw new RuntimeException("消息正在被处理");
-        }
+    public boolean takeLock(@NotNull String id, @NotNull Duration maxAlive) {
+        return lock(id, maxAlive);
     }
 
     /**

@@ -13,8 +13,12 @@ public class ReentrantLockImpl implements ILock {
     ReentrantLock lock = new ReentrantLock();
 
     @Override
-    public boolean tryLock(Duration timeOut) throws InterruptedException {
-        return lock.tryLock(timeOut.toMillis(), TimeUnit.MILLISECONDS);
+    public boolean tryLock(Duration timeOut) {
+        try {
+            return lock.tryLock(timeOut.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -29,7 +33,7 @@ public class ReentrantLockImpl implements ILock {
 
     @Override
     public void unLock() {
-        if (isLocked() && isHeldByCurrentThread()) {
+        if (isHeldByCurrentThread()) {
             lock.unlock();
         }
     }

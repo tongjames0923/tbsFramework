@@ -23,6 +23,10 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
         }
     });
 
+    public static interface ICacheExistOpearte {
+        void accept(String key, AbstractCacheManager owner);
+    }
+
     /**
      * Add hook abstract cache manager.
      *
@@ -49,7 +53,6 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
         }
         return this;
     }
-
 
     /**
      * Hook count int.
@@ -204,4 +207,10 @@ public abstract class AbstractCacheManager implements ICacheServiceSupport {
         return getCacheService().cacheSize();
     }
 
+    public void ifExsist(String key, boolean expectNotExist, boolean isWriteOperation,
+        ICacheExistOpearte cacheExistOpearte) {
+        if (exists(key) == expectNotExist) {
+            cacheExistOpearte.accept(key, this);
+        }
+    }
 }

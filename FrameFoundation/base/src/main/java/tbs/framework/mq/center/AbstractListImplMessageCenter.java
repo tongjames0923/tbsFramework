@@ -36,9 +36,6 @@ public abstract class AbstractListImplMessageCenter extends AbstractListenableMe
     @Resource
     IMessageConsumerManager manager;
 
-    @Resource
-    IMessageQueueEvents events;
-
     @Override
     public IMessagePublisher getMessagePublisher() {
         return messagePublisher;
@@ -66,7 +63,11 @@ public abstract class AbstractListImplMessageCenter extends AbstractListenableMe
 
     @Override
     public Optional<IMessageQueueEvents> getMessageQueueEvents() {
-        return Optional.of(events);
+        try {
+            return Optional.of(SpringUtil.getBean(IMessageQueueEvents.class));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -126,13 +126,8 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
         int k = selectService((c, i) -> {
             return c.exists(key);
         });
-
         if (k < serviceCount()) {
-            Object[] r = new Object[] {null};
-            operateCacheService(k, (s) -> {
-                r[0] = s.get(key);
-            });
-            return r[0];
+            return getCacheServiceList().get(k).get(key);
         }
         return null;
     }
@@ -166,9 +161,7 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
     @Override
     protected void clearImpl() {
         selectService((c, i) -> {
-            operateCacheService(i, (ICacheService s) -> {
-                s.clear();
-            });
+            c.clear();
             return false;
         });
     }
