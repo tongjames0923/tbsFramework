@@ -87,17 +87,17 @@ public class LockProxy implements IProxy {
         }
 
         try {
-            logger.debug("try to lock for {}", lk.toString());
+            logger.trace("try to lock for {}", lk.toString());
             boolean isLocked = lk.tryLock(Duration.ofMillis(TimeUnit.MILLISECONDS.convert(lockTimeOut, lockTimeUnit)));
             if (isLocked) {
-                logger.debug("locked for {}", lk.toString());
+                logger.trace("locked for {}", lk.toString());
                 R r = function.apply(param);
                 result = Optional.ofNullable(r);
             } else {
                 throw new ObtainLockFailException("Failed to obtain lock in time");
             }
         } finally {
-            logger.debug("unlock for {}", lk.toString());
+            logger.trace("unlock for {}", lk.toString());
             lk.unLock();
         }
         lk = null;

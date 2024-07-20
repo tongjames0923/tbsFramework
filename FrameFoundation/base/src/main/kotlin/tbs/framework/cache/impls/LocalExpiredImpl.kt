@@ -60,10 +60,6 @@ class LocalExpiredImpl : IExpireable {
                 }
             }
         }
-
-        log.debug("cleand  {}", cnt)
-
-
     }
 
     override fun expire(
@@ -76,7 +72,7 @@ class LocalExpiredImpl : IExpireable {
         {
             val now = System.currentTimeMillis()
             val e = CacheEntry(key, now + duration.toMillis(), manager)
-            log.debug("new cache Object:{}", e)
+            log.trace("new cache Object:{}", e)
             queue.add(e);
             map[key] = e
         }
@@ -89,7 +85,7 @@ class LocalExpiredImpl : IExpireable {
         cacheService: ICacheService
     ): Long {
         var now = -1L;
-        synchronized(this)
+        synchronized(key)
         {
             now = map.getOrDefault(key, null)?.getDelay(TimeUnit.MILLISECONDS) ?: -1
         }
