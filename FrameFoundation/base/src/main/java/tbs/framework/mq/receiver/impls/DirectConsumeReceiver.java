@@ -1,6 +1,5 @@
 package tbs.framework.mq.receiver.impls;
 
-import org.jetbrains.annotations.NotNull;
 import tbs.framework.base.properties.MqProperty;
 import tbs.framework.base.utils.LogFactory;
 import tbs.framework.log.ILogger;
@@ -49,7 +48,7 @@ public class DirectConsumeReceiver extends AbstractIdentityReceiver {
         try {
             boolean isConsume = true;
             if (blocker != null && property != null) {
-                isConsume = blocker.takeLock(lockId(message), property.getTaskBlockAliveTime());
+                isConsume = blocker.takeLock(message, property.getTaskBlockAliveTime());
             }
             if (!isConsume) {
                 getLogger().debug("message is blocked, message: {}", message);
@@ -61,18 +60,9 @@ public class DirectConsumeReceiver extends AbstractIdentityReceiver {
             getLogger().error(r, "consumeDirectly error, message: {}", message);
         } finally {
             if (blocker != null && property != null) {
-                blocker.unTakeLock(lockId(message), property.getTaskBlockCleanInterval());
+                blocker.unTakeLock(message, property.getTaskBlockCleanInterval());
             }
         }
-    }
-
-    private static final String LOCK_KEY = "MESSAGE_CENTER_BLOCK_KEY";
-
-    /**
-     * @param message 信息
-     */
-    private @NotNull String lockId(IMessage message) {
-        return LOCK_KEY + message.getMessageId();
     }
 
     @Override

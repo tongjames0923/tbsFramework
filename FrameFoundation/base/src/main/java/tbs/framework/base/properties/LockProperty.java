@@ -27,4 +27,5 @@ public class LockProperty {
      * 等待时间单位
      */
     private TimeUnit proxyLockTimeUnit = TimeUnit.MILLISECONDS;
+
 }

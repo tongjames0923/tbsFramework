@@ -6,10 +6,12 @@ import tbs.framework.lock.ILock;
 import tbs.framework.lock.ILockProvider;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.*;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author abstergo
@@ -75,7 +77,7 @@ public abstract class ThreadUtil {
         return getExecutorService().invokeAll(tasks, timeout, unit);
     }
 
-    private ConcurrentHashMap<Object, ILock> iLockConcurrentHashMap = new ConcurrentHashMap<>();
+    private Map<Object, WeakReference<ILock>> iLockConcurrentHashMap = new HashMap<>();
 
     @Resource
     ILockProvider lockProvider;
@@ -84,9 +86,16 @@ public abstract class ThreadUtil {
         if (target == null) {
             throw new UnsupportedOperationException("can not be null for lock target");
         }
-        ILock lock = iLockConcurrentHashMap.getOrDefault(target, lockProvider.getLocker(target));
-        iLockConcurrentHashMap.putIfAbsent(target, lock);
-
-        return lock;
+        WeakReference<ILock> lock = null;
+        synchronized (target) {
+            lock = iLockConcurrentHashMap.get(target);
+            if (lock == null || lock.get() == null) {
+                LoggerUtils.getInstance().getLogger(ThreadUtil.class)
+                    .info("create new lock for target:{},isReMake:{} ", target, lock != null);
+                lock = new WeakReference<>(lockProvider.getLocker(target));
+            }
+            iLockConcurrentHashMap.put(target, lock);
+        }
+        return lock.get();
     }
 }

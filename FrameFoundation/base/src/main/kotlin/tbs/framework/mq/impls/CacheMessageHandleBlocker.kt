@@ -3,6 +3,7 @@ package tbs.framework.mq.impls
 import tbs.framework.cache.IkeyMixer
 import tbs.framework.cache.managers.AbstractExpireManager
 import tbs.framework.mq.AbstractMessageHandleBlocker
+import tbs.framework.mq.message.IMessage
 import java.time.Duration
 import javax.annotation.Resource
 
@@ -21,19 +22,19 @@ class CacheMessageHandleBlocker : AbstractMessageHandleBlocker, IkeyMixer {
     lateinit var cache: AbstractExpireManager;
 
 
-    override fun lock(id: String, alive: Duration): Boolean {
+    override fun lock(msg: IMessage, alive: Duration): Boolean {
 
         var v = false;
-        cache.ifExsist(id, false, true, { k,m ->
-            cache.putAndRemove(id, true, false, alive)
+        cache.ifExsist(mixKey(msg.messageId), false, true, { k, m ->
+            cache.putAndRemove(mixKey(msg.messageId), true, false, alive)
             v = true
         });
         return v;
     }
 
-    override fun unlock(id: String, delay: Duration) {
-        cache.ifExsist(id, true, true, { k, m ->
-            cache.expire(id, delay)
+    override fun unlock(msg: IMessage, delay: Duration) {
+        cache.ifExsist(mixKey(msg.messageId), true, true, { k, m ->
+            cache.expire(mixKey(msg.messageId), delay)
         });
     }
 }

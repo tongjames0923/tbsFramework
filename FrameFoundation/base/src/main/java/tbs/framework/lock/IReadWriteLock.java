@@ -6,8 +6,16 @@ package tbs.framework.lock;
  * @author Abstergo
  */
 public interface IReadWriteLock {
+    /**
+     * 获取一个读锁。
+     * @return
+     */
     ILock readLock();
 
+    /**
+     * 获取一个写锁。
+     * @return
+     */
     ILock writeLock();
 }
 

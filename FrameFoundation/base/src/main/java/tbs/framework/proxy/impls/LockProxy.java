@@ -10,6 +10,7 @@ import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.IProxy;
 
+import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -74,11 +75,13 @@ public class LockProxy implements IProxy {
     @Override
     public <R, P> Optional<R> proxy(final FunctionWithThrows<P, R, Throwable> function, final P param,
         IProxyAdditionalInfo additional) throws Throwable {
+
         Optional<R> result = Optional.empty();
         ILock lk = null;
         if (null != additional) {
             lk = additional.getInfoAs(ILock.class, null);
         }
+        WeakReference<IProxyAdditionalInfo> additionalInfoWeakReference = new WeakReference<>(additional);
         if (lk == null) {
             throw new ObtainLockFailException("no lock get from additional info");
         }
@@ -97,6 +100,8 @@ public class LockProxy implements IProxy {
             logger.debug("unlock for {}", lk.toString());
             lk.unLock();
         }
+        lk = null;
+        additional = null;
         return result;
     }
 

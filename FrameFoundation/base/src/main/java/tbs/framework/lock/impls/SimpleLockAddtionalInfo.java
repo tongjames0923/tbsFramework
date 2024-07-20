@@ -9,7 +9,7 @@ import tbs.framework.proxy.IProxy;
  */
 public class SimpleLockAddtionalInfo implements IProxy.IProxyAdditionalInfo {
 
-    ILock target;
+    ILock target = null;
 
     public SimpleLockAddtionalInfo(@NotNull ILock target) {
         this.target = target;
