@@ -1,5 +1,7 @@
 package tbs.framework.zookeeper.config;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -16,6 +18,7 @@ import tbs.framework.zookeeper.config.properties.ZooKeeperProperty;
 import tbs.framework.zookeeper.interfaces.IZookeeperListenner;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,12 +34,18 @@ public class ZooKeeperConfig {
     @ConditionalOnMissingBean(Watcher.class)
     Watcher deafultWatcher() {
         return new Watcher() {
-            @Resource
-            @Lazy
-            List<IZookeeperListenner> listenners;
 
             @Override
             public void process(WatchedEvent watchedEvent) {
+                Collection<IZookeeperListenner> listenners = null;
+                try {
+                    listenners = SpringUtil.getBeansOfType(IZookeeperListenner.class).values();
+                } catch (Exception e) {
+
+                }
+                if (CollUtil.isEmpty(listenners)) {
+                    return;
+                }
                 for (IZookeeperListenner listenner : listenners) {
                     if (listenner == null) {
                         continue;

@@ -24,7 +24,9 @@ public abstract class AbstractTimer {
          *
          * @param e
          */
-        void onException(Exception e);
+        default void onException(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -51,7 +53,7 @@ public abstract class AbstractTimer {
      * <p>scheduledAt.</p>
      *
      * @param callback a {@link tbs.framework.timer.AbstractTimer.ITimerCallback} object
-     * @param at a {@link java.time.LocalDateTime} object
+     * @param at       a {@link java.time.LocalDateTime} object
      */
     public void scheduledAt(final ITimerCallback callback, final LocalDateTime at) {
         final LocalDateTime now = LocalDateTime.now();
@@ -68,7 +70,8 @@ public abstract class AbstractTimer {
      * @param uid      运行会话id
      * @return true 启动计时 false拒绝计时
      */
-    protected boolean before(final String uid, final ITimerCallback callback, final long delay, final TimeUnit timeUnit) {
+    protected boolean before(final String uid, final ITimerCallback callback, final long delay,
+        final TimeUnit timeUnit) {
         return true;
     }
 
@@ -86,7 +89,7 @@ public abstract class AbstractTimer {
     /**
      * 延迟调用的内部实现
      *
-     * @param uid a {@link java.lang.String} object
+     * @param uid      a {@link java.lang.String} object
      * @param callback 调用方法
      * @param delay    延迟时间
      * @param timeUnit 延迟单位
