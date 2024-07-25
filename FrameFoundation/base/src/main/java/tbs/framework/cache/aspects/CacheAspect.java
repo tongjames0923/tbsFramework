@@ -18,7 +18,7 @@ import tbs.framework.cache.properties.CacheProperty;
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.proxy.impls.LockProxy;
-import tbs.framework.utils.ThreadUtil;
+import tbs.framework.utils.LockUtils;
 
 import javax.annotation.Resource;
 import java.util.Optional;
@@ -84,7 +84,7 @@ public class CacheAspect {
             eliminationStrategy.judgeAndClean(cacheService, SpringUtil.getBean(cacheProperty.getCacheKillJudgeMaker())
                 .makeJudge(key, annotation.intArgs(), annotation.stringArgs()));
             return null;
-        }, null, new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock(CacheLockPrefix + key)));
+        }, null, new SimpleLockAddtionalInfo(LockUtils.getInstance().getLock(CacheLockPrefix + key)));
 
     }
 
@@ -110,7 +110,7 @@ public class CacheAspect {
 
                 return res;
             }
-        }, null, new SimpleLockAddtionalInfo(ThreadUtil.getInstance().getLock(CacheLockPrefix + key)));
+        }, null, new SimpleLockAddtionalInfo(LockUtils.getInstance().getLock(CacheLockPrefix + key)));
 
         return result.isEmpty() ? null : result.get();
     }

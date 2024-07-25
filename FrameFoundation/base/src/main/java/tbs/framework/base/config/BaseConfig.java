@@ -23,11 +23,10 @@ import tbs.framework.log.proxys.AutoLoggerProxyFactory;
 import tbs.framework.mq.AbstractMessageHandleBlocker;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
-import tbs.framework.mq.event.IMessageQueueEvents;
-import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
 import tbs.framework.mq.impls.CacheMessageHandleBlocker;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.IStartup;
+import tbs.framework.utils.LockUtils;
 import tbs.framework.utils.UuidUtil;
 import tbs.framework.utils.impls.SimpleUuidUtil;
 import tbs.framework.utils.impls.Slf4JLoggerFactory;
@@ -113,6 +112,11 @@ public class BaseConfig {
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
     public LockProxy lockProxy(final LogFactory util) {
         return new LockProxy(util, this.lockProperty.getProxyLockTimeout(), this.lockProperty.getProxyLockTimeUnit());
+    }
+
+    @Bean
+    LockUtils lockUtils() {
+        return new LockUtils();
     }
 
     @Bean

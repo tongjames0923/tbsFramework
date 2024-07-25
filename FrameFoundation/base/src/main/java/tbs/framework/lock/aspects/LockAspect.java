@@ -10,7 +10,7 @@ import tbs.framework.lock.ILock;
 import tbs.framework.lock.annotations.LockIt;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
 import tbs.framework.proxy.impls.LockProxy;
-import tbs.framework.utils.ThreadUtil;
+import tbs.framework.utils.LockUtils;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class LockAspect {
         final String lockName = lockIt.proxyImpl();
         final String lockId = lockIt.lockId();
         final LockProxy proxy = SpringUtil.getBean(lockName);
-        ILock lock = ThreadUtil.getInstance().getLock(lockId);
+        ILock lock = LockUtils.getInstance().getLock(lockId);
         Optional v = proxy.safeProxy((o -> {
             return joinPoint.proceed();
         }), null, new SimpleLockAddtionalInfo(lock));
