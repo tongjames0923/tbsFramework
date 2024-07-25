@@ -3,7 +3,6 @@ package tbs.framework.utils;
 import cn.hutool.extra.spring.SpringUtil;
 import tbs.framework.base.model.AsyncReceipt;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -55,16 +54,21 @@ public abstract class ThreadUtil {
      * @see #runCollectionInBackground(Collection)
      */
     public void runCollectionInBackground(Runnable... runnables) {
-        runCollectionInBackground(Arrays.asList(runnables));
+        new ThreadUtilTaskBuilder(runnables).specialExecutorService(getExecutorService()).runWithAsync().execute();
     }
 
     /**
      * 异步批量运行
      */
     public void runCollectionInBackground(Collection<Runnable> runnables) {
-        for (Runnable r : runnables) {
-            getExecutorService().execute(r);
+        new ThreadUtilTaskBuilder(runnables).runWithAsync().specialExecutorService(getExecutorService()).execute();
+    }
+
+    public void runWithRunableTask(ThreadUtilTaskBuilder conf) {
+        if (conf == null) {
+            return;
         }
+        conf.execute();
     }
 
     /**
@@ -74,6 +78,5 @@ public abstract class ThreadUtil {
         throws InterruptedException {
         return getExecutorService().invokeAll(tasks, timeout, unit);
     }
-
 
 }
