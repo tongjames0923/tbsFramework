@@ -1,6 +1,7 @@
 package tbs.framework.utils
 
 import cn.hutool.extra.spring.SpringUtil
+import org.springframework.util.ErrorHandler
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
@@ -8,22 +9,24 @@ import java.util.concurrent.ExecutorService
 /**
  * 用于构建和执行线程任务的工具类。
  */
-class ThreadUtilTaskBuilder {
+class ThreadUtilRunnableTaskBuilder {
     private var mTasks: MutableList<Runnable> = LinkedList<Runnable>()
     private var isBlock: Boolean = false
 
     private var executorService: ExecutorService? = null
+
+    private var errorHandle: ErrorHandler? = null;
 
     /**
      * 构造函数，初始化任务列表。
      *
      * @param runnables 可变参数，包含要执行的任务。
      */
-    constructor(vararg runnables: Runnable) {
+    public constructor(vararg runnables: Runnable) {
         mTasks.addAll(runnables)
     }
 
-    constructor(runables: Collection<Runnable>) {
+    public constructor(runables: Collection<Runnable>) {
         mTasks.addAll(runables)
     }
 
@@ -33,8 +36,13 @@ class ThreadUtilTaskBuilder {
      * @param executorService ExecutorService对象，用于执行任务。
      * @return 当前对象，用于链式调用。
      */
-    fun specialExecutorService(executorService: ExecutorService): ThreadUtilTaskBuilder {
+    public fun specialExecutorService(executorService: ExecutorService): ThreadUtilRunnableTaskBuilder {
         this.executorService = executorService
+        return this
+    }
+
+    public fun errorHandle(errorHandle: ErrorHandler): ThreadUtilRunnableTaskBuilder {
+        this.errorHandle = errorHandle
         return this
     }
 
@@ -53,7 +61,7 @@ class ThreadUtilTaskBuilder {
      *
      * @return 当前对象，用于链式调用。
      */
-    public fun runWithAsync(): ThreadUtilTaskBuilder {
+    public fun runWithAsync(): ThreadUtilRunnableTaskBuilder {
         isBlock = false
         return this
     }
@@ -63,7 +71,7 @@ class ThreadUtilTaskBuilder {
      *
      * @return 当前对象，用于链式调用。
      */
-    public fun runWithSynchronous(): ThreadUtilTaskBuilder {
+    public fun runWithSynchronous(): ThreadUtilRunnableTaskBuilder {
         isBlock = true
         return this
     }
@@ -80,8 +88,13 @@ class ThreadUtilTaskBuilder {
         }
         ls.forEach {
             es.execute {
-                it.run()
-                doneOnce(latch)
+                try {
+                    it.run()
+                } catch (e: Exception) {
+                    errorHandle?.handleError(e);
+                } finally {
+                    doneOnce(latch)
+                }
             }
         }
         latch?.await()

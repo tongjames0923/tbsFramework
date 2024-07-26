@@ -54,17 +54,17 @@ public abstract class ThreadUtil {
      * @see #runCollectionInBackground(Collection)
      */
     public void runCollectionInBackground(Runnable... runnables) {
-        new ThreadUtilTaskBuilder(runnables).specialExecutorService(getExecutorService()).runWithAsync().execute();
+        new ThreadUtilRunnableTaskBuilder(runnables).specialExecutorService(getExecutorService()).runWithAsync().execute();
     }
 
     /**
      * 异步批量运行
      */
     public void runCollectionInBackground(Collection<Runnable> runnables) {
-        new ThreadUtilTaskBuilder(runnables).runWithAsync().specialExecutorService(getExecutorService()).execute();
+        new ThreadUtilRunnableTaskBuilder(runnables).runWithAsync().specialExecutorService(getExecutorService()).execute();
     }
 
-    public void runWithRunableTask(ThreadUtilTaskBuilder conf) {
+    public void runWithRunableTask(ThreadUtilRunnableTaskBuilder conf) {
         if (conf == null) {
             return;
         }
