@@ -1,16 +1,18 @@
 package tbs.framework.sql.annotations;
 
+import org.springframework.stereotype.Component;
 import tbs.framework.sql.enums.QueryOrderEnum;
 
 import java.lang.annotation.*;
 
 /**
- * The interface Query order field.
+ * 字段排序顺序标记
  * @author abstergo
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Documented
+@Component
 public @interface QueryOrderField {
 
     /**
