@@ -149,3 +149,124 @@ public TestModel testModel(String text) {
     return new TestModel(text);
 }
 ```
+
+### 2.权限验证功能
+
+#### 2.1 权限验证功能介绍
+
+权限验证功能是指在系统中对用户的操作进行权限验证，确保用户只能访问自己有权限访问的资源。这个功能可以帮助系统更好地保护用户的数据和隐私，提高系统的安全性。
+
+#### 2.2 权限验证功能快速使用
+
+##### 1. 添加依赖
+
+在项目的`pom.xml`文件中添加以下依赖：
+
+```xml
+
+<dependency>
+    <groupId>tbs.framework</groupId>
+    <artifactId>auth</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+##### 2. 配置权限验证框架
+
+在Spring Boot的主类上添加`@EnableTbsAuth`注解，以启用权限验证框架。
+
+```java
+import tbs.framework.auth.annotations.EnableTbsAuth;
+
+@SpringBootApplication
+@EnableTbsAuth
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+##### 3. 获取token
+
+`IRequestTokenPicker`：用于从HTTP请求中获取token。
+默认提供的`HeaderRequestTokenPicker`类，从HTTP请求头中获取token、`CookieRequestTokenPicker`
+类，从HTTP请求的cookie中获取token、`ParameterRequestTokenPicker`类，从HTTP请求的参数中获取token。
+
+请在配置文件中配置token获取方式：
+
+```properties
+tbs.framework.auth.tokenPicker={获取token的方式}
+```
+
+`tbs.framwork.auth.userModelTokenField`字段用于配置系统默认自带的`UserModelTokenParser`类中获取用户权限的字段。
+配置文件中`unForcedTokenFields`和`tokenFields`
+字段的区别在于是否需要强制检查token，如果需要强制检查token，则需要在配置文件中配置`tokenFields`字段，否则不需要配置。
+即若token检查不通过，不会直接报错。
+
+##### 4. 解析Token
+
+通过实现`ITokenParser`接口来解析Token。例如，在`UserModelTokenParser`类中，通过`ITokenParser`接口的`parseToken`方法来解析Token。
+
+```java
+public class UserModelTokenParser implements ITokenParser {
+
+    // ...
+
+    @Override
+    public void parseToken(TokenModel tokenModel, RuntimeData data) {
+        // ...
+    }
+
+    @Override
+    public boolean support(String field) {
+        return true;
+    }
+}
+```
+
+默认自带的`UserModelTokenParser`类实现了`ITokenParser`接口，通过`IUserModelPicker`接口获取用户权限。
+
+在使用自带的`UserModelTokenParser`，需要提供通过实现`IUserModelPicker`接口的Bean来获取用户权限。
+
+如有更多需求和功能可以自定义实现`ITokenParser`接口，该接口用于处理接收到的Token。
+
+##### 5. 权限验证
+
+在需要进行权限验证的地方，使用`@PermissionValidated`注解来标记需要验证的方法。例如，在`MyController`
+类中，通过`@PermissionValidated`注解来标记需要验证的方法。
+
+```java
+import tbs.framework.auth.annotations.PermissionValidated;
+
+@RestController
+public class MyController {
+
+    @PermissionValidated
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
+}
+```
+
+##### 6. 异常处理
+
+在权限验证过程中，如果出现异常，可以通过实现`IErrorHandler`接口来处理异常。例如，在`SimpleLogErrorHandler`
+类中，通过`IErrorHandler`接口的`handleError`方法来处理异常。
+
+```java
+public class SimpleLogErrorHandler implements IErrorHandler {
+
+    @Override
+    public void handleError(HttpServletRequest request, HttpServletResponse response, Exception e) {
+        // 处理异常
+    }
+}
+```
+
+通过以上步骤，可以快速搭建一个基于Spring框架的权限验证框架。在需要进行权限验证的地方，使用`@PermissionValidated`
+注解来标记需要验证的方法。在权限验证过程中，通过`IUserModelPicker`和`ITokenParser`
+接口的实现类来获取用户权限和解析Token。最后，通过`IErrorHandler`接口的实现类来处理权限验证过程中出现的异常。
+
+
