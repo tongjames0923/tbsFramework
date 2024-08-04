@@ -5,7 +5,7 @@ import tbs.framework.cache.impls.eliminate.judges.SingleKeyTestExpiredCacheJudge
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
 
 /**
- * 针对单Key的超时清除缓存评判生成器
+ * 针对单Key的超时清除缓存评判生成器，从intargs中的第一项获取超时时间
  *
  * @author Abstergo
  */

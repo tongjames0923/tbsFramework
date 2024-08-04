@@ -5,6 +5,9 @@ import tbs.framework.cache.managers.AbstractCacheManager;
 
 import java.util.Set;
 
+/**
+ * @author abstergo
+ */
 public abstract class AbstractCacheEliminationStrategy {
 
     public static enum CacheJudgeEnum {

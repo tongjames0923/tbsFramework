@@ -7,7 +7,7 @@ import tbs.framework.cache.supports.IExpireSupport
 import java.time.Duration
 
 /**
- * 基础超时清除缓存逻辑
+ * 基础超时清除缓存逻辑,int args参数毫秒
  *
  */
 class ExpiredCacheElimination : AbstractCacheEliminationStrategy(),

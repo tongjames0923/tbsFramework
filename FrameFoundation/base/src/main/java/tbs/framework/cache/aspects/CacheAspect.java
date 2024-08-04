@@ -1,6 +1,7 @@
 package tbs.framework.cache.aspects;
 
 import cn.hutool.extra.spring.SpringUtil;
+import com.alibaba.fastjson2.JSON;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -29,8 +30,6 @@ import java.util.Optional;
 @Aspect
 public class CacheAspect {
 
-    @Resource
-    @Lazy
     AbstractCacheManager cacheService;
 
     @Resource
@@ -41,6 +40,10 @@ public class CacheAspect {
     CacheProperty cacheProperty;
 
     private static final String CacheLockPrefix = "CacheLock.ASPECT::";
+
+    public CacheAspect(AbstractCacheManager cacheService) {
+        this.cacheService = cacheService;
+    }
 
     @Pointcut(
         "@annotation(tbs.framework.cache.annotations.CacheLoading)||@annotation(tbs.framework.cache.annotations.CacheUnloading)")
@@ -97,7 +100,7 @@ public class CacheAspect {
         Optional result = lockProxy.proxy((p) -> {
             boolean hasCache = cacheService.exists(key);
             if (hasCache) {
-                return cacheService.get(key);
+                return JSON.parseObject(JSON.toJSONString(cacheService.get(key)), methodSignature.getReturnType());
             } else {
                 Object res = joinPoint.proceed();
                 if (res == null) {

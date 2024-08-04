@@ -21,6 +21,6 @@ import java.lang.annotation.RetentionPolicy;
 @Documented
 @EnableConfigurationProperties({BaseProperty.class, LockProperty.class, MqProperty.class})
 @Import(BaseConfig.class)
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public @interface EnableTbsFramework {
 }
