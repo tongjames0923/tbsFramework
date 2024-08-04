@@ -24,7 +24,7 @@ public @interface PermissionValidated {
      *
      * @return
      */
-    String value() default "";
+    String[] value() default {};
 
     /**
      * 自定义权限检验，若NotCustom则简单比较用户数据中的role和value是否对应

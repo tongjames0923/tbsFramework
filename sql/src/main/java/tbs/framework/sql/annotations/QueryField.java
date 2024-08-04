@@ -9,7 +9,7 @@ import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvi
 import java.lang.annotation.*;
 
 /**
- * The interface Query field.
+ *  查询字段注解
  *
  * @author abstergo
  */

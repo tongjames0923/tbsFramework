@@ -35,8 +35,8 @@ public class CacheConfig {
     }
 
     @Bean
-    CacheAspect cacheAspect() {
-        return new CacheAspect();
+    CacheAspect cacheAspect(AbstractCacheManager cacheManager) {
+        return new CacheAspect(cacheManager);
     }
 
     @Bean

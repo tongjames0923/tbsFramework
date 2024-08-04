@@ -1,5 +1,6 @@
 package tbs.framework.auth.interfaces.impls;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import tbs.framework.auth.annotations.PermissionValidated;
@@ -28,13 +29,18 @@ public class AnnotationPermissionValidator implements IPermissionValidator {
             if (SpecialPermissionProviderSet(url, method, permissionValidated, permissions)) {
                 continue;
             }
-            final PermissionModel permission = new PermissionModel();
-            permission.setUrl(url);
-            permission.setRole(permissionValidated.value());
-            if (NotCustom.class != permissionValidated.customCheck()) {
-                permission.setParameter(permissionValidated.customCheck());
+            for (String v : permissionValidated.value()) {
+                if (StrUtil.isEmpty(v)) {
+                    continue;
+                }
+                final PermissionModel permission = new PermissionModel();
+                permission.setUrl(url);
+                permission.setRole(v);
+                if (NotCustom.class != permissionValidated.customCheck()) {
+                    permission.setParameter(permissionValidated.customCheck());
+                }
+                permissions.add(permission);
             }
-            permissions.add(permission);
         }
         return permissions;
     }
