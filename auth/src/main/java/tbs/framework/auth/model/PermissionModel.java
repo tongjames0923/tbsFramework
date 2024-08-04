@@ -54,7 +54,7 @@ public class PermissionModel implements Serializable {
          * @return true:存在异常
          */
         public boolean hasError() {
-            return null != error;
+            return !success() && null != error;
         }
 
         /**

@@ -75,7 +75,7 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
 
         this.runtimeData.setInvokeArgs(joinPoint.getArgs());
         this.runtimeData.setInvokeMethod(methodSignature.getMethod());
-        if (RuntimeData.USER_PASS.equals(this.runtimeData.getStatus())) {
+        if (RuntimeData.getInstance().getUserModel() != null) {
             this.logger.trace("permission check: " + methodSignature);
             this.checkPermissions();
         } else {
@@ -86,7 +86,7 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
         this.runtimeData.setInvokeBegin(LocalDateTime.now());
             result = joinPoint.proceed();
         this.runtimeData.setInvokeEnd(LocalDateTime.now());
-
+        this.logger.trace("executed method: " + methodSignature);
         return result;
     }
 
@@ -103,7 +103,7 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
                 if (validate.hasError()) {
                     throw validate.getError();
                 } else {
-                    throw new RuntimeException(validate.getMessage());
+                    this.logger.trace("permission check success: " + permissionModel);
                 }
             }
         }

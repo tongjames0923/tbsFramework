@@ -6,6 +6,8 @@ import lombok.Data;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author abstergo
@@ -19,15 +21,6 @@ public class RuntimeData implements Serializable {
     }
 
     private static final long serialVersionUID = 3944172100933159385L;
-
-    /**
-     * 已获取Token
-     */
-    public static final Integer TOKEN_PASS = 1;
-    /**
-     * 已获取用户数据
-     */
-    public static final Integer USER_PASS = 2;
 
     /**
      * 业务运行启动时间
@@ -48,11 +41,6 @@ public class RuntimeData implements Serializable {
     private Object[] invokeArgs;
 
     /**
-     * 运行状态代号
-     */
-    private Integer status;
-
-    /**
      * 访问url路径
      */
     private String invokeUrl;
@@ -63,13 +51,8 @@ public class RuntimeData implements Serializable {
     private UserModel userModel;
 
     /**
-     * 用户请求密钥
+     * 访问token数据
      */
-    private String requestToken;
-
-    /**
-     * 数据返回密钥
-     */
-    private String responseToken;
+    public Set<TokenModel> tokenList = new HashSet<>();
 
 }

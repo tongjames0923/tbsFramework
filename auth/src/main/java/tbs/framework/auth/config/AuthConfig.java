@@ -1,7 +1,8 @@
 package tbs.framework.auth.config;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -13,23 +14,24 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tbs.framework.auth.aspects.ControllerAspect;
 import tbs.framework.auth.config.interceptors.TokenInterceptor;
-import tbs.framework.auth.config.interceptors.UserModelInterceptor;
 import tbs.framework.auth.interfaces.*;
 import tbs.framework.auth.interfaces.impls.AnnotationPermissionValidator;
 import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
 import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
+import tbs.framework.auth.interfaces.impls.UserModelTokenParser;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;
+import tbs.framework.base.utils.LogFactory;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AuthConfig {
 
@@ -43,8 +45,8 @@ public class AuthConfig {
         if (null == authProperty.getTokenPicker()) {
             throw new IllegalStateException("No auth property 'token picker' has been configured");
         }
-        if (StrUtil.isEmpty(this.authProperty.getTokenField())) {
-            throw new IllegalStateException("No auth property 'token field' has been configured");
+        if (CollUtil.isEmpty(this.authProperty.getTokenFields())) {
+            throw new IllegalStateException("No auth property 'token fields' has been configured");
         }
         return this.authProperty.getTokenPicker().getConstructor().newInstance();
     }
@@ -62,9 +64,9 @@ public class AuthConfig {
     }
 
     @Bean
-    WebMvcConfigurer authWebMvcConfigurer(final IRequestTokenPicker requestTokenPicker,
-        final IUserModelPicker userModelPicker, ObjectMapper objectMapper,
-        HttpMessageConverter<String> responseBodyConverter) {
+    WebMvcConfigurer authWebMvcConfigurer(Map<String, IRequestTokenPicker> requestTokenPickers,
+        ObjectMapper objectMapper, HttpMessageConverter<String> responseBodyConverter,
+        Map<String, ITokenParser> tokenParsers) {
         return new WebMvcConfigurer() {
 
             //
@@ -88,11 +90,16 @@ public class AuthConfig {
 
             @Override
             public void addInterceptors(final InterceptorRegistry registry) {
-                registry.addInterceptor(new TokenInterceptor(requestTokenPicker))
-                    .addPathPatterns(AuthConfig.this.authProperty.getAuthPathPattern()).order(0);
-                registry.addInterceptor(new UserModelInterceptor(userModelPicker))
-                    .addPathPatterns(AuthConfig.this.authProperty.getAuthPathPattern()).order(1);
-                WebMvcConfigurer.super.addInterceptors(registry);
+                List<ITokenParser> parsers = tokenParsers.values().stream().collect(Collectors.toList());
+                for (IRequestTokenPicker picker : requestTokenPickers.values()) {
+                    if (CollUtil.isEmpty(picker.paths())) {
+                        continue;
+                    }
+                    registry.addInterceptor(new TokenInterceptor(picker, parsers,
+                            LogFactory.getInstance().getLogger(TokenInterceptor.class.getName())))
+                        .addPathPatterns(picker.paths()).order(picker.getOrder());
+                    WebMvcConfigurer.super.addInterceptors(registry);
+                }
             }
         };
     }
@@ -118,6 +125,13 @@ public class AuthConfig {
     @ConditionalOnProperty(name = "tbs.framework.auth.enable-annotation-permission-validator", havingValue = "true")
     IPermissionValidator permissionValidator() {
         return new AnnotationPermissionValidator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ITokenParser.class)
+    @ConditionalOnBean(IUserModelPicker.class)
+    public ITokenParser userModelTokenParser() {
+        return new UserModelTokenParser();
     }
 
     @Bean
