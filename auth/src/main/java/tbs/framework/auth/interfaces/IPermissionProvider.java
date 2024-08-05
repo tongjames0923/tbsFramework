@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * 自定义权限提供者
+ * @author abstergo
  */
 public interface IPermissionProvider {
     /**
