@@ -2,8 +2,8 @@ package tbs.framework.auth.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import tbs.framework.auth.interfaces.IRequestTokenPicker;
-import tbs.framework.auth.interfaces.impls.tokenPickers.HeaderRequestTokenPicker;
+import tbs.framework.auth.interfaces.token.IRequestTokenPicker;
+import tbs.framework.auth.interfaces.token.impls.pickers.HeaderRequestTokenPicker;
 
 import java.util.ArrayList;
 import java.util.Arrays;

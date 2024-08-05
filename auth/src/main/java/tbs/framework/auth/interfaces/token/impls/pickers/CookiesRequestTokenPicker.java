@@ -1,7 +1,7 @@
-package tbs.framework.auth.interfaces.impls.tokenPickers;
+package tbs.framework.auth.interfaces.token.impls.pickers;
 
 import cn.hutool.core.util.StrUtil;
-import tbs.framework.auth.interfaces.IRequestTokenPicker;
+import tbs.framework.auth.interfaces.token.IRequestTokenPicker;
 import tbs.framework.auth.model.TokenModel;
 import tbs.framework.auth.properties.AuthProperty;
 

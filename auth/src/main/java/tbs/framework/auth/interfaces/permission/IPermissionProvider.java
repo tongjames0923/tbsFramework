@@ -1,4 +1,4 @@
-package tbs.framework.auth.interfaces;
+package tbs.framework.auth.interfaces.permission;
 
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.UserModel;

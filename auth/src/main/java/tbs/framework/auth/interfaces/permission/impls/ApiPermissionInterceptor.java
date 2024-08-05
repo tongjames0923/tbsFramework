@@ -1,10 +1,10 @@
-package tbs.framework.auth.interfaces.impls;
+package tbs.framework.auth.interfaces.permission.impls;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.AntPathMatcher;
 import com.alibaba.fastjson2.JSON;
 import tbs.framework.auth.interfaces.IApiInterceptor;
-import tbs.framework.auth.interfaces.IPermissionValidator;
+import tbs.framework.auth.interfaces.permission.IPermissionValidator;
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;

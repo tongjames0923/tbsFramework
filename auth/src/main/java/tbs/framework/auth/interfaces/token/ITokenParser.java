@@ -1,7 +1,7 @@
 /**
  * ITokenParser 接口用于解析令牌（Token）。
  */
-package tbs.framework.auth.interfaces;
+package tbs.framework.auth.interfaces.token;
 
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.model.TokenModel;

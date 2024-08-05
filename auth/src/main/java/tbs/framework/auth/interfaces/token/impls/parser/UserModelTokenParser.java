@@ -1,8 +1,8 @@
-package tbs.framework.auth.interfaces.impls;
+package tbs.framework.auth.interfaces.token.impls.parser;
 
 import tbs.framework.auth.exceptions.UserModelNotFoundException;
-import tbs.framework.auth.interfaces.ITokenParser;
-import tbs.framework.auth.interfaces.IUserModelPicker;
+import tbs.framework.auth.interfaces.token.ITokenParser;
+import tbs.framework.auth.interfaces.token.IUserModelPicker;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.model.TokenModel;
 import tbs.framework.auth.model.UserModel;

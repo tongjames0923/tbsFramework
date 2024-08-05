@@ -1,7 +1,7 @@
 /**
  * IRequestTokenPicker 接口用于从请求中获取令牌（Token）。
  */
-package tbs.framework.auth.interfaces;
+package tbs.framework.auth.interfaces.token;
 
 import org.springframework.core.Ordered;
 import tbs.framework.auth.model.TokenModel;

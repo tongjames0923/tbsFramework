@@ -1,7 +1,7 @@
-package tbs.framework.auth.interfaces.impls.tokenPickers;
+package tbs.framework.auth.interfaces.token.impls.pickers;
 
 import cn.hutool.core.util.StrUtil;
-import tbs.framework.auth.interfaces.IRequestTokenPicker;
+import tbs.framework.auth.interfaces.token.IRequestTokenPicker;
 import tbs.framework.auth.model.TokenModel;
 import tbs.framework.auth.properties.AuthProperty;
 
@@ -11,21 +11,19 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author abstergo
- */
-public class ParameterRequestTokenPicker implements IRequestTokenPicker {
+public class HeaderRequestTokenPicker implements IRequestTokenPicker {
     @Resource
-    AuthProperty authProperty;
+    private AuthProperty authProperty;
 
     @Override
     public List<TokenModel> getToken(final HttpServletRequest request, final HttpServletResponse response) {
         List<TokenModel> tokenModels = new LinkedList<>();
-        for (String tokenField : authProperty.getTokenFields()) {
-            String v = request.getParameter(tokenField);
-            if (StrUtil.isNotEmpty(v)) {
-                tokenModels.add(new TokenModel(tokenField, v, request));
+        for (String field : authProperty.getTokenFields()) {
+            final String token = request.getHeader(field);
+            if (StrUtil.isNotEmpty(token)) {
+                tokenModels.add(new TokenModel(field, token, request));
             }
+
         }
         return tokenModels;
     }

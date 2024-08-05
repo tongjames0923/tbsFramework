@@ -1,13 +1,13 @@
-package tbs.framework.auth.interfaces.impls;
+package tbs.framework.auth.interfaces.permission.impls;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import tbs.framework.auth.annotations.PermissionValidated;
 import tbs.framework.auth.annotations.PermissionValidateds;
-import tbs.framework.auth.interfaces.IPermissionProvider;
-import tbs.framework.auth.interfaces.IPermissionValidator;
-import tbs.framework.auth.interfaces.impls.permissionCheck.NotCustom;
+import tbs.framework.auth.interfaces.permission.IPermissionProvider;
+import tbs.framework.auth.interfaces.permission.IPermissionValidator;
+import tbs.framework.auth.interfaces.permission.impls.check.NotCustom;
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.model.UserModel;
