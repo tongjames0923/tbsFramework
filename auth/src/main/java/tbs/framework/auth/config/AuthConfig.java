@@ -18,10 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tbs.framework.auth.aspects.ControllerAspect;
 import tbs.framework.auth.config.interceptors.TokenInterceptor;
 import tbs.framework.auth.interfaces.*;
-import tbs.framework.auth.interfaces.impls.AnnotationPermissionValidator;
-import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
-import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
-import tbs.framework.auth.interfaces.impls.UserModelTokenParser;
+import tbs.framework.auth.interfaces.impls.*;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.properties.AuthProperty;
 import tbs.framework.base.utils.LogFactory;
@@ -111,7 +108,14 @@ public class AuthConfig {
     }
 
     @Bean
-    public ControllerAspect controllerAspect(final Map<String, IPermissionValidator> map) {
+    @ConditionalOnProperty(name = "tbs.framework.auth.enable-annotation-permission-validator", havingValue = "true")
+    ApiPermissionInterceptor permissionInterceptor(Map<String, IPermissionValidator> map) {
+        return new ApiPermissionInterceptor(map);
+    }
+
+
+    @Bean
+    public ControllerAspect controllerAspect(final Map<String, IApiInterceptor> map) {
         return new ControllerAspect(map);
     }
 

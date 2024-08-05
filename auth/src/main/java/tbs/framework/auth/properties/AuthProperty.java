@@ -6,7 +6,7 @@ import tbs.framework.auth.interfaces.IRequestTokenPicker;
 import tbs.framework.auth.interfaces.impls.tokenPickers.HeaderRequestTokenPicker;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -23,9 +23,16 @@ public class AuthProperty {
     private String userModelTokenField = "token";
 
     /**
+     * 请求接口防抖动字段
+     */
+    private String apiStabilizationField = "stabilization";
+
+    /**
      * 必要密钥位置，默认值仅包含用户请求token的字段
      */
-    private List<String> tokenFields = new ArrayList<>(Collections.singleton(userModelTokenField));
+    private List<String> tokenFields = new ArrayList<>(Arrays.asList(userModelTokenField, apiStabilizationField));
+
+
 
     /**
      * 非必要密钥位置，当检查器处理请求中非必要密钥时，不会抛出异常。
