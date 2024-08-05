@@ -30,14 +30,18 @@ public class AuthProperty {
     /**
      * 必要密钥位置，默认值仅包含用户请求token的字段
      */
-    private List<String> tokenFields = new ArrayList<>(Arrays.asList(userModelTokenField, apiStabilizationField));
+    private List<String> tokenFields = new ArrayList<>(Arrays.asList(userModelTokenField));
 
+    /**
+     * 接口防抖动时间，单位毫秒
+     */
+    private int apiColdDownTime = 1000;
 
 
     /**
      * 非必要密钥位置，当检查器处理请求中非必要密钥时，不会抛出异常。
      */
-    private List<String> unForcedTokenFields = new ArrayList<>();
+    private List<String> unForcedTokenFields = new ArrayList<>(Arrays.asList(apiStabilizationField));
 
 
 

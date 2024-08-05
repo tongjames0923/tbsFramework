@@ -76,7 +76,7 @@ public class TokenInterceptor implements HandlerInterceptor {
                 continue;
             }
         }
-        if (!checked) {
+        if (!checked && model.isForceCheck()) {
             throw new RuntimeException("Token解析器不支持的Token[" + model.toString() + "]");
         }
     }
