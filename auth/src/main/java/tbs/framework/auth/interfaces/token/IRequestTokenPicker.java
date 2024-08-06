@@ -1,4 +1,7 @@
-package tbs.framework.auth.interfaces;
+/**
+ * IRequestTokenPicker 接口用于从请求中获取令牌（Token）。
+ */
+package tbs.framework.auth.interfaces.token;
 
 import org.springframework.core.Ordered;
 import tbs.framework.auth.model.TokenModel;
@@ -9,26 +12,31 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 请求token获取
- *
- * @author abstergo
+ * IRequestTokenPicker 接口用于从请求中获取令牌（Token）。
  */
 public interface IRequestTokenPicker extends Ordered {
+
     /**
-     * 获取token
+     * 从请求中获取令牌。
      *
-     * @param request  请求
-     * @param response 响应
-     * @return token
+     * @param request  HttpServletRequest 对象
+     * @param response HttpServletResponse 对象
+     * @return 令牌模型列表
      */
     List<TokenModel> getToken(HttpServletRequest request, HttpServletResponse response);
 
-    public default List<String> paths() {
+    /**
+     * 获取拦截路径。
+     *
+     * @return 拦截路径列表
+     */
+    default List<String> paths() {
         return Collections.singletonList("/*");
     }
 
     @Override
-    public default int getOrder() {
+    default int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
     }
 }
+

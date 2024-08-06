@@ -1,4 +1,4 @@
-package tbs.framework.auth.interfaces;
+package tbs.framework.auth.interfaces.permission;
 
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.UserModel;
@@ -6,6 +6,9 @@ import tbs.framework.auth.model.UserModel;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+/**
+ * @author abstergo
+ */
 public interface IPermissionValidator {
 
     /**

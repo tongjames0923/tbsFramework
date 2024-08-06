@@ -1,9 +1,9 @@
 package tbs.framework.auth.annotations;
 
 import org.springframework.stereotype.Component;
-import tbs.framework.auth.interfaces.ICustomPermissionChecker;
-import tbs.framework.auth.interfaces.IPermissionProvider;
-import tbs.framework.auth.interfaces.impls.permissionCheck.NotCustom;
+import tbs.framework.auth.interfaces.permission.ICustomPermissionChecker;
+import tbs.framework.auth.interfaces.permission.IPermissionProvider;
+import tbs.framework.auth.interfaces.permission.impls.check.NotCustom;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;

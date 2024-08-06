@@ -10,7 +10,6 @@ import javax.annotation.Resource
 
 class CacheMessageHandleBlocker : AbstractMessageHandleBlocker, IkeyMixer {
     constructor() : super() {
-        val i = 0;
     }
 
     override fun mixKey(key: String?): String {

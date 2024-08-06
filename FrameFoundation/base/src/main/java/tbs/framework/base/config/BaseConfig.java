@@ -144,6 +144,7 @@ public class BaseConfig {
     @ConditionalOnMissingBean(AbstractMessageHandleBlocker.class)
     @Bean
     AbstractMessageHandleBlocker messageHandleBlocker() {
+
         return new CacheMessageHandleBlocker();
     }
 }

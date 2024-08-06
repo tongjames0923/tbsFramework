@@ -1,6 +1,5 @@
 package tbs.framework.auth.aspects;
 
-import cn.hutool.core.collection.CollUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,18 +15,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import tbs.framework.auth.annotations.ApplyRuntimeData;
+import tbs.framework.auth.interfaces.IApiInterceptor;
 import tbs.framework.auth.interfaces.IErrorHandler;
-import tbs.framework.auth.interfaces.IPermissionValidator;
 import tbs.framework.auth.interfaces.IRuntimeDataExchanger;
-import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author abstergo
@@ -39,13 +38,14 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
     @AutoLogger
     private ILogger logger;
 
-    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
+    @Pointcut(
+        "@annotation(org.springframework.web.bind.annotation.RequestMapping)||@annotation(org.springframework.web.bind.annotation.GetMapping)||@annotation(org.springframework.web.bind.annotation.PostMapping)")
     public void requestMapping() {
 
     }
 
-    public ControllerAspect(final Map<String, IPermissionValidator> permissionValidators) {
-        this.permissionValidators = permissionValidators;
+    public ControllerAspect(Map<String, IApiInterceptor> interceptorMap) {
+        this.interceptorMap = interceptorMap;
     }
 
     @Resource
@@ -64,49 +64,34 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
     @Resource
     RuntimeData runtimeData;
 
-    Map<String, IPermissionValidator> permissionValidators;
-
+    Map<String, IApiInterceptor> interceptorMap;
 
 
     @Around("requestMapping()")
     public Object controllerAspect(final ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = null;
         final MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
-
+        List<IApiInterceptor> accept = new ArrayList<>(interceptorMap.size());
+        for (IApiInterceptor interceptor : interceptorMap.values()) {
+            if (interceptor.support(RuntimeData.getInstance().getInvokeUrl())) {
+                accept.add(interceptor);
+                interceptor.beforeInvoke(methodSignature.getMethod(), joinPoint.getTarget(), joinPoint.getArgs());
+            } else {
+                logger.debug("unsupported interceptor: " +
+                    interceptor.getClass().getName() +
+                    " for url: " +
+                    RuntimeData.getInstance().getInvokeUrl());
+            }
+        }
         this.runtimeData.setInvokeArgs(joinPoint.getArgs());
         this.runtimeData.setInvokeMethod(methodSignature.getMethod());
-        if (RuntimeData.getInstance().getUserModel() != null) {
-            this.logger.trace("permission check: " + methodSignature);
-            this.checkPermissions();
-        } else {
-            this.logger.trace("permission check skiped: " + methodSignature);
-        }
-
-        this.logger.trace("executing method: " + methodSignature);
         this.runtimeData.setInvokeBegin(LocalDateTime.now());
             result = joinPoint.proceed();
         this.runtimeData.setInvokeEnd(LocalDateTime.now());
-        this.logger.trace("executed method: " + methodSignature);
-        return result;
-    }
-
-    private void checkPermissions() {
-        for (final Map.Entry<String, IPermissionValidator> entry : this.permissionValidators.entrySet()) {
-            final Set<PermissionModel> list =
-                entry.getValue().pullPermission(this.runtimeData.getInvokeUrl(), this.runtimeData.getInvokeMethod());
-            if (CollUtil.isEmpty(list)) {
-                continue;
-            }
-            for (final PermissionModel permissionModel : list) {
-                final PermissionModel.VerificationResult validate =
-                    entry.getValue().validate(permissionModel, this.runtimeData.getUserModel());
-                if (validate.hasError()) {
-                    throw validate.getError();
-                } else {
-                    this.logger.trace("permission check success: " + permissionModel);
-                }
-            }
+        for (IApiInterceptor interceptor : accept) {
+            interceptor.afterInvoke(methodSignature.getMethod(), joinPoint.getTarget(), joinPoint.getArgs(), result);
         }
+        return result;
     }
 
     @Override

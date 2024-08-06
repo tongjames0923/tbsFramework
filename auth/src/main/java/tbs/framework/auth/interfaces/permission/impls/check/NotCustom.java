@@ -1,7 +1,7 @@
-package tbs.framework.auth.interfaces.impls.permissionCheck;
+package tbs.framework.auth.interfaces.permission.impls.check;
 
-import tbs.framework.auth.interfaces.ICustomPermissionChecker;
-import tbs.framework.auth.interfaces.IPermissionProvider;
+import tbs.framework.auth.interfaces.permission.ICustomPermissionChecker;
+import tbs.framework.auth.interfaces.permission.IPermissionProvider;
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.UserModel;
 

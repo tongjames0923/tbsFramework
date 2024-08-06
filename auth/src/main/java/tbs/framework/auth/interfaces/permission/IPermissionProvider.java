@@ -1,4 +1,4 @@
-package tbs.framework.auth.interfaces;
+package tbs.framework.auth.interfaces.permission;
 
 import tbs.framework.auth.model.PermissionModel;
 import tbs.framework.auth.model.UserModel;
@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * 自定义权限提供者
+ * @author abstergo
  */
 public interface IPermissionProvider {
     /**

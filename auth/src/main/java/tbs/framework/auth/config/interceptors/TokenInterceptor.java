@@ -4,8 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.web.servlet.HandlerInterceptor;
 import tbs.framework.auth.exceptions.TokenNotFoundException;
-import tbs.framework.auth.interfaces.IRequestTokenPicker;
-import tbs.framework.auth.interfaces.ITokenParser;
+import tbs.framework.auth.interfaces.token.IRequestTokenPicker;
+import tbs.framework.auth.interfaces.token.ITokenParser;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.model.TokenModel;
 import tbs.framework.log.ILogger;
@@ -76,7 +76,7 @@ public class TokenInterceptor implements HandlerInterceptor {
                 continue;
             }
         }
-        if (!checked) {
+        if (!checked && model.isForceCheck()) {
             throw new RuntimeException("Token解析器不支持的Token[" + model.toString() + "]");
         }
     }

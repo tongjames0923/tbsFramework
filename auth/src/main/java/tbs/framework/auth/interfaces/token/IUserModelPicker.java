@@ -1,4 +1,4 @@
-package tbs.framework.auth.interfaces;
+package tbs.framework.auth.interfaces.token;
 
 import tbs.framework.auth.model.UserModel;
 
