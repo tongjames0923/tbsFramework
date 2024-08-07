@@ -13,6 +13,9 @@ import tbs.framework.cache.managers.AbstractExpireManager;
 
 import javax.annotation.Resource;
 
+/**
+ * @author abstergo
+ */
 public class DebounceConfig {
 
     @Resource

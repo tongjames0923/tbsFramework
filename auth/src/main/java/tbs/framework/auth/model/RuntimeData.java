@@ -22,6 +22,11 @@ public class RuntimeData implements Serializable {
 
     private static final long serialVersionUID = 3944172100933159385L;
 
+    public RuntimeData() {
+        systemDataCreateTime = LocalDateTime.now();
+    }
+
+
     /**
      * 获取当前用户是否登录
      *
@@ -30,6 +35,11 @@ public class RuntimeData implements Serializable {
     public static final boolean userLogined() {
         return RuntimeData.getInstance().getUserModel() != null;
     }
+
+    /**
+     * 当前运行数据生成时间
+     */
+    private LocalDateTime systemDataCreateTime;
 
     /**
      * 业务运行启动时间

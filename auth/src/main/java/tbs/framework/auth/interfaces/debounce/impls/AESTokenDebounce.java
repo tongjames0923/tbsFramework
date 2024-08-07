@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import lombok.Data;
 import tbs.framework.auth.exceptions.DebounceException;
-import tbs.framework.auth.interfaces.debounce.IDebounce;
+import tbs.framework.auth.interfaces.debounce.AbstractTokenDebounce;
 import tbs.framework.auth.model.RuntimeData;
 import tbs.framework.auth.model.TokenModel;
 import tbs.framework.auth.model.UserModel;
@@ -14,11 +14,16 @@ import tbs.framework.utils.AESUtil;
 import tbs.framework.utils.UuidUtil;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class AESTokenDebounce implements IDebounce {
+/**
+ * @author abstergo
+ */
+public class AESTokenDebounce extends AbstractTokenDebounce<AESTokenDebounce.DebounceInfo> {
 
     private String tokenField;
 
@@ -29,13 +34,46 @@ public class AESTokenDebounce implements IDebounce {
 
     Map<String, DebounceInfo> tokenMap = new HashMap<>();
 
-    public String makeToken(UserModel user, String url) throws Exception {
+    //    @Override
+    //    protected String genToken(TokenFactor fac) {
+    //        DebounceInfo debounceInfo = new DebounceInfo(fac.user.getUserId(), fac.url);
+    //        String token = null;
+    //        try {
+    //            token = AESUtil.encrypt(key, JSON.toJSONString(debounceInfo));
+    //        } catch (Exception e) {
+    //            logger.error(e, "生成token失败");
+    //        }
+    //        return token;
+    //    }
+    //
+    //    @Override
+    //    protected void consumeToken(TokenFactor token) throws DebounceException {
+    //
+    //    }
+    //
+    //    @Override
+    //    protected void tokenRemove(TokenFactor token) {
+    //
+    //    }
+    //
+    //    @Override
+    //    protected TokenFactor toFactor(UserModel user, Method method, Object[] args) {
+    //        return null;
+    //    }
+    //
+    //    @Override
+    //    protected void tokenApply(String token, TokenFactor fac) {
+    //        tokenMap.put(token, fac);
+    //    }
+    //
+    //    @Data
+    //    @AllArgsConstructor
+    //    @NoArgsConstructor
+    //    public static class TokenFactor {
+    //        UserModel user;
+    //        String url;
+    //    }
 
-        DebounceInfo debounceInfo = new DebounceInfo(user.getUserId(), url);
-        String token = AESUtil.encrypt(key, JSON.toJSONString(debounceInfo));
-        tokenMap.put(debounceInfo.id, debounceInfo);
-        return token;
-    }
 
     /**
      * 默认100毫秒冷却
@@ -43,7 +81,7 @@ public class AESTokenDebounce implements IDebounce {
     private int expireTime = 3 * 1000;
 
     @Data
-    private static final class DebounceInfo {
+    public static final class DebounceInfo {
         private String user;
         private long createTimeStamp;
         private String url;
@@ -51,7 +89,7 @@ public class AESTokenDebounce implements IDebounce {
 
         public DebounceInfo(String user, String url) {
             this.user = user;
-            this.createTimeStamp = System.currentTimeMillis();
+            this.createTimeStamp = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
             this.id = UuidUtil.getUuid();
             this.url = url;
         }
@@ -62,44 +100,59 @@ public class AESTokenDebounce implements IDebounce {
         this.expireTime = expireTime;
     }
 
-    public String key() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
+    @Override
+    protected String genToken(DebounceInfo fac) {
+        String token = null;
+        try {
+            token = AESUtil.encrypt(key, JSON.toJSONString(fac));
+        } catch (Exception e) {
+            logger.error(e, "生成token失败");
+        }
+        return token;
     }
 
     @Override
-    public void debounce(String url, UserModel user, Method method, Object target, Object[] args)
-        throws DebounceException {
-        boolean hasToken = false;
+    protected void tokenApply(String token, DebounceInfo fac) {
+        tokenMap.put(fac.id, fac);
+    }
+
+    @Override
+    protected void consumeToken(DebounceInfo info) throws DebounceException {
+        long requestBegin =
+            RuntimeData.getInstance().getSystemDataCreateTime().toInstant(ZoneOffset.UTC).toEpochMilli();
+        DebounceInfo inside = tokenMap.get(info.id);
+        if (Objects.equals(info.url, inside.url) &&
+            Objects.equals(info.user, inside.user) &&
+            info.createTimeStamp + expireTime > requestBegin) {
+            logger.debug("防抖Token{}命中", info);
+        } else {
+            throw new DebounceException("防抖Token未命中");
+        }
+    }
+
+    @Override
+    protected void tokenRemove(DebounceInfo token) {
+        tokenMap.remove(token.id);
+    }
+
+    @Override
+    protected DebounceInfo toFactor(UserModel user, Method method, Object[] args) {
         DebounceInfo info = null;
         for (TokenModel tm : RuntimeData.getInstance().getTokenList()) {
             if (Objects.equals(tm.getField(), tokenField) && StrUtil.isNotEmpty(tm.getToken())) {
-                long now = System.currentTimeMillis();
                 try {
                     info = JSON.parseObject(AESUtil.decrypt(key, tm.getToken()), DebounceInfo.class);
-                    hasToken = info != null && StrUtil.isNotEmpty(info.id) && tokenMap.containsKey(info.id);
-
-                    if (hasToken &&
-                        Objects.equals(info.url, url) &&
-                        Objects.equals(info.user, user.getUserId()) &&
-                        info.createTimeStamp + expireTime > now) {
-                        logger.debug("防抖Token{}命中", tm.getToken());
-                    } else {
-                        throw new DebounceException("防抖Token未命中");
-                    }
-                } catch (DebounceException debounceException) {
-                    throw debounceException;
                 } catch (Exception e) {
-                    logger.warn("错误的防抖Token{},错误信息：{}", tm.getToken(), e.getMessage());
-                } finally {
-                    if (hasToken) {
-                        tokenMap.remove(info.id);
-                    }
+                    logger.error(e, "解析token失败");
                 }
+                break;
             }
+        }
+
+        if (info != null && StrUtil.isNotEmpty(info.id) && tokenMap.containsKey(info.id)) {
+            return info;
+        } else {
+            return null;
         }
     }
 }

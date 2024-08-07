@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * TokenModel 类用于表示令牌（Token）模型。
+ * @author abstergo
  */
 @Data
 @NoArgsConstructor
