@@ -8,7 +8,8 @@ import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 
 /**
- * 事务工具
+ * 事务工具类
+ *
  * @author abstergo
  */
 public class TransactionUtil {
@@ -27,10 +28,14 @@ public class TransactionUtil {
     /**
      * 通过构造器注入事务管理器
      */
-    public TransactionUtil(PlatformTransactionManager transactionManager) {
+    private TransactionUtil(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
         if (null == transactionUtil) {
-            transactionUtil = this;
+            synchronized (TransactionUtil.class) {
+                if (transactionUtil == null) {
+                    transactionUtil = this;
+                }
+            }
         }
     }
 
@@ -54,11 +59,19 @@ public class TransactionUtil {
 
             // 如果业务逻辑执行成功，提交事务
             transactionManager.commit(status);
-        } catch (RuntimeException e) {
+        } catch (Exception e) { // 捕获所有异常
             // 如果出现异常，回滚事务
-            logger.warn("transaction roll back");
-            transactionManager.rollback(status);
+            logger.error(e, "Transaction rollback due to exception: " + e.getMessage());
+            if (status != null) {
+                transactionManager.rollback(status);
+            }
             throw e;
+        } finally {
+            // 确保事务状态被清理
+            if (status != null && !status.isCompleted()) {
+                transactionManager.rollback(status);
+                logger.warn("Transaction was not completed properly, rolled back.");
+            }
         }
     }
 
@@ -69,7 +82,6 @@ public class TransactionUtil {
      * @param businessLogic
      */
     public void executeTransaction(int propagationBehavior, Runnable businessLogic) {
-
         executeInTransaction(new DefaultTransactionDefinition(propagationBehavior), businessLogic);
     }
 }
