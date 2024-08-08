@@ -38,7 +38,7 @@ public class LockUtils {
             if (newLock == null) {
                 throw new IllegalStateException("Failed to create a new lock instance.");
             }
-            logger.info("Created new lock for target: {}, isReMake: {}", target, false);
+            logger.debug("Created new lock for target: {}, isReMake: {}", target, false);
             return new WeakReference<>(newLock);
         }).get();
     }

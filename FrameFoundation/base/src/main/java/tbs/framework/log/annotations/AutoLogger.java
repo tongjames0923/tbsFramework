@@ -1,5 +1,9 @@
 package tbs.framework.log.annotations;
 
+import org.springframework.stereotype.Component;
+import tbs.framework.base.annotations.AutoProxy;
+import tbs.framework.log.impls.AutoLoggerImpl;
+
 import java.lang.annotation.*;
 
 /**
@@ -10,6 +14,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Target(ElementType.FIELD)
+@Component
+@AutoProxy(proxyImpl = AutoLoggerImpl.class)
 public @interface AutoLogger {
     /**
      * logger name,为空则装配当前类名

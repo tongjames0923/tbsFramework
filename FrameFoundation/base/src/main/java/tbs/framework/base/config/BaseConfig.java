@@ -21,11 +21,11 @@ import tbs.framework.lock.ILockProvider;
 import tbs.framework.lock.aspects.LockAspect;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
-import tbs.framework.log.proxys.AutoLoggerProxyFactory;
 import tbs.framework.mq.AbstractMessageHandleBlocker;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
 import tbs.framework.mq.impls.CacheMessageHandleBlocker;
+import tbs.framework.proxy.impls.AutoProxyObjectFactory;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.*;
 import tbs.framework.utils.impls.SimpleUuidUtil;
@@ -84,8 +84,8 @@ public class BaseConfig {
     }
 
     @Bean
-    AutoLoggerProxyFactory autoLoggerAspect() {
-        return new AutoLoggerProxyFactory();
+    AutoProxyObjectFactory autoLoggerAspect() {
+        return new AutoProxyObjectFactory();
     }
 
     @Bean
@@ -102,6 +102,7 @@ public class BaseConfig {
             factory = new Slf4JLoggerFactory();
         }
         factory = this.baseProperty.getLoggerProvider().getConstructor().newInstance();
+        LogFactory.Companion.setInstance(factory);
         return factory;
     }
 

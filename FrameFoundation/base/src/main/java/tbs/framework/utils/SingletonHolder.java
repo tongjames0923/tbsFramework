@@ -22,7 +22,7 @@ public class SingletonHolder {
 
     private final ConcurrentMap<Class<?>, Object> holderMap = new ConcurrentHashMap<>();
 
-    private SingletonHolder() {
+    public SingletonHolder() {
         if (HAS_BEEN_INIT.compareAndSet(false, true)) {
             instance = this;
         } else {
