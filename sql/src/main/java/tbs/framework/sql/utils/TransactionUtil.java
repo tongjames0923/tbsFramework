@@ -28,7 +28,7 @@ public class TransactionUtil {
     /**
      * 通过构造器注入事务管理器
      */
-    private TransactionUtil(PlatformTransactionManager transactionManager) {
+    public TransactionUtil(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
         if (null == transactionUtil) {
             synchronized (TransactionUtil.class) {
