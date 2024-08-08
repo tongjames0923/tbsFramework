@@ -1,5 +1,6 @@
 package tbs.framework.auth.interfaces.debounce;
 
+import cn.hutool.core.util.StrUtil;
 import tbs.framework.auth.exceptions.DebounceException;
 import tbs.framework.auth.interfaces.ITokenGenerator;
 import tbs.framework.auth.model.UserModel;
@@ -58,6 +59,9 @@ public abstract class AbstractTokenDebounce<T> implements IDebounce, ITokenGener
     @Override
     public String generateToken(T tokenFactor) {
         String token = genToken(tokenFactor);
+        if (StrUtil.isEmpty(token)) {
+            throw new RuntimeException("令牌生成错误，令牌值为空");
+        }
         tokenApply(token, tokenFactor);
         return token;
     }
@@ -74,7 +78,7 @@ public abstract class AbstractTokenDebounce<T> implements IDebounce, ITokenGener
         } catch (DebounceException de) {
             throw de;
         } catch (Exception e) {
-            throw new DebounceException(String.format("token consume failed. msg:%s", e.getMessage()));
+            throw new DebounceException(String.format("令牌消费失败。消息:%s", e.getMessage()));
         } finally {
             tokenRemove(tokenFactor);
         }

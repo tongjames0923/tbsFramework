@@ -1,7 +1,10 @@
 package tbs.framework.utils;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The enum Time util.
@@ -39,4 +42,23 @@ public enum TimeUtil {
      */
     public static final DateTimeFormatter DATE_FORMAT_TEMPORAL_yyyyMMddHHmm =
         DateTimeFormatter.ofPattern(TimeUtil.DATE_FORMAT_yyyyMMddHHmm_STR);
+
+    /**
+     * 获取utc时间戳，
+     *
+     * @param timeUnit 时间单位
+     * @return
+     */
+    public static long getUtcTime(TimeUnit timeUnit) {
+        return timeUnit.convert(getUtcTime(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 获取utc时间戳，单位毫秒
+     * @return
+     */
+    public static long getUtcTime() {
+        return LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
+    }
+
 }

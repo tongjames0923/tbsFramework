@@ -10,8 +10,8 @@ import tbs.framework.auth.model.TokenModel;
 import tbs.framework.auth.model.UserModel;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
-import tbs.framework.utils.AESUtil;
 import tbs.framework.utils.UuidUtil;
+import tbs.framework.utils.encrypt.AESUtil;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
@@ -33,47 +33,6 @@ public class AESTokenDebounce extends AbstractTokenDebounce<AESTokenDebounce.Deb
     ILogger logger;
 
     Map<String, DebounceInfo> tokenMap = new HashMap<>();
-
-    //    @Override
-    //    protected String genToken(TokenFactor fac) {
-    //        DebounceInfo debounceInfo = new DebounceInfo(fac.user.getUserId(), fac.url);
-    //        String token = null;
-    //        try {
-    //            token = AESUtil.encrypt(key, JSON.toJSONString(debounceInfo));
-    //        } catch (Exception e) {
-    //            logger.error(e, "生成token失败");
-    //        }
-    //        return token;
-    //    }
-    //
-    //    @Override
-    //    protected void consumeToken(TokenFactor token) throws DebounceException {
-    //
-    //    }
-    //
-    //    @Override
-    //    protected void tokenRemove(TokenFactor token) {
-    //
-    //    }
-    //
-    //    @Override
-    //    protected TokenFactor toFactor(UserModel user, Method method, Object[] args) {
-    //        return null;
-    //    }
-    //
-    //    @Override
-    //    protected void tokenApply(String token, TokenFactor fac) {
-    //        tokenMap.put(token, fac);
-    //    }
-    //
-    //    @Data
-    //    @AllArgsConstructor
-    //    @NoArgsConstructor
-    //    public static class TokenFactor {
-    //        UserModel user;
-    //        String url;
-    //    }
-
 
     /**
      * 默认100毫秒冷却

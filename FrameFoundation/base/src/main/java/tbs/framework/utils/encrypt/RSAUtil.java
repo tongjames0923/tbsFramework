@@ -1,4 +1,4 @@
-package tbs.framework.utils;
+package tbs.framework.utils.encrypt;
 
 import javax.crypto.Cipher;
 import java.security.*;
@@ -6,6 +6,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+/**
+ * RSA加密工具类
+ *
+ * @author abstergo
+ */
 public class RSAUtil {
 
     private static final String RSA = "RSA";
