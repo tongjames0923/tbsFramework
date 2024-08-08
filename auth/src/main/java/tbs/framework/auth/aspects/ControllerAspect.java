@@ -70,21 +70,18 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
     @Around("requestMapping()")
     public Object controllerAspect(final ProceedingJoinPoint joinPoint) throws Throwable {
         Object result = null;
+        this.runtimeData.setInvokeArgs(joinPoint.getArgs());
         final MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+        this.runtimeData.setInvokeMethod(methodSignature.getMethod());
         List<IApiInterceptor> accept = new ArrayList<>(interceptorMap.size());
         for (IApiInterceptor interceptor : interceptorMap.values()) {
             if (interceptor.support(RuntimeData.getInstance().getInvokeUrl())) {
                 accept.add(interceptor);
                 interceptor.beforeInvoke(methodSignature.getMethod(), joinPoint.getTarget(), joinPoint.getArgs());
-            } else {
-                logger.debug("unsupported interceptor: " +
-                    interceptor.getClass().getName() +
-                    " for url: " +
+                logger.debug("{} before invoked for url {}", interceptor.getClass().getName(),
                     RuntimeData.getInstance().getInvokeUrl());
             }
         }
-        this.runtimeData.setInvokeArgs(joinPoint.getArgs());
-        this.runtimeData.setInvokeMethod(methodSignature.getMethod());
         this.runtimeData.setInvokeBegin(LocalDateTime.now());
             result = joinPoint.proceed();
         this.runtimeData.setInvokeEnd(LocalDateTime.now());

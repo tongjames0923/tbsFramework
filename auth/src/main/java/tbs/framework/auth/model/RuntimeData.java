@@ -72,6 +72,6 @@ public class RuntimeData implements Serializable {
     /**
      * 访问token数据
      */
-    public Set<TokenModel> tokenList = new HashSet<>();
+    private Set<TokenModel> tokenList = new HashSet<>();
 
 }
