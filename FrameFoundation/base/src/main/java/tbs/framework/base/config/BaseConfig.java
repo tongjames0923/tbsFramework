@@ -8,7 +8,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
@@ -27,6 +28,7 @@ import tbs.framework.mq.impls.CacheMessageHandleBlocker;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.IStartup;
 import tbs.framework.utils.LockUtils;
+import tbs.framework.utils.SingletonHolder;
 import tbs.framework.utils.UuidUtil;
 import tbs.framework.utils.impls.SimpleUuidUtil;
 import tbs.framework.utils.impls.Slf4JLoggerFactory;
@@ -48,6 +50,11 @@ public class BaseConfig {
 
     @Resource
     MqProperty mqProperty;
+
+    @Bean
+    SingletonHolder singletonHolder() {
+        return new SingletonHolder();
+    }
 
 //    @Bean
 //    @ConditionalOnMissingBean(IMessageQueueEvents.class)
@@ -84,7 +91,7 @@ public class BaseConfig {
     }
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
-    @Primary
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public LogFactory getLogger()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         LogFactory factory = null;
@@ -92,7 +99,6 @@ public class BaseConfig {
             factory = new Slf4JLoggerFactory();
         }
         factory = this.baseProperty.getLoggerProvider().getConstructor().newInstance();
-        LogFactory.setLogFactory(factory);
         return factory;
     }
 

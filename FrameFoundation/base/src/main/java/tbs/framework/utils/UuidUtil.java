@@ -1,10 +1,9 @@
 package tbs.framework.utils;
 
-import cn.hutool.extra.spring.SpringUtil;
-
+/**
+ * @author abstergo
+ */
 public abstract class UuidUtil {
-
-    private static UuidUtil uuidUtils;
 
     /**
      * 获取uuidUtil实例
@@ -12,10 +11,7 @@ public abstract class UuidUtil {
      * @return
      */
     public static UuidUtil getInstance() {
-        if (null == UuidUtil.uuidUtils) {
-            UuidUtil.uuidUtils = SpringUtil.getBean(UuidUtil.class);
-        }
-        return UuidUtil.uuidUtils;
+        return SingletonHolder.getInstance(UuidUtil.class);
     }
 
     /**

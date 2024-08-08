@@ -1,7 +1,7 @@
 package tbs.framework.auth.model;
 
-import cn.hutool.extra.spring.SpringUtil;
 import lombok.Data;
+import tbs.framework.utils.SingletonHolder;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -17,7 +17,7 @@ import java.util.Set;
 public class RuntimeData implements Serializable {
 
     public static RuntimeData getInstance() {
-        return SpringUtil.getBean(RuntimeData.class);
+        return SingletonHolder.getInstance(RuntimeData.class);
     }
 
     private static final long serialVersionUID = 3944172100933159385L;

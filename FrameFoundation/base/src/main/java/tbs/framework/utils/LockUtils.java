@@ -13,15 +13,11 @@ import java.util.Map;
  */
 public class LockUtils {
 
-    private static LockUtils instance;
 
     public static LockUtils getInstance() {
-        return instance;
+        return SingletonHolder.getInstance(LockUtils.class);
     }
 
-    public LockUtils() {
-        instance = this;
-    }
 
     private Map<Object, WeakReference<ILock>> iLockConcurrentHashMap = new HashMap<>();
 

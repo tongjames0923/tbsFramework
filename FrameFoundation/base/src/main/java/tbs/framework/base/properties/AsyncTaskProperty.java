@@ -3,6 +3,7 @@ package tbs.framework.base.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import tbs.framework.async.task.consumers.IgnoreBroker;
+import tbs.framework.utils.SingletonHolder;
 import tbs.framework.utils.ThreadUtil;
 
 /**
@@ -11,15 +12,8 @@ import tbs.framework.utils.ThreadUtil;
 @Data
 @ConfigurationProperties(prefix = "tbs.framework.async.task")
 public class AsyncTaskProperty {
-
-    private static AsyncTaskProperty instance = null;
-
     public static AsyncTaskProperty getInstance() {
-        return instance;
-    }
-
-    public AsyncTaskProperty() {
-        instance = this;
+        return SingletonHolder.getInstance(AsyncTaskProperty.class);
     }
 
     /**
