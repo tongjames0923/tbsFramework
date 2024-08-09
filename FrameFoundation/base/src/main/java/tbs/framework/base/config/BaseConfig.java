@@ -3,12 +3,14 @@ package tbs.framework.base.config;
 import cn.hutool.extra.spring.SpringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
@@ -19,15 +21,13 @@ import tbs.framework.lock.ILockProvider;
 import tbs.framework.lock.aspects.LockAspect;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
-import tbs.framework.log.proxys.AutoLoggerProxyFactory;
 import tbs.framework.mq.AbstractMessageHandleBlocker;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
 import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
 import tbs.framework.mq.impls.CacheMessageHandleBlocker;
+import tbs.framework.proxy.impls.AutoProxyObjectFactory;
 import tbs.framework.proxy.impls.LockProxy;
-import tbs.framework.utils.IStartup;
-import tbs.framework.utils.LockUtils;
-import tbs.framework.utils.UuidUtil;
+import tbs.framework.utils.*;
 import tbs.framework.utils.impls.SimpleUuidUtil;
 import tbs.framework.utils.impls.Slf4JLoggerFactory;
 
@@ -48,6 +48,11 @@ public class BaseConfig {
 
     @Resource
     MqProperty mqProperty;
+
+    @Bean
+    SingletonHolder singletonHolder() {
+        return new SingletonHolder();
+    }
 
 //    @Bean
 //    @ConditionalOnMissingBean(IMessageQueueEvents.class)
@@ -79,12 +84,17 @@ public class BaseConfig {
     }
 
     @Bean
-    AutoLoggerProxyFactory autoLoggerAspect() {
-        return new AutoLoggerProxyFactory();
+    AutoProxyObjectFactory autoLoggerAspect() {
+        return new AutoProxyObjectFactory();
+    }
+
+    @Bean
+    LoggerUtils loggerUtils(@Qualifier(BeanNameConstant.BUILTIN_LOGGER) LogFactory logger) {
+        return new LoggerUtils(logger);
     }
 
     @Bean(name = BeanNameConstant.BUILTIN_LOGGER)
-    @Primary
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public LogFactory getLogger()
         throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         LogFactory factory = null;
@@ -92,7 +102,7 @@ public class BaseConfig {
             factory = new Slf4JLoggerFactory();
         }
         factory = this.baseProperty.getLoggerProvider().getConstructor().newInstance();
-        LogFactory.setLogFactory(factory);
+        LogFactory.Companion.setInstance(factory);
         return factory;
     }
 
@@ -110,7 +120,7 @@ public class BaseConfig {
     }
 
     @Bean(BeanNameConstant.BUILTIN_LOCK_PROXY)
-    public LockProxy lockProxy(final LogFactory util) {
+    public LockProxy lockProxy(@Qualifier(BeanNameConstant.BUILTIN_LOGGER) LogFactory util) {
         return new LockProxy(util, this.lockProperty.getProxyLockTimeout(), this.lockProperty.getProxyLockTimeUnit());
     }
 

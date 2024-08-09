@@ -1,7 +1,6 @@
 package tbs.framework.auth.config.interceptors;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import org.springframework.web.servlet.HandlerInterceptor;
 import tbs.framework.auth.exceptions.TokenNotFoundException;
 import tbs.framework.auth.interfaces.token.IRequestTokenPicker;
@@ -51,9 +50,6 @@ public class TokenInterceptor implements HandlerInterceptor {
             logger.debug("Token校验通过,{}", model);
         }
         RuntimeData.getInstance().getTokenList().addAll(tokenList);
-        if (StrUtil.isEmpty(RuntimeData.getInstance().getInvokeUrl())) {
-            RuntimeData.getInstance().setInvokeUrl(request.getRequestURI());
-        }
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }
 

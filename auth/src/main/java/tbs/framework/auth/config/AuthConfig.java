@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -16,9 +17,13 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tbs.framework.auth.aspects.ControllerAspect;
+import tbs.framework.auth.config.interceptors.RuntimeDataInterceptor;
 import tbs.framework.auth.config.interceptors.TokenInterceptor;
-import tbs.framework.auth.interfaces.*;
-import tbs.framework.auth.interfaces.impls.*;
+import tbs.framework.auth.interfaces.IApiInterceptor;
+import tbs.framework.auth.interfaces.IErrorHandler;
+import tbs.framework.auth.interfaces.IRuntimeDataExchanger;
+import tbs.framework.auth.interfaces.impls.CopyRuntimeDataExchanger;
+import tbs.framework.auth.interfaces.impls.SimpleLogErrorHandler;
 import tbs.framework.auth.interfaces.permission.IPermissionValidator;
 import tbs.framework.auth.interfaces.permission.impls.AnnotationPermissionValidator;
 import tbs.framework.auth.interfaces.permission.impls.ApiPermissionInterceptor;
@@ -94,6 +99,8 @@ public class AuthConfig {
 
             @Override
             public void addInterceptors(final InterceptorRegistry registry) {
+                registry.addInterceptor(new RuntimeDataInterceptor()).addPathPatterns("/**")
+                    .order(Ordered.HIGHEST_PRECEDENCE);
                 List<ITokenParser> parsers = tokenParsers.values().stream().collect(Collectors.toList());
                 for (IRequestTokenPicker picker : requestTokenPickers.values()) {
                     if (CollUtil.isEmpty(picker.paths())) {
@@ -102,8 +109,8 @@ public class AuthConfig {
                     registry.addInterceptor(new TokenInterceptor(picker, parsers,
                             LogFactory.getInstance().getLogger(TokenInterceptor.class.getName())))
                         .addPathPatterns(picker.paths()).order(picker.getOrder());
-                    WebMvcConfigurer.super.addInterceptors(registry);
                 }
+                WebMvcConfigurer.super.addInterceptors(registry);
             }
         };
     }

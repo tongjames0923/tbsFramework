@@ -3,9 +3,7 @@ package tbs.framework.base.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import tbs.framework.mq.consumer.manager.IMessageConsumerManager;
-import tbs.framework.mq.consumer.manager.impls.MappedConsumerManager;
-import tbs.framework.mq.event.IMessageQueueEvents;
-import tbs.framework.mq.event.impls.EmptySentAndErrorEventImpl;
+import tbs.framework.mq.consumer.manager.impls.PatternConsumerManager;
 
 import java.time.Duration;
 
@@ -24,7 +22,7 @@ public class MqProperty {
     /**
      * 消费者管理器的实现¬
      */
-    private Class<? extends IMessageConsumerManager> consumerManager = MappedConsumerManager.class;
+    private Class<? extends IMessageConsumerManager> consumerManager = PatternConsumerManager.class;
 
     /**
      * 任务块存活时间，任务锁占有时间

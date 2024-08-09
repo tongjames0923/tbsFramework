@@ -1,9 +1,10 @@
 package tbs.framework.auth.model;
 
-import cn.hutool.extra.spring.SpringUtil;
 import lombok.Data;
+import tbs.framework.base.model.BaseEntity;
+import tbs.framework.utils.SingletonHolder;
+import tbs.framework.utils.UuidUtil;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,13 +15,19 @@ import java.util.Set;
  */
 
 @Data
-public class RuntimeData implements Serializable {
+public class RuntimeData extends BaseEntity<String> {
 
     public static RuntimeData getInstance() {
-        return SpringUtil.getBean(RuntimeData.class);
+        return SingletonHolder.getInstance(RuntimeData.class);
     }
 
     private static final long serialVersionUID = 3944172100933159385L;
+
+    public RuntimeData() {
+        this.setId(UuidUtil.getUuid());
+        systemDataCreateTime = LocalDateTime.now();
+    }
+
 
     /**
      * 获取当前用户是否登录
@@ -30,6 +37,11 @@ public class RuntimeData implements Serializable {
     public static final boolean userLogined() {
         return RuntimeData.getInstance().getUserModel() != null;
     }
+
+    /**
+     * 当前运行数据生成时间
+     */
+    private LocalDateTime systemDataCreateTime;
 
     /**
      * 业务运行启动时间
@@ -62,6 +74,6 @@ public class RuntimeData implements Serializable {
     /**
      * 访问token数据
      */
-    public Set<TokenModel> tokenList = new HashSet<>();
+    private Set<TokenModel> tokenList = new HashSet<>();
 
 }

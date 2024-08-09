@@ -32,10 +32,6 @@ public class AuthProperty {
      */
     private List<String> tokenFields = new ArrayList<>(Arrays.asList(userModelTokenField));
 
-    /**
-     * 接口防抖动时间，单位毫秒
-     */
-    private int apiColdDownTime = 1000;
 
 
     /**

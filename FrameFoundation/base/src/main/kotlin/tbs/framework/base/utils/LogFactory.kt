@@ -5,11 +5,9 @@ import tbs.framework.log.ILogger
 /**
  * @author abstergo
  */
-abstract class LogFactory
-/**
- *
- */
-protected constructor() {
+abstract class LogFactory {
+
+
     /**
      * 获取日志器
      *
@@ -24,12 +22,6 @@ protected constructor() {
          */
         @JvmStatic
         var instance: LogFactory? = null
-            private set
-
-
-        @JvmStatic
-        fun setLogFactory(logFactory: LogFactory) {
-            instance = logFactory
-        }
+            public set
     }
 }
