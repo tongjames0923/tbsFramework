@@ -53,12 +53,13 @@ public class CacheConfig {
     @Bean
     @ConditionalOnMissingBean(AbstractExpireManager.class)
     AbstractCacheManager timeBaseCacheManager(
-        @Qualifier(BeanNameConstant.BUILTIN_CACHE_SERVICE) ICacheService timeBaseCacheService, IExpireable hook) {
+        @Qualifier(BeanNameConstant.BUILTIN_CACHE_SERVICE) ICacheService timeBaseCacheService,
+        @Qualifier(BeanNameConstant.BUILTIN_EXPIRED_IMPL) IExpireable hook) {
         return new ImportedExpireManager(timeBaseCacheService, hook);
     }
 
-    @Bean
-    @ConditionalOnMissingBean(IExpireable.class)
+    @Bean(BeanNameConstant.BUILTIN_EXPIRED_IMPL)
+    @ConditionalOnMissingBean(name = BeanNameConstant.BUILTIN_EXPIRED_IMPL)
     LocalExpiredImpl localExpireImpl() {
         return new LocalExpiredImpl();
     }

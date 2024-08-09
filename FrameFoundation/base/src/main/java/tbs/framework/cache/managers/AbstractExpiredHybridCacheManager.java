@@ -26,9 +26,10 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     @Resource
     LockProxy lockProxy;
 
-    public static final String GLOBAL_LOCK = "GLOBAL_LOCK_CACHE_MANAGER";
+    public AbstractExpiredHybridCacheManager(IReadWriteLock globalLock) {
+        this.globalLock = globalLock;
+    }
 
-    @Resource(name = GLOBAL_LOCK)
     IReadWriteLock globalLock;
 
     @NotNull
@@ -190,7 +191,10 @@ public abstract class AbstractExpiredHybridCacheManager extends AbstractExpireMa
     @Override
     public void remove(String key) {
         hookForRemove(key);
-        removeImpl(key);
+        lockProxy.quickLock(() -> {
+            removeImpl(key);
+        }, globalLock.writeLock());
+
     }
 
     @Override

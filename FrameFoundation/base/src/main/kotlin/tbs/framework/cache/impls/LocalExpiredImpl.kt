@@ -20,7 +20,12 @@ class LocalExpiredImpl : IExpireable {
     @AutoLogger
     private lateinit var log: ILogger;
 
-    class CacheEntry(var key: String, var expiration: Long, val service: AbstractCacheManager) : Delayed {
+    class CacheEntry(
+        var key: String,
+        var expiration: Long,
+        val service: AbstractCacheManager,
+        val cacheService: ICacheService
+    ) : Delayed {
         public override fun getDelay(unit: TimeUnit): Long {
             return unit.convert(
                 Duration.ofMillis(expiration).toMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS
@@ -33,7 +38,7 @@ class LocalExpiredImpl : IExpireable {
         }
 
         override fun toString(): String {
-            return "CacheEntry(key='$key', expiration=$expiration, service=$service)"
+            return "CacheEntry(key='$key', expiration=$expiration, manager=$service, cacheService=$cacheService)"
         }
 
     }
@@ -63,6 +68,7 @@ class LocalExpiredImpl : IExpireable {
                 }
             }
         }
+        log.trace("clean expired cache cnt:{}", cnt)
     }
 
     override fun expire(
@@ -74,7 +80,7 @@ class LocalExpiredImpl : IExpireable {
         synchronized(this)
         {
             val now = System.currentTimeMillis()
-            val e = CacheEntry(key, now + duration.toMillis(), manager)
+            val e = CacheEntry(key, now + duration.toMillis(), manager, cacheService)
             log.trace("new cache Object:{}", e)
             queue.add(e);
             map[key] = e

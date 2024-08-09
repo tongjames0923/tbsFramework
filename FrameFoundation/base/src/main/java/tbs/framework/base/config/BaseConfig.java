@@ -18,7 +18,9 @@ import tbs.framework.base.properties.MqProperty;
 import tbs.framework.base.utils.LogFactory;
 import tbs.framework.cache.managers.AbstractExpireManager;
 import tbs.framework.lock.ILockProvider;
+import tbs.framework.lock.IReadWriteLock;
 import tbs.framework.lock.aspects.LockAspect;
+import tbs.framework.lock.impls.ReadWriteLockAdapter;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.mq.AbstractMessageHandleBlocker;
@@ -33,6 +35,7 @@ import tbs.framework.utils.impls.Slf4JLoggerFactory;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 /**
@@ -156,5 +159,11 @@ public class BaseConfig {
     AbstractMessageHandleBlocker messageHandleBlocker() {
 
         return new CacheMessageHandleBlocker();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(IReadWriteLock.class)
+    IReadWriteLock cacheGlobalLock() {
+        return new ReadWriteLockAdapter(new ReentrantReadWriteLock());
     }
 }
