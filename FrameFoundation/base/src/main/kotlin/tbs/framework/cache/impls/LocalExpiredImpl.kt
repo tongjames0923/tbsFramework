@@ -4,6 +4,8 @@ import org.slf4j.LoggerFactory
 import tbs.framework.cache.ICacheService
 import tbs.framework.cache.IExpireable
 import tbs.framework.cache.managers.AbstractCacheManager
+import tbs.framework.log.ILogger
+import tbs.framework.log.annotations.AutoLogger
 import java.time.Duration
 import java.util.concurrent.DelayQueue
 import java.util.concurrent.Delayed
@@ -15,7 +17,8 @@ import java.util.concurrent.TimeUnit
  */
 class LocalExpiredImpl : IExpireable {
 
-    private val log = LoggerFactory.getLogger(LocalExpiredImpl::class.java)
+    @AutoLogger
+    private lateinit var log: ILogger;
 
     class CacheEntry(var key: String, var expiration: Long, val service: AbstractCacheManager) : Delayed {
         public override fun getDelay(unit: TimeUnit): Long {

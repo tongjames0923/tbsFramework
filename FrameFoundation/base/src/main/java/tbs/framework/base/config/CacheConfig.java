@@ -8,6 +8,7 @@ import tbs.framework.cache.ICacheAspectJudgeMaker;
 import tbs.framework.cache.ICacheService;
 import tbs.framework.cache.IExpireable;
 import tbs.framework.cache.aspects.CacheAspect;
+import tbs.framework.cache.impls.LocalExpiredImpl;
 import tbs.framework.cache.impls.managers.ImportedExpireManager;
 import tbs.framework.cache.impls.services.ConcurrentMapCacheServiceImpl;
 import tbs.framework.cache.managers.AbstractCacheManager;
@@ -56,4 +57,9 @@ public class CacheConfig {
         return new ImportedExpireManager(timeBaseCacheService, hook);
     }
 
+    @Bean
+    @ConditionalOnMissingBean(IExpireable.class)
+    LocalExpiredImpl localExpireImpl() {
+        return new LocalExpiredImpl();
+    }
 }
