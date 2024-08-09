@@ -5,6 +5,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -39,7 +40,8 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
     private ILogger logger;
 
     @Pointcut(
-        "@annotation(org.springframework.web.bind.annotation.RequestMapping)||@annotation(org.springframework.web.bind.annotation.GetMapping)||@annotation(org.springframework.web.bind.annotation.PostMapping)")
+        "@annotation(org.springframework.web.bind.annotation.RequestMapping)||@annotation(org.springframework.web.bind.annotation.GetMapping)||@annotation(org.springframework.web.bind.annotation.PostMapping)||" +
+            "@annotation(org.springframework.web.bind.annotation.PutMapping)||@annotation(org.springframework.web.bind.annotation.DeleteMapping)||@annotation(org.springframework.web.bind.annotation.PatchMapping)")
     public void requestMapping() {
 
     }
@@ -73,6 +75,19 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
         this.runtimeData.setInvokeArgs(joinPoint.getArgs());
         final MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         this.runtimeData.setInvokeMethod(methodSignature.getMethod());
+        List<IApiInterceptor> accept = ApiInterceptorBeforeWork(joinPoint, methodSignature);
+        this.runtimeData.setInvokeBegin(LocalDateTime.now());
+        result = joinPoint.proceed();
+        this.runtimeData.setInvokeEnd(LocalDateTime.now());
+        for (IApiInterceptor interceptor : accept) {
+            interceptor.afterInvoke(methodSignature.getMethod(), joinPoint.getTarget(), joinPoint.getArgs(), result);
+        }
+        return result;
+    }
+
+    @NotNull
+    private List<IApiInterceptor> ApiInterceptorBeforeWork(ProceedingJoinPoint joinPoint,
+        MethodSignature methodSignature) {
         List<IApiInterceptor> accept = new ArrayList<>(interceptorMap.size());
         for (IApiInterceptor interceptor : interceptorMap.values()) {
             if (interceptor.support(RuntimeData.getInstance().getInvokeUrl())) {
@@ -82,13 +97,7 @@ public class ControllerAspect implements ResponseBodyAdvice<Object> {
                     RuntimeData.getInstance().getInvokeUrl());
             }
         }
-        this.runtimeData.setInvokeBegin(LocalDateTime.now());
-            result = joinPoint.proceed();
-        this.runtimeData.setInvokeEnd(LocalDateTime.now());
-        for (IApiInterceptor interceptor : accept) {
-            interceptor.afterInvoke(methodSignature.getMethod(), joinPoint.getTarget(), joinPoint.getArgs(), result);
-        }
-        return result;
+        return accept;
     }
 
     @Override
