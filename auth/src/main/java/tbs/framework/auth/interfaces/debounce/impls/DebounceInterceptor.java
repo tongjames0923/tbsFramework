@@ -1,11 +1,21 @@
 package tbs.framework.auth.interfaces.debounce.impls;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import tbs.framework.auth.annotations.Debounce;
 import tbs.framework.auth.interfaces.IApiInterceptor;
 import tbs.framework.auth.interfaces.debounce.IDebounce;
 import tbs.framework.auth.model.RuntimeData;
+import tbs.framework.auth.properties.DebounceProperty;
+import tbs.framework.auth.utils.PathUtil;
+import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 防抖拦截
@@ -14,10 +24,22 @@ import java.lang.reflect.Method;
  */
 public class DebounceInterceptor implements IApiInterceptor {
 
+    @AutoLogger
+    ILogger logger;
+
     IDebounce debounce;
 
-    public DebounceInterceptor(IDebounce debounce) {
+    Set<String> path = new HashSet<>();
+
+    ConcurrentMap<String, Boolean> urlSupportCache = new ConcurrentHashMap<>();
+
+    public DebounceInterceptor(IDebounce debounce, DebounceProperty debounceProperty) {
         this.debounce = debounce;
+        if (CollUtil.isEmpty(debounceProperty.getDebouncePathPattern())) {
+            logger.warn("debouncePathPattern为空，将不会进行防抖");
+            return;
+        }
+        debounceProperty.getDebouncePathPattern().forEach(p -> path.add(p));
     }
 
     @Override
@@ -42,6 +64,10 @@ public class DebounceInterceptor implements IApiInterceptor {
 
     @Override
     public boolean support(String url) {
-        return true;
+        if (StrUtil.isEmpty(url)) {
+            logger.warn("url should not be null or empty");
+            return false;
+        }
+        return urlSupportCache.computeIfAbsent(url, k -> path.stream().anyMatch(p -> PathUtil.match(url, p)));
     }
 }

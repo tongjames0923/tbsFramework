@@ -1,9 +1,10 @@
 package tbs.framework.auth.model;
 
 import lombok.Data;
+import tbs.framework.base.model.BaseEntity;
 import tbs.framework.utils.SingletonHolder;
+import tbs.framework.utils.UuidUtil;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ import java.util.Set;
  */
 
 @Data
-public class RuntimeData implements Serializable {
+public class RuntimeData extends BaseEntity<String> {
 
     public static RuntimeData getInstance() {
         return SingletonHolder.getInstance(RuntimeData.class);
@@ -23,6 +24,7 @@ public class RuntimeData implements Serializable {
     private static final long serialVersionUID = 3944172100933159385L;
 
     public RuntimeData() {
+        this.setId(UuidUtil.getUuid());
         systemDataCreateTime = LocalDateTime.now();
     }
 
