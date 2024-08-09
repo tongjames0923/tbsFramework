@@ -7,6 +7,7 @@ import tbs.framework.cache.IExpireable;
 import tbs.framework.cache.impls.LocalExpiredImpl;
 import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.managers.AbstractExpiredHybridCacheManager;
+import tbs.framework.lock.IReadWriteLock;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.redis.IRedisTemplateSupport;
@@ -60,11 +61,14 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
         return this;
     }
 
-    public HybridCacheManager(HybirdCacheExipireImpl hybirdCacheExipire, ICacheService... services) {
-        this(hybirdCacheExipire, List.of(services));
+    public HybridCacheManager(HybirdCacheExipireImpl hybirdCacheExipire, IReadWriteLock readWriteLock,
+        ICacheService... services) {
+        this(hybirdCacheExipire, readWriteLock, List.of(services));
     }
 
-    public HybridCacheManager(HybirdCacheExipireImpl exipire, List<ICacheService> cacheServiceList) {
+    public HybridCacheManager(HybirdCacheExipireImpl exipire, IReadWriteLock readWriteLock,
+        List<ICacheService> cacheServiceList) {
+        super(readWriteLock);
         this.hybirdCacheExipire = exipire;
         if (CollUtil.isEmpty(cacheServiceList)) {
             return;

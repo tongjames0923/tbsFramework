@@ -99,7 +99,6 @@ public class BasicRedisConfig {
         return template;
     }
 
-
     @Bean
     @ConditionalOnMissingBean(RedisCacheConfiguration.class)
     RedisCacheConfiguration redisConfiguration(RedisProperty property) {
@@ -120,11 +119,6 @@ public class BasicRedisConfig {
         return redisCacheManager;
     }
 
-    @Bean(AbstractExpiredHybridCacheManager.GLOBAL_LOCK)
-    @ConditionalOnBean(AbstractExpiredHybridCacheManager.class)
-    @ConditionalOnMissingBean(name = AbstractExpiredHybridCacheManager.GLOBAL_LOCK)
-    IReadWriteLock cacheGlobalLock() {
-        return new ReadWriteLockAdapter(new ReentrantReadWriteLock());
-    }
+
 
 }
