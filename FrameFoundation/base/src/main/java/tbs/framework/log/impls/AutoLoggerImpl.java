@@ -10,7 +10,6 @@ import tbs.framework.proxy.IAutoProxy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author abstergo
@@ -21,8 +20,6 @@ public class AutoLoggerImpl implements IAutoProxy {
     private String loggerName = "";
 
     private ILogger logger = null;
-
-    private final AtomicBoolean isInit = new AtomicBoolean(false);
 
     @Override
     public void wiredValue(Field field, Object target) {
@@ -43,10 +40,11 @@ public class AutoLoggerImpl implements IAutoProxy {
 
     @Override
     public Object proxyExecute(Object proxy, Method method, Object[] args) throws Throwable {
-        if (!isInit.get()) {
+        if (logger == null) {
             synchronized (this) {
-                logger = SpringUtil.getBean(factoryBean, LogFactory.class).getLogger(loggerName);
-                isInit.set(true);
+                if (logger == null) {
+                    logger = SpringUtil.getBean(factoryBean, LogFactory.class).getLogger(loggerName);
+                }
             }
         }
 
