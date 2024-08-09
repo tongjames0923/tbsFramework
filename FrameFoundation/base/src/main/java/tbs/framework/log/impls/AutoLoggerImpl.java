@@ -43,9 +43,10 @@ public class AutoLoggerImpl implements IAutoProxy {
 
     @Override
     public Object proxyExecute(Object proxy, Method method, Object[] args) throws Throwable {
-        if (isInit.compareAndSet(false, true)) {
+        if (!isInit.get()) {
             synchronized (this) {
                 logger = SpringUtil.getBean(factoryBean, LogFactory.class).getLogger(loggerName);
+                isInit.set(true);
             }
         }
 
