@@ -1,10 +1,13 @@
 package tbs.framework.redis.cache.impls
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.stereotype.Component
 import tbs.framework.cache.ICacheService
 import tbs.framework.cache.IExpireable
 import tbs.framework.cache.IkeyMixer
 import tbs.framework.cache.managers.AbstractCacheManager
 import tbs.framework.redis.IRedisTemplateSupport
+import tbs.framework.redis.cache.impls.services.RedisCacheServiceImpl
 import tbs.framework.utils.BeanUtil
 import java.time.Duration
 import java.util.*
@@ -16,6 +19,8 @@ import java.util.concurrent.TimeUnit
  * @see IRedisTemplateSupport
  *
  */
+@ConditionalOnBean(RedisCacheServiceImpl::class)
+@Component
 public class RedisExpiredImpl() : IExpireable {
     fun getService(cacheService: ICacheService): IRedisTemplateSupport {
         return BeanUtil.getAs(cacheService)

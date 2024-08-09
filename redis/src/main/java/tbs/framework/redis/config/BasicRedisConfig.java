@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -22,6 +23,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tbs.framework.cache.managers.AbstractExpiredHybridCacheManager;
 import tbs.framework.lock.IReadWriteLock;
 import tbs.framework.lock.impls.ReadWriteLockAdapter;
+import tbs.framework.redis.cache.impls.RedisExpiredImpl;
+import tbs.framework.redis.cache.impls.services.RedisCacheServiceImpl;
 import tbs.framework.redis.constants.RedisBeanNameConstants;
 import tbs.framework.redis.properties.RedisProperty;
 
@@ -31,6 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * @author abstergo
  */
+@ComponentScan(basePackages = "tbs.framework.redis")
 public class BasicRedisConfig {
 
     @Value("${spring.redis.host:localhost}")
@@ -95,6 +99,7 @@ public class BasicRedisConfig {
         return template;
     }
 
+
     @Bean
     @ConditionalOnMissingBean(RedisCacheConfiguration.class)
     RedisCacheConfiguration redisConfiguration(RedisProperty property) {
@@ -121,6 +126,5 @@ public class BasicRedisConfig {
     IReadWriteLock cacheGlobalLock() {
         return new ReadWriteLockAdapter(new ReentrantReadWriteLock());
     }
-
 
 }

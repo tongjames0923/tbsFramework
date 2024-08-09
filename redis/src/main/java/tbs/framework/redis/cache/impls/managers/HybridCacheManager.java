@@ -10,6 +10,7 @@ import tbs.framework.cache.managers.AbstractExpiredHybridCacheManager;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.redis.IRedisTemplateSupport;
+import tbs.framework.redis.cache.impls.HybirdCacheExipireImpl;
 import tbs.framework.redis.cache.impls.RedisExpiredImpl;
 
 import java.time.Duration;
@@ -37,6 +38,8 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
 
     private long levelRatio = 8;
 
+    private HybirdCacheExipireImpl hybirdCacheExipire;
+
     /**
      * 每层缓存的容量倍数
      *
@@ -57,11 +60,12 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
         return this;
     }
 
-    public HybridCacheManager(ICacheService... services) {
-        this(List.of(services));
+    public HybridCacheManager(HybirdCacheExipireImpl hybirdCacheExipire, ICacheService... services) {
+        this(hybirdCacheExipire, List.of(services));
     }
 
-    public HybridCacheManager(List<ICacheService> cacheServiceList) {
+    public HybridCacheManager(HybirdCacheExipireImpl exipire, List<ICacheService> cacheServiceList) {
+        this.hybirdCacheExipire = exipire;
         if (CollUtil.isEmpty(cacheServiceList)) {
             return;
         }
@@ -166,57 +170,9 @@ public class HybridCacheManager extends AbstractExpiredHybridCacheManager {
         });
     }
 
-    /**
-     * 超时实现
-     */
-    IExpireable p = new IExpireable() {
-
-        private LocalExpiredImpl localExpired = new LocalExpiredImpl();
-        private RedisExpiredImpl redisExpired = new RedisExpiredImpl();
-
-        private void expireByType(@NotNull String key, @NotNull Duration duration,
-            @NotNull AbstractCacheManager manager, @NotNull ICacheService cacheService) {
-            if (cacheService instanceof IRedisTemplateSupport) {
-                redisExpired.expire(key, duration, manager, cacheService);
-            } else {
-                localExpired.expire(key, duration, manager, cacheService);
-            }
-        }
-
-        private long remainByType(@NotNull String key, @NotNull AbstractCacheManager manager,
-            @NotNull ICacheService cacheService) {
-
-            if (cacheService instanceof IRedisTemplateSupport) {
-                return redisExpired.remaining(key, manager, cacheService);
-            } else {
-                return localExpired.remaining(key, manager, cacheService);
-            }
-        }
-
-        @Override
-        public void expire(@NotNull String key, @NotNull Duration duration, @NotNull AbstractCacheManager manager,
-            @NotNull ICacheService cacheService) {
-
-            expireByType(key, duration, manager, cacheService);
-
-        }
-
-        @Override
-        public long remaining(@NotNull String key, @NotNull AbstractCacheManager manager,
-            @NotNull ICacheService cacheService) {
-
-            return remainByType(key, manager, cacheService);
-        }
-
-        @Override
-        public void execute() {
-            localExpired.execute();
-        }
-    };
-
     @Override
     protected IExpireable getExpireable() {
-        return p;
+        return hybirdCacheExipire;
     }
 
 }
