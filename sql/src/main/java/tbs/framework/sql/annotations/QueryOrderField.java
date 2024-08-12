@@ -1,7 +1,7 @@
 package tbs.framework.sql.annotations;
 
 import org.springframework.stereotype.Component;
-import tbs.framework.sql.enums.QueryOrderEnum;
+import tbs.framework.sql.constants.OrderConstant;
 
 import java.lang.annotation.*;
 
@@ -10,15 +10,18 @@ import java.lang.annotation.*;
  * @author abstergo
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Documented
 @Component
 public @interface QueryOrderField {
+
+    String mappedName() default "";
 
     /**
      * Order query order enum.
      *
      * @return the query order enum
      */
-    QueryOrderEnum order() default QueryOrderEnum.ASC;
+    String order() default OrderConstant.ASC;
+
 }

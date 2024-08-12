@@ -1,18 +1,19 @@
 package tbs.framework.sql.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import tbs.framework.base.interfaces.IChain;
 import tbs.framework.log.ILogger;
 import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.sql.annotations.*;
 import tbs.framework.sql.enums.QueryConnectorEnum;
 import tbs.framework.sql.enums.QueryContrastEnum;
 import tbs.framework.sql.enums.QueryOrderEnum;
+import tbs.framework.sql.interfaces.AbstractConvertChainProvider;
 import tbs.framework.sql.interfaces.IQuery;
-import tbs.framework.utils.ChainUtil;
+import tbs.framework.sql.interfaces.IQueryOrderBy;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -87,7 +88,7 @@ public class QueryUtil {
 
         }
 
-        query.append(whereSql).append(orderString);
+        query.append(whereSql).append(orderString.toString());
     }
 
     private static List<Field> getFieldList(final IQuery queryObject) {
@@ -116,26 +117,29 @@ public class QueryUtil {
     private List<Pair<String, String>> extractedSql(final IQuery queryObject, final Field field,
         final List<QueryField> list, final StringBuilder orderString) {
         final List<Pair<String, String>> l = new LinkedList<>();
+        String name = QueryUtil.getNameField(field, null);
         for (int i = 0; i < list.size(); i++) {
             final QueryField queryField = list.get(i);
             Object value = null;
-            final IChain valueMapperChains;
+            final AbstractConvertChainProvider valueMapperChains;
             try {
                 value = field.get(queryObject);
-                valueMapperChains = SpringUtil.getBean(queryField.valueMapper()).beginChain();
+                valueMapperChains = SpringUtil.getBean(queryField.valueMapper());
             } catch (final IllegalAccessException e) {
                 this.logger.error(e, e.getMessage());
                 continue;
             }
+            name = QueryUtil.getNameField(field, queryField);
             if (QueryUtil.ignoreNull(queryField, value)) {
                 continue;
             }
-            final String name = QueryUtil.getNameField(field, queryField);
-            QueryUtil.getFieldOrder(field, orderString, name);
             value = QueryUtil.ignoreCase(value, queryField);
 
             final StringBuilder builder = this.makeSingleSql(queryField, name, valueMapperChains, value);
             l.add(new Pair<>(builder.toString(), this.connector(queryField.connector())));
+        }
+        if (AnnotatedElementUtils.hasAnnotation(field, QueryOrderField.class)) {
+            QueryUtil.getFieldOrder(queryObject, field, orderString, name);
         }
         return l;
     }
@@ -147,10 +151,14 @@ public class QueryUtil {
         return value;
     }
 
-    private static void getFieldOrder(final Field field, final StringBuilder orderString, final String name) {
-        final QueryOrderField orderField = field.getDeclaredAnnotation(QueryOrderField.class);
-        if (null != orderField) {
-            final String ord = QueryOrderEnum.DESC == orderField.order() ? "DESC" : "ASC";
+    private static void getFieldOrder(IQuery query, final Field field, final StringBuilder orderString,
+        final String name) {
+        final Set<QueryOrderField> orderFields =
+            AnnotatedElementUtils.getAllMergedAnnotations(field, QueryOrderField.class);
+        if (!CollUtil.isEmpty(orderFields)) {
+            QueryOrderField orderField = orderFields.iterator().next();
+            final IQueryOrderBy orderBy = SpringUtil.getBean(orderField.order(), IQueryOrderBy.class);
+            final String ord = QueryOrderEnum.DESC == orderBy.orderBy(query, field, name) ? "DESC" : "ASC";
             if (0 < orderString.length()) {
                 orderString.append(",").append(name).append(" ").append(ord);
             } else {
@@ -177,10 +185,11 @@ public class QueryUtil {
         return false;
     }
 
-    private StringBuilder makeSingleSql(final QueryField queryField, final String name, final IChain valueMapper,
+    private StringBuilder makeSingleSql(final QueryField queryField, final String name,
+        final AbstractConvertChainProvider valueMapper,
         final Object value) {
         final StringBuilder builder = new StringBuilder();
-        String mped = ChainUtil.process(valueMapper, value).toString();
+        String mped = AbstractConvertChainProvider.process(valueMapper, value);
         if (QueryContrastEnum.IS_NOT_NULL == queryField.contrast() ||
             QueryContrastEnum.IS_NULL == queryField.contrast()) {
             builder.append(name).append(contrast(queryField.contrast()));
@@ -197,9 +206,11 @@ public class QueryUtil {
     }
 
     private static String getNameField(final Field field, final QueryField queryField) {
-        String name = StrUtil.isEmpty(queryField.map()) ? field.getName() : queryField.map();
-        name = String.format("`%s`", name);
-        return name;
+        if (queryField == null || StrUtil.isEmpty(queryField.map())) {
+            return "`" + field.getName() + "`";
+        } else {
+            return "`" + queryField.map() + "`";
+        }
     }
 
     private String contrast(final QueryContrastEnum queryContrastEnum) {

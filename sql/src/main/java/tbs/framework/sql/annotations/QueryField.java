@@ -1,9 +1,9 @@
 package tbs.framework.sql.annotations;
 
 import org.springframework.stereotype.Component;
-import tbs.framework.base.interfaces.IChainProvider;
 import tbs.framework.sql.enums.QueryConnectorEnum;
 import tbs.framework.sql.enums.QueryContrastEnum;
+import tbs.framework.sql.interfaces.AbstractConvertChainProvider;
 import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
 
 import java.lang.annotation.*;
@@ -67,6 +67,6 @@ public @interface QueryField {
      *
      * @return class
      */
-    Class<? extends IChainProvider> valueMapper() default BuiltInValueConvertChainProvider.class;
+    Class<? extends AbstractConvertChainProvider> valueMapper() default BuiltInValueConvertChainProvider.class;
 
 }

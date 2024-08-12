@@ -7,8 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.PlatformTransactionManager;
 import tbs.framework.base.interfaces.IChainProvider;
 import tbs.framework.base.utils.LogFactory;
+import tbs.framework.sql.constants.OrderConstant;
 import tbs.framework.sql.interfaces.ISqlLogger;
 import tbs.framework.sql.interfaces.impls.NoSqlLogger;
+import tbs.framework.sql.interfaces.impls.orders.AscStaticOrder;
+import tbs.framework.sql.interfaces.impls.orders.DescStaticOrder;
+import tbs.framework.sql.interfaces.impls.orders.OrderedModelOrderImpl;
 import tbs.framework.sql.interfaces.impls.provider.BuiltInValueConvertChainProvider;
 import tbs.framework.sql.utils.QueryUtil;
 import tbs.framework.sql.utils.TransactionUtil;
@@ -58,5 +62,20 @@ public class SqlConfig {
     @ConditionalOnBean(SqlLoggingInterceptor.class)
     public ISqlLogger noSqlLogger() {
         return new NoSqlLogger();
+    }
+
+    @Bean(OrderConstant.ASC)
+    public AscStaticOrder ascOrder() {
+        return new AscStaticOrder();
+    }
+
+    @Bean(OrderConstant.DESC)
+    public DescStaticOrder descOrder() {
+        return new DescStaticOrder();
+    }
+
+    @Bean(OrderConstant.ORDERED_MODEL)
+    public OrderedModelOrderImpl orderedModelOrderImpl() {
+        return new OrderedModelOrderImpl();
     }
 }

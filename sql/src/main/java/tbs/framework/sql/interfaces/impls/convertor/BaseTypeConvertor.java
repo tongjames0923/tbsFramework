@@ -1,19 +1,23 @@
 package tbs.framework.sql.interfaces.impls.convertor;
 
-import tbs.framework.base.interfaces.impls.chain.AbstractChain;
+import tbs.framework.sql.interfaces.AbstractConvertor;
 
 /**
  * 基础类型转换 CharSequence Number Boolean Character
  * @author Abstergo
  */
-public class BaseTypeConvertor extends AbstractChain<Object, String> {
+public class BaseTypeConvertor extends AbstractConvertor {
+
     @Override
-    public void doChain(Object param) {
-        if (param instanceof CharSequence ||
-            param instanceof Number ||
-            param instanceof Boolean ||
-            param instanceof Character) {
-            done(String.valueOf(param));
-        }
+    protected boolean support(Class<?> t) {
+        return CharSequence.class.isAssignableFrom(t) ||
+            Number.class.isAssignableFrom(t) ||
+            Boolean.class.isAssignableFrom(t) ||
+            CharSequence.class.isAssignableFrom(t);
+    }
+
+    @Override
+    protected String doConvert(Object value) {
+        return value.toString();
     }
 }

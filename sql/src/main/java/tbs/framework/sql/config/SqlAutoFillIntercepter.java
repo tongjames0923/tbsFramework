@@ -47,12 +47,14 @@ public class SqlAutoFillIntercepter implements Interceptor {
         ParameterHandler parameterHandler = (ParameterHandler)invocation.getTarget();
         // 在设置参数之前，可以访问参数并做一些操作，例如打印参数信息
         Object parameters = parameterHandler.getParameterObject();
-        if (parameters instanceof Map) {
-            ((Map<?, ?>)parameters).values().stream().distinct().forEach((o) -> {
-                applyValue(o);
-            });
-        } else {
-            applyValue(parameters);
+        if (parameters != null) {
+            if (parameters instanceof Map) {
+                ((Map<?, ?>)parameters).values().stream().distinct().filter(o -> o != null).forEach((o) -> {
+                    applyValue(o);
+                });
+            } else {
+                applyValue(parameters);
+            }
         }
         // 继续执行原始操作
         Object result = invocation.proceed();
@@ -68,6 +70,9 @@ public class SqlAutoFillIntercepter implements Interceptor {
      */
     @NotNull
     private void applyValue(Object o) {
+        if (o == null) {
+            return;
+        }
         Class<?> cas = o.getClass();
         for (Field field : cas.getDeclaredFields()) {
             Set<SqlAutoValue> f = AnnotatedElementUtils.getAllMergedAnnotations(field, SqlAutoValue.class);

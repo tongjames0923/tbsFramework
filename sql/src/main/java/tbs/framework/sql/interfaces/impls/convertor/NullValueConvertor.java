@@ -1,17 +1,20 @@
 package tbs.framework.sql.interfaces.impls.convertor;
 
-import tbs.framework.base.interfaces.impls.chain.AbstractChain;
+import tbs.framework.sql.interfaces.AbstractConvertor;
 
 /**
  * 空值转换 转换成null
  *
  * @author Abstergo
  */
-public class NullValueConvertor extends AbstractChain<Object, String> {
+public class NullValueConvertor extends AbstractConvertor {
     @Override
-    public void doChain(Object param) {
-        if (null == param) {
-            done("null");
-        }
+    protected boolean support(Class<?> t) {
+        return t == null;
+    }
+
+    @Override
+    protected String doConvert(Object value) {
+        return "null";
     }
 }
