@@ -1,7 +1,6 @@
 package tbs.framework.sql.config;
 
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
@@ -21,7 +20,7 @@ import java.util.Properties;
  *
  * @author Abstergo
  */
-@Intercepts({@Signature(type = ParameterHandler.class, method = "query",
+@Intercepts({@Signature(type = Executor.class, method = "query",
     args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
     @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class})})
 public class SqlLoggingInterceptor implements Interceptor {

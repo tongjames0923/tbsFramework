@@ -10,7 +10,7 @@ import tbs.framework.sql.utils.QueryUtil;
  */
 public class QuerySelectProvider {
 
-    public String dynamicSql(final IQuery query, final IPage page) {
+    public String dynamicSql(final IQuery query, final IPage page) throws IllegalAccessException {
         final QueryUtil queryUtil = SpringUtil.getBean(QueryUtil.class);
         String q = queryUtil.getQuery(query);
         if (null != page) {

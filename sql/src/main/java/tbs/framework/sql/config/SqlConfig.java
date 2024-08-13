@@ -9,6 +9,8 @@ import tbs.framework.base.interfaces.IChainProvider;
 import tbs.framework.base.utils.LogFactory;
 import tbs.framework.sql.constants.OrderConstant;
 import tbs.framework.sql.interfaces.ISqlLogger;
+import tbs.framework.sql.interfaces.extractors.ISqlExtractor;
+import tbs.framework.sql.interfaces.extractors.impls.mysql.MysqlExatractor;
 import tbs.framework.sql.interfaces.impls.NoSqlLogger;
 import tbs.framework.sql.interfaces.impls.orders.AscStaticOrder;
 import tbs.framework.sql.interfaces.impls.orders.DescStaticOrder;
@@ -26,8 +28,14 @@ public class SqlConfig {
     public static final String SQL_LOG_FACTORY_BEAN_NAME = "sqlLogFactory";
 
     @Bean
-    public QueryUtil sqlUtil() {
-        return new QueryUtil();
+    @ConditionalOnMissingBean(ISqlExtractor.class)
+    ISqlExtractor mysqlWhereSql() {
+        return new MysqlExatractor();
+    }
+
+    @Bean
+    public QueryUtil sqlUtil(ISqlExtractor whereSqlExtractor) {
+        return new QueryUtil(whereSqlExtractor);
     }
 
     @Bean
