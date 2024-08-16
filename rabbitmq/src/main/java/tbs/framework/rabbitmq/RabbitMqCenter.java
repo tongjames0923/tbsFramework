@@ -1,5 +1,6 @@
 package tbs.framework.rabbitmq;
 
+import org.springframework.context.annotation.Lazy;
 import tbs.framework.mq.center.AbstractListImplMessageCenter;
 import tbs.framework.mq.connector.IMessageConnector;
 import tbs.framework.rabbitmq.connectors.AbstractRabbitMqConnector;
@@ -15,6 +16,7 @@ public class RabbitMqCenter extends AbstractListImplMessageCenter {
 
     @Resource
     RabbitMqProperty mqProperty;
+
     @Resource
     private AbstractRabbitMqConnector abstractRabbitMqConnector;
 
@@ -34,7 +36,4 @@ public class RabbitMqCenter extends AbstractListImplMessageCenter {
 
     }
 
-    @Override
-    protected void centerStopToWork() {
-    }
 }

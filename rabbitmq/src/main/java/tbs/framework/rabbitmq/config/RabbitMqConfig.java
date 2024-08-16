@@ -3,6 +3,7 @@ package tbs.framework.rabbitmq.config;
 import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import tbs.framework.mq.center.AbstractMessageCenter;
 import tbs.framework.rabbitmq.RabbitMqCenter;
@@ -33,17 +34,6 @@ public class RabbitMqConfig {
         return new RabbitAdmin(template);
     }
 
-    //    @Bean(RabbitMqConstant.BEAN_LISTENER_CONTAINER)
-    //    public SimpleMessageListenerContainer listenerContainer(ConnectionFactory connectionFactory) {
-    //        //创建监听器工厂
-    //        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-    //        factory.setConnectionFactory(connectionFactory);
-    //        factory.setReceiveTimeout(rabbitMqProperty.getReceiveTimeout());
-    //        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
-    //        //使用工厂生 成监听器容器
-    //        return factory.createListenerContainer();
-    //    }
-
     @Bean(RabbitMqConstant.BEAN_CONNECTOR)
     AbstractRabbitMqConnector rabbitMqConnector() {
         if (rabbitMqProperty.isPassiveReception()) {
@@ -53,15 +43,8 @@ public class RabbitMqConfig {
         }
     }
 
-    //    @Bean
-    //    @ConditionalOnProperty(prefix = "tbs.framework.mq.rabbit.passive-reception", value = "true")
-    //    public SimpleMessageListenerContainer mqMessageContainer(ConnectionFactory connectionFactory)
-    //        throws AmqpException, IOException {
-    //        return container;
-    //    }
-
     @Bean
-    AbstractMessageCenter center() {
+    AbstractMessageCenter rabbitMqCenter() {
         return new RabbitMqCenter();
     }
 
