@@ -24,6 +24,16 @@ public interface ICompilerUnit {
          * 执行结果
          */
         private Object result;
+
+        /**
+         * 获取执行结果。
+         *
+         * @param <T>
+         * @return
+         */
+        public <T> T toType() {
+            return (T)result;
+        }
     }
 
     /**
