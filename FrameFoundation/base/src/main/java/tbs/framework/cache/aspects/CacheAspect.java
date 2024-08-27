@@ -8,7 +8,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -17,10 +16,16 @@ import tbs.framework.cache.annotations.CacheUnloading;
 import tbs.framework.cache.managers.AbstractCacheManager;
 import tbs.framework.cache.properties.CacheProperty;
 import tbs.framework.cache.strategy.AbstractCacheEliminationStrategy;
+import tbs.framework.expression.ICompilerUnit;
+import tbs.framework.expression.impl.compiler.SpelCompiler;
 import tbs.framework.lock.impls.SimpleLockAddtionalInfo;
+import tbs.framework.log.ILogger;
+import tbs.framework.log.annotations.AutoLogger;
 import tbs.framework.proxy.impls.LockProxy;
 import tbs.framework.utils.LockUtils;
+import tbs.framework.utils.StrUtil;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.Optional;
 
@@ -39,7 +44,17 @@ public class CacheAspect {
     @Resource
     CacheProperty cacheProperty;
 
+    @AutoLogger
+    ILogger logger;
+
     private static final String CacheLockPrefix = "CacheLock.ASPECT::";
+
+    SpelCompiler spelCompiler = new SpelCompiler();
+
+    @PostConstruct
+    public void init() {
+        logger.info("in used cache manager:{}", cacheService.toString());
+    }
 
     public CacheAspect(AbstractCacheManager cacheService) {
         this.cacheService = cacheService;
@@ -55,16 +70,22 @@ public class CacheAspect {
         // 创建spel表达式分析器
         ExpressionParser parser = new SpelExpressionParser();
         StandardEvaluationContext context = new StandardEvaluationContext();
-        context.setVariable("args", args);
-        // 输入表达式
-        Expression exp = parser.parseExpression(k);
+        ICompilerUnit compilerUnit = spelCompiler.getCompilerUnit(k);
+        String cacheKey = "";
+        try {
+            cacheKey = compilerUnit.exeCompilerUnit(null, args).getResult().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("error to convert key to string by spel expression:" + k);
+        }
+        if (StrUtil.isAllBlank(cacheKey)) {
+            throw new RuntimeException("create one empty string by spel expression:" + k);
+        }
+
         // 获取表达式的输出结果，getValue入参是返回参数的类型
         return "CACHE_ASPECT:" +
             methodSignature.getDeclaringTypeName() +
             "." +
-            methodSignature.getName() +
-            ":" +
-            exp.getValue(context, String.class);
+            methodSignature.getName() + ":" + cacheKey;
     }
 
     @Around("cache()")
