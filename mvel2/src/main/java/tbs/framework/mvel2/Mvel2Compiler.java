@@ -7,12 +7,9 @@ import tbs.framework.expression.IVersion;
 import tbs.framework.expression.IVersionChecker;
 import tbs.framework.expression.impl.version.SimpleVersion;
 import tbs.framework.expression.impl.version.checker.SinceVersionChecker;
+import tbs.framework.utils.StrUtil;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
 
 /**
  * @author Abstergo
@@ -21,9 +18,7 @@ public class Mvel2Compiler implements IExpressionCompiler {
 
     @Override
     public ICompilerUnit getCompilerUnit(InputStream code) {
-        String result =
-            new BufferedReader(new InputStreamReader(code)).lines().collect(Collectors.joining(System.lineSeparator()));
-        return new MvelCompilerUnit(MVEL.compileExpression(result), this);
+        return new MvelCompilerUnit(MVEL.compileExpression(StrUtil.readStreamAsString(code)), this);
     }
 
     @Override
