@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import tbs.framework.base.aop.MethodInterceptAop;
 import tbs.framework.base.constants.BeanNameConstant;
 import tbs.framework.base.properties.BaseProperty;
 import tbs.framework.base.properties.LockProperty;
@@ -165,5 +166,10 @@ public class BaseConfig {
     @ConditionalOnMissingBean(IReadWriteLock.class)
     IReadWriteLock cacheGlobalLock() {
         return new ReadWriteLockAdapter(new ReentrantReadWriteLock());
+    }
+
+    @Bean
+    public MethodInterceptAop methodInterceptAop() {
+        return new MethodInterceptAop();
     }
 }
