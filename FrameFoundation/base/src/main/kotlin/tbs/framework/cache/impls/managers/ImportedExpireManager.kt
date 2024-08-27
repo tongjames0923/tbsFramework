@@ -22,4 +22,9 @@ class ImportedExpireManager : AbstractExpireManager {
         return expiredImpl!!
     }
 
+    override fun toString(): String {
+        return "ImportedExpireManager(cacheService=$timeBaseCacheManager, expiredImpl=$expiredImpl)"
+    }
+
+
 }
