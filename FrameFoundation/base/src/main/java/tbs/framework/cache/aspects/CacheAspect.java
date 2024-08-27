@@ -27,7 +27,9 @@ import tbs.framework.utils.StrUtil;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Abstergo
@@ -49,6 +51,8 @@ public class CacheAspect {
 
     private static final String CacheLockPrefix = "CacheLock.ASPECT::";
 
+    private Map<String, ICompilerUnit> compilerUnitMap = new ConcurrentHashMap<>(16);
+
     SpelCompiler spelCompiler = new SpelCompiler();
 
     @PostConstruct
@@ -67,25 +71,26 @@ public class CacheAspect {
     }
 
     public String getKey(String k, MethodSignature methodSignature, Object[] args) {
-        // 创建spel表达式分析器
-        ExpressionParser parser = new SpelExpressionParser();
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        ICompilerUnit compilerUnit = spelCompiler.getCompilerUnit(k);
+        ICompilerUnit compilerUnit = compilerUnitMap.computeIfAbsent(k, (key) -> spelCompiler.getCompilerUnit(key));
         String cacheKey = "";
         try {
             cacheKey = compilerUnit.exeCompilerUnit(null, args).getResult().toString();
         } catch (Exception e) {
-            throw new RuntimeException("error to convert key to string by spel expression:" + k);
+            logger.error(e, "compile error by spel expression:" + k);
+            throw new RuntimeException("error to convert key to string by spel expression");
         }
         if (StrUtil.isAllBlank(cacheKey)) {
-            throw new RuntimeException("create one empty string by spel expression:" + k);
+            logger.error(null, "compile error by spel expression:" + k);
+            throw new RuntimeException("create one empty string by spel expression");
         }
 
         // 获取表达式的输出结果，getValue入参是返回参数的类型
         return "CACHE_ASPECT:" +
             methodSignature.getDeclaringTypeName() +
             "." +
-            methodSignature.getName() + ":" + cacheKey;
+            methodSignature.getName() +
+            ":" +
+            cacheKey;
     }
 
     @Around("cache()")
