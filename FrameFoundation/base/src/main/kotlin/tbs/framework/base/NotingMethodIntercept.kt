@@ -8,7 +8,13 @@ class NotingMethodIntercept:IMethodInterceptHandler {
         TODO("Not yet implemented")
     }
 
-    override fun handleException(e: Throwable, target: Any, method: Method, vararg args: Any) {
+    fun handleException(
+        e: Throwable,
+        target: Any,
+        method: Method,
+        result: IMethodInterceptHandler.HandleReturnedResult,
+        vararg args: Array<Any>
+    ) {
         TODO("Not yet implemented")
     }
 

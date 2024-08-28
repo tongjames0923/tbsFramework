@@ -47,9 +47,13 @@ public interface IMethodInterceptHandler extends Ordered {
      * @param e      异常对象
      * @param target 目标对象
      * @param method 方法对象
+     * @param result
      * @param args   方法参数
      */
-    void handleException(@NotNull Throwable e, @NotNull Object target, @NotNull Method method, @NotNull Object... args);
+    default void handleException(@NotNull Throwable e, @NotNull Object target, @NotNull Method method,
+        @NotNull HandleReturnedResult result, @NotNull Object... args) {
+        result.setError(e);
+    }
 
     /**
      * 处理方法调用过程中的返回值。

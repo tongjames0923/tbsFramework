@@ -1,6 +1,7 @@
 package tbs.framework.utils;
 
 import cn.hutool.extra.spring.SpringUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import tbs.framework.base.interfaces.FunctionWithThrows;
 
@@ -95,4 +96,7 @@ public class BeanUtil {
         return (T1)v;
     }
 
+    public static final boolean iSBaseFrom(@NotNull Class<?> target, @NotNull Class<?> base) {
+        return base.isAssignableFrom(target);
+    }
 }
